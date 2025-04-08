@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Paquetes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    .form-section {
+      background: #f5f5f5;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gestión de Paquetes</h1>
+  
+  <div class="form-section">
+    <h2>Registrar Nuevo Paquete</h2>
+    <form id="packageForm">
+      <div class="form-group">
+        <label for="apartment_number">Número de departamento</label>
+        <input type="text" id="apartment_number" name="apartment_number" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="sender">Remitente</label>
+        <input type="text" id="sender" name="sender" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="delivery_date">Fecha de entrega</label>
+        <input type="date" id="delivery_date" name="delivery_date" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="status">Estado</label>
+        <input type="text" id="status" name="status" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="qr_code">Código QR</label>
+        <input type="text" id="qr_code" name="qr_code">
+      </div>
+      
+      <div class="form-group">
+        <label for="notes">Notas (opcional)</label>
+        <textarea id="notes" name="notes" rows="3"></textarea>
+      </div>
+      
+      <button type="submit">Registrar Paquete</button>
+    </form>
+  </div>
+
+  <h2>Lista de Paquetes</h2>
+  <table id="packagesTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Departamento</th>
+        <th>Remitente</th>
+        <th>Fecha Entrega</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const API_URL = 'http://localhost:8000/api/packages';
+    
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    }
+
+    async function loadPackages() {
+      try {
+        const response = await fetch(API_URL);
+        const packages = await response.json();
+        
+        const tbody = document.querySelector('#packagesTable tbody');
+        tbody.innerHTML = packages.map(pkg => `
+          <tr>
+            <td>${pkg.id}</td>
+            <td>${pkg.apartment_number}</td>
+            <td>${pkg.sender}</td>
+            <td>${formatDate(pkg.delivery_date)}</td>
+            <td>${pkg.status}</td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        console.error('Error al cargar paquetes:', error);
+        alert('Error al cargar la lista de paquetes');
+      }
+    }
+
+    document.getElementById('packageForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = {
+        apartment_number: document.getElementById('apartment_number').value,
+        sender: document.getElementById('sender').value,
+        delivery_date: document.getElementById('delivery_date').value,
+        status: document.getElementById('status').value,
+        qr_code: document.getElementById('qr_code').value,
+        notes: document.getElementById('notes').value
+      };
+      
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+          document.getElementById('packageForm').reset();
+          loadPackages();
+          alert('Paquete registrado con éxito');
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Error al registrar el paquete');
+        }
+      } catch (error) {
+        console.error('Error al registrar paquete:', error);
+        alert(error.message);
+      }
+    });
+
+    // Cargar paquetes al iniciar
+    loadPackages();
+  </script>
+</body>
+</html>
