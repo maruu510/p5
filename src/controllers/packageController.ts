@@ -4,21 +4,23 @@ import {
   getAllPackages,
   getPackageById
 } from "../database/models/package.ts";
+import { registerPackageService } from "../services/packageService.ts";
 
-// Register new package (keeps Spanish internal names for consistency)
 export async function registerPackage(ctx: RouterContext) {
   try {
     const body = await ctx.request.body().value;
-    const id = await insertPackage(body);
-    ctx.response.body = { id, ...body };
+    const result = await registerPackageService(body);
+    ctx.response.body = result;
     ctx.response.status = 201;
   } catch (error) {
-    ctx.response.status = 400;
-    ctx.response.body = { error: error.message };
+    ctx.response.status = error.name === "ValidationError" ? 400 : 500;
+    ctx.response.body = { 
+      error: error.message,
+      type: error.name // Para identificar el tipo en el frontend
+    };
   }
 }
 
-// Get all packages
 export async function getPackages(ctx: RouterContext) {
   try {
     const packages = await getAllPackages();
@@ -26,24 +28,42 @@ export async function getPackages(ctx: RouterContext) {
     ctx.response.status = 200;
   } catch (error) {
     ctx.response.status = 500;
-    ctx.response.body = { error: "Error retrieving packages" };
+    ctx.response.body = { 
+      error: "Error al obtener los paquetes",
+      type: "DatabaseError"
+    };
   }
 }
 
-// Get package by ID
 export async function getPackage(ctx: RouterContext) {
   try {
     const id = ctx.params.id;
-    const packageData = await getPackageById(Number(id)); // Renamed from 'package' to 'packageData'
-    if (!packageData) {
-      ctx.response.status = 404;
-      ctx.response.body = { error: "Package not found" };
+    if (!id || isNaN(Number(id))) {
+      ctx.response.status = 400;
+      ctx.response.body = { 
+        error: "ID de paquete inválido",
+        type: "ValidationError"
+      };
       return;
     }
+
+    const packageData = await getPackageById(Number(id));
+    if (!packageData) {
+      ctx.response.status = 404;
+      ctx.response.body = { 
+        error: "Paquete no encontrado",
+        type: "NotFoundError"
+      };
+      return;
+    }
+
     ctx.response.body = packageData;
     ctx.response.status = 200;
   } catch (error) {
     ctx.response.status = 500;
-    ctx.response.body = { error: "Error retrieving the package" };
+    ctx.response.body = { 
+      error: "Error al obtener el paquete",
+      type: "DatabaseError"
+    };
   }
 }
