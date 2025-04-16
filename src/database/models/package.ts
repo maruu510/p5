@@ -1,5 +1,6 @@
 import { pool } from "../connection.ts";
 
+// Modelo de datos 
 interface Package {
   id?: number;
   apartment_number: string;

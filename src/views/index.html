@@ -65,6 +65,25 @@
     tr:nth-child(even) {
       background-color: #f2f2f2;
     }
+    .error-message {
+      color: red;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .error-field {
+      border-color: red !important;
+    }
+    #toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #4CAF50;
+      color: white;
+      padding: 12px;
+      border-radius: 4px;
+      display: none;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
@@ -76,26 +95,31 @@
       <div class="form-group">
         <label for="apartment_number">Número de departamento</label>
         <input type="text" id="apartment_number" name="apartment_number" required>
+        <small id="apartment_error" class="error-message"></small>
       </div>
       
       <div class="form-group">
         <label for="sender">Remitente</label>
         <input type="text" id="sender" name="sender" required>
+        <small id="sender_error" class="error-message"></small>
       </div>
       
       <div class="form-group">
         <label for="delivery_date">Fecha de entrega</label>
         <input type="date" id="delivery_date" name="delivery_date" required>
+        <small id="delivery_date_error" class="error-message"></small>
       </div>
       
       <div class="form-group">
         <label for="status">Estado</label>
         <input type="text" id="status" name="status" required>
+        <small id="status_error" class="error-message"></small>
       </div>
       
       <div class="form-group">
         <label for="qr_code">Código QR</label>
         <input type="text" id="qr_code" name="qr_code">
+        <small id="qr_code_error" class="error-message"></small>
       </div>
       
       <div class="form-group">
@@ -105,6 +129,7 @@
       
       <button type="submit">Registrar Paquete</button>
     </form>
+    <div id="toast">Paquete registrado con éxito!</div>
   </div>
 
   <h2>Lista de Paquetes</h2>
@@ -123,15 +148,24 @@
 
   <script>
     const API_URL = 'http://localhost:8000/api/packages';
-    
-    function formatDate(dateString) {
-      const date = new Date(dateString);
-      return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+
+    function showToast(message, isSuccess = true) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.style.background = isSuccess ? "#4CAF50" : "#f44336";
+      toast.style.display = "block";
+      setTimeout(() => toast.style.display = "none", 3000);
+    }
+
+    function clearErrors() {
+      document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
+      document.querySelectorAll(".error-field").forEach(el => el.classList.remove("error-field"));
     }
 
     async function loadPackages() {
       try {
         const response = await fetch(API_URL);
+        if (!response.ok) throw new Error(await response.text());
         const packages = await response.json();
         
         const tbody = document.querySelector('#packagesTable tbody');
@@ -145,23 +179,24 @@
           </tr>
         `).join('');
       } catch (error) {
-        console.error('Error al cargar paquetes:', error);
-        alert('Error al cargar la lista de paquetes');
+        showToast("Error al cargar paquetes", false);
+        console.error(error);
       }
     }
 
     document.getElementById('packageForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+      clearErrors();
+
       const formData = {
-        apartment_number: document.getElementById('apartment_number').value,
-        sender: document.getElementById('sender').value,
+        apartment_number: document.getElementById('apartment_number').value.trim(),
+        sender: document.getElementById('sender').value.trim(),
         delivery_date: document.getElementById('delivery_date').value,
-        status: document.getElementById('status').value,
-        qr_code: document.getElementById('qr_code').value,
-        notes: document.getElementById('notes').value
+        status: document.getElementById('status').value.trim(),
+        qr_code: document.getElementById('qr_code').value.trim(),
+        notes: document.getElementById('notes').value.trim()
       };
-      
+
       try {
         const response = await fetch(API_URL, {
           method: 'POST',
@@ -169,19 +204,36 @@
           body: JSON.stringify(formData)
         });
         
+        const data = await response.json();
+        
         if (response.ok) {
           document.getElementById('packageForm').reset();
+          showToast("Paquete registrado con éxito");
           loadPackages();
-          alert('Paquete registrado con éxito');
         } else {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Error al registrar el paquete');
+          if (data.type === "ValidationError") {
+            const field = data.error.match(/campo (\w+)/i)?.[1];
+            if (field) {
+              const input = document.getElementById(field);
+              input?.classList.add("error-field");
+              document.getElementById(`${field}_error`).textContent = data.error;
+            } else {
+              showToast(data.error, false);
+            }
+          } else {
+            throw new Error(data.error);
+          }
         }
       } catch (error) {
-        console.error('Error al registrar paquete:', error);
-        alert(error.message);
+        showToast(error.message || "Error al registrar el paquete", false);
+        console.error(error);
       }
     });
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    }
 
     // Cargar paquetes al iniciar
     loadPackages();
