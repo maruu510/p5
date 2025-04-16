@@ -3,6 +3,8 @@ import { createPackagesTable } from "./src/database/models/package.ts";  // Camb
 import packageRouter from "./src/routes/packages.ts";  // Cambiado
 import { oakCors } from "./deps.ts";
 import { join } from "https://deno.land/std/path/mod.ts";
+import "https://deno.land/std@0.204.0/dotenv/load.ts";
+
 
 const app = new Application();
 const port = 8000;
