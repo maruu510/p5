@@ -96,10 +96,28 @@ async function getPackageById(id: number): Promise<Package | null> {
   }
 }
 
+
+//para actualizar datos del paquete en estado pendiente
+export async function updateStatusById(id: number, status: string, pickup_date: Date | null): Promise<boolean> {
+  const client = await pool.connect();
+  try {
+    const result = await client.queryObject(
+      `UPDATE packages 
+       SET status = $1, pickup_date = $2
+       WHERE id = $3 AND status = 'pendiente'`,
+      [status, pickup_date?.toISOString() ?? null, id]
+    );
+    return (result.rowCount ?? 0) > 0;
+  } finally {
+    client.release();
+  }
+}
+
 export {
   createPackagesTable,
   insertPackage,
   getAllPackages,
   getPackageById,
-  Package,
 };
+
+export type { Package };
