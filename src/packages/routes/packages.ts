@@ -1,4 +1,4 @@
-import { Router } from "../../deps.ts";
+import { Router } from "../../utils/deps.ts";
 import {
   registerPackage,
   getPackages,
@@ -13,6 +13,5 @@ router
   .get("/api/packages/:id", getPackage)
   .post("/api/packages", registerPackage)
   .put("/api/packages/:id/status", updatePackageStatus);
-
 
 export default router;

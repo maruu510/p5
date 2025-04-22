@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="/auth/login.css">
+</head>
+<body>
+  <form id="loginForm">
+    <input type="email" id="email" required placeholder="Email">
+    <input type="password" id="password" required placeholder="Password">
+    <button type="submit">Login</button>
+  </form>
+  
+  <script type="module">
+    import { AuthContext } from '/js/auth/AuthContext.js';
+    
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await AuthContext.login(
+          document.getElementById('email').value,
+          document.getElementById('password').value
+        );
+        window.location.href = '/';
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  </script>
+</body>
+</html>

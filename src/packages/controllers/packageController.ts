@@ -1,11 +1,11 @@
-import { RouterContext } from "../../deps.ts";
+import { RouterContext } from "../../utils/deps.ts";
 import {
   insertPackage,
   getAllPackages,
   getPackageById
-} from "../database/models/package.ts";
+} from "../models/package.ts";
 import { registerPackageService } from "../services/packageService.ts";
-import { updateStatusById } from "../database/models/package.ts";
+import { updateStatusById } from "../models/package.ts";
 
 export async function registerPackage(ctx: RouterContext) {
   try {
@@ -17,7 +17,7 @@ export async function registerPackage(ctx: RouterContext) {
     ctx.response.status = error.name === "ValidationError" ? 400 : 500;
     ctx.response.body = { 
       error: error.message,
-      type: error.name // Para identificar el tipo en el frontend
+      type: error.name
     };
   }
 }
@@ -69,7 +69,6 @@ export async function getPackage(ctx: RouterContext) {
   }
 }
 
-// para actualizar el estado de los paquetes pendientes de la lista
 export async function updatePackageStatus(ctx: RouterContext) {
   try {
     const id = Number(ctx.params.id);

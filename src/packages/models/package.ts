@@ -1,4 +1,5 @@
-import { pool } from "../connection.ts";
+import { pool } from "../../utils/connection.ts";
+
 
 // Modelo de datos 
 interface Package {

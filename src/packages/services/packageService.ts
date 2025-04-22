@@ -1,6 +1,7 @@
-import { insertPackage } from "../database/models/package.ts";
-import type { Package } from "../database/models/package.ts";
-import { ValidationError } from "../errors.ts";
+
+import { insertPackage } from "../models/package.ts";
+import type { Package } from "../models/package.ts";
+import { ValidationError } from "../../utils/errors.ts";
 
 export async function validatePackage(pkg: Package): Promise<void> {
   // 1. Campos obligatorios
