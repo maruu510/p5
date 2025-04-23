@@ -1,44 +1,47 @@
-import { RouterContext } from "../../deps.ts";
+import { Context, RouterContext } from "../../deps.ts";
 import {
-  insertPackage,
   getAllPackages,
-  getPackageById
+  getPackageById,
+  updateStatusById
 } from "../database/models/package.ts";
 import { registerPackageService } from "../services/packageService.ts";
-import { updateStatusById } from "../database/models/package.ts";
 
-export async function registerPackage(ctx: RouterContext) {
+export async function registerPackage(ctx: Context) {
   try {
-    const body = await ctx.request.body().value;
+    const body = await ctx.request.body({ type: "json" }).value;
     const result = await registerPackageService(body);
     ctx.response.body = result;
     ctx.response.status = 201;
   } catch (error) {
-    ctx.response.status = error.name === "ValidationError" ? 400 : 500;
+    const err = error as Error;
+    ctx.response.status = err.name === "ValidationError" ? 400 : 500;
     ctx.response.body = { 
-      error: error.message,
-      type: error.name // Para identificar el tipo en el frontend
+      error: err.message,
+      type: err.name
     };
   }
 }
 
-export async function getPackages(ctx: RouterContext) {
+export async function getPackages(ctx: Context) {
   try {
     const packages = await getAllPackages();
     ctx.response.body = packages;
     ctx.response.status = 200;
   } catch (error) {
+    const err = error as Error;
     ctx.response.status = 500;
     ctx.response.body = { 
       error: "Error al obtener los paquetes",
-      type: "DatabaseError"
+      type: "DatabaseError",
+      details: err.message
     };
   }
 }
 
-export async function getPackage(ctx: RouterContext) {
+export async function getPackage(ctx: RouterContext<"/api/packages/:id">) {
   try {
     const id = ctx.params.id;
+
     if (!id || isNaN(Number(id))) {
       ctx.response.status = 400;
       ctx.response.body = { 
@@ -61,19 +64,20 @@ export async function getPackage(ctx: RouterContext) {
     ctx.response.body = packageData;
     ctx.response.status = 200;
   } catch (error) {
+    const err = error as Error;
     ctx.response.status = 500;
     ctx.response.body = { 
       error: "Error al obtener el paquete",
-      type: "DatabaseError"
+      type: "DatabaseError",
+      details: err.message
     };
   }
 }
 
-// para actualizar el estado de los paquetes pendientes de la lista
-export async function updatePackageStatus(ctx: RouterContext) {
+export async function updatePackageStatus(ctx: RouterContext<"/api/packages/:id/status">) {
   try {
     const id = Number(ctx.params.id);
-    const { status } = await ctx.request.body().value;
+    const { status } = await ctx.request.body({ type: "json" }).value;
 
     if (!["entregado", "retirado"].includes(status)) {
       ctx.response.status = 400;
@@ -93,7 +97,8 @@ export async function updatePackageStatus(ctx: RouterContext) {
     ctx.response.status = 200;
     ctx.response.body = { message: "Estado actualizado con éxito" };
   } catch (error) {
+    const err = error as Error;
     ctx.response.status = 500;
-    ctx.response.body = { error: error.message };
+    ctx.response.body = { error: err.message };
   }
 }
