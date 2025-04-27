@@ -1,5 +1,5 @@
 import { pool } from "../connection.ts";
-
+//package.ts
 // Modelo de datos 
 interface Package {
   id?: number;

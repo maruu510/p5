@@ -14,48 +14,46 @@
       --radius: 10px;
       --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-  
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: white; /* Fondo blanco total */
-  margin: 0;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: var(--gray-dark);
-  min-height: 100vh;
+      background-color: white;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--gray-dark);
+      min-height: 100vh;
     }
 
-  
     h1 {
       margin-bottom: 40px;
       font-size: 2.5rem;
       font-weight: 700;
       color: var(--gray-dark);
     }
-  
+
     .form-section {
       background: white;
-  padding: 30px;
-  border-radius: var(--radius);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* sombra más notoria */
-  width: 100%;
-  max-width: 700px;
-  transition: transform 0.3s ease;
+      padding: 30px;
+      border-radius: var(--radius);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 700px;
+      transition: transform 0.3s ease;
     }
-  
-  
+
     .form-group {
       margin-bottom: 20px;
     }
-  
+
     label {
       font-weight: 600;
       display: block;
       margin-bottom: 6px;
     }
-  
+
     input, select, textarea {
       width: 100%;
       padding: 10px 12px;
@@ -65,12 +63,12 @@
       box-sizing: border-box;
       transition: border 0.2s ease;
     }
-  
+
     input:focus, select:focus, textarea:focus {
       border-color: var(--primary);
       outline: none;
     }
-  
+
     button {
       background-color: var(--primary);
       color: white;
@@ -81,46 +79,46 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-  
+
     button:hover {
       background-color: var(--primary-hover);
     }
-  
+
     table {
-      background: white; /* tabla blanca */
-  width: 100%;
-  max-width: 700px;
-  border-collapse: collapse;
-  margin-top: 40px;
-  box-shadow: var(--shadow);
-  border-radius: var(--radius);
-  overflow: hidden;
+      background: white;
+      width: 100%;
+      max-width: 700px;
+      border-collapse: collapse;
+      margin-top: 40px;
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      overflow: hidden;
     }
-  
+
     th, td {
       padding: 14px;
       text-align: left;
     }
-  
+
     th {
       background-color: var(--primary);
       color: white;
     }
-  
+
     tr:nth-child(even) {
       background-color: #f9f9f9;
     }
-  
+
     .error-message {
       color: #e53935;
       font-size: 12px;
       margin-top: 4px;
     }
-  
+
     .error-field {
       border-color: #e53935 !important;
     }
-  
+
     #toast {
       position: fixed;
       top: 20px;
@@ -133,198 +131,271 @@
       display: none;
       z-index: 1000;
     }
+
+    /* Estilos para manejar las secciones ocultas */
+    .hidden {
+      display: none;
+    }
+    .active-section {
+      display: block;
+    }
   </style>
-  
 </head>
 <body>
   <h1>Gestión de Paquetes</h1>
-  
-  <div class="form-section">
-    <h2>Registrar Nuevo Paquete</h2>
-    <form id="packageForm">
-      <div class="form-group">
-        <label for="apartment_number">Número de departamento</label>
-        <input type="text" id="apartment_number" name="apartment_number" required>
-        <small id="apartment_error" class="error-message"></small>
-      </div>
-      
-      <div class="form-group">
-        <label for="sender">Remitente</label>
-        <input type="text" id="sender" name="sender" required>
-        <small id="sender_error" class="error-message"></small>
-      </div>
-      
-      <div class="form-group">
-        <label for="delivery_date">Fecha de entrega</label>
-        <input type="date" id="delivery_date" name="delivery_date" required>
-        <small id="delivery_date_error" class="error-message"></small>
-      </div>
-      
-      <div class="form-group">
-        <label for="status">Estado</label>
-        <select id="status" name="status" required>
-          <option value="">-- Selecciona estado --</option>
-          <option value="pendiente">Pendiente</option>
-          <option value="entregado">Entregado</option>
-          <option value="retirado">Retirado</option>
-        </select>        
-        <small id="status_error" class="error-message"></small>
-      </div>
-      
-      <div class="form-group">
-        <label for="qr_code">Código QR</label>
-        <input type="text" id="qr_code" name="qr_code">
-        <small id="qr_code_error" class="error-message"></small>
-      </div>
-      
-      <div class="form-group">
-        <label for="notes">Notas (opcional)</label>
-        <textarea id="notes" name="notes" rows="3"></textarea>
-      </div>
-      
-      <button type="submit">Registrar Paquete</button>
-    </form>
-    <div id="toast">Paquete registrado con éxito!</div>
+
+  <div id="authSection" class="active-section">
+    <div class="form-section" id="loginSection">
+      <h2>Iniciar sesión</h2>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="loginUsername">Usuario</label>
+          <input type="text" id="loginUsername" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Contraseña</label>
+          <input type="password" id="loginPassword" name="password" required>
+        </div>
+        <button type="submit">Iniciar sesión</button>
+        <div id="loginError" class="error-message"></div>
+      </form>
+      <p>¿No tienes cuenta? <a href="#" onclick="showSignup()">Regístrate aquí</a></p>
+    </div>
+
+    <div class="form-section hidden" id="signupSection">
+      <h2>Registrarse</h2>
+      <form id="signupForm">
+        <div class="form-group">
+          <label for="signupUsername">Usuario</label>
+          <input type="text" id="signupUsername" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="signupPassword">Contraseña</label>
+          <input type="password" id="signupPassword" name="password" required>
+        </div>
+        <button type="submit">Registrarse</button>
+        <div id="signupError" class="error-message"></div>
+      </form>
+      <p>¿Ya tienes cuenta? <a href="#" onclick="showLogin()">Inicia sesión aquí</a></p>
+    </div>
   </div>
 
-  <!-- ... HEAD igual que antes ... -->
+  <div id="packagesSection" class="hidden">
+    <div class="form-section">
+      <h2>Registrar Nuevo Paquete</h2>
+      <form id="packageForm">
+        <div class="form-group">
+          <label for="apartment_number">Número de departamento</label>
+          <input type="text" id="apartment_number" name="apartment_number" required>
+        </div>
 
-<h2>Lista de Paquetes</h2>
-<table id="packagesTable">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Departamento</th>
-      <th>Remitente</th>
-      <th>Fecha Entrega</th>
-      <th>Estado</th>
-      <th>Acciones</th> <!-- nueva columna -->
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+        <div class="form-group">
+          <label for="sender">Remitente</label>
+          <input type="text" id="sender" name="sender" required>
+        </div>
 
-<script>
-  const API_URL = 'http://localhost:8000/api/packages';
+        <div class="form-group">
+          <label for="delivery_date">Fecha de entrega</label>
+          <input type="date" id="delivery_date" name="delivery_date" required>
+        </div>
 
-  function showToast(message, isSuccess = true) {
-    const toast = document.getElementById("toast");
-    toast.textContent = message;
-    toast.style.background = isSuccess ? "#4CAF50" : "#f44336";
-    toast.style.display = "block";
-    setTimeout(() => toast.style.display = "none", 3000);
-  }
+        <div class="form-group">
+          <label for="status">Estado</label>
+          <select id="status" name="status" required>
+            <option value="">-- Selecciona estado --</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="entregado">Entregado</option>
+            <option value="retirado">Retirado</option>
+          </select>
+        </div>
 
-  function clearErrors() {
-    document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
-    document.querySelectorAll(".error-field").forEach(el => el.classList.remove("error-field"));
-  }
+        <div class="form-group">
+          <label for="qr_code">Código QR</label>
+          <input type="text" id="qr_code" name="qr_code">
+        </div>
 
-  async function loadPackages() {
-    try {
-      const response = await fetch(API_URL);
-      if (!response.ok) throw new Error(await response.text());
-      const packages = await response.json();
-      
-      const tbody = document.querySelector('#packagesTable tbody');
-      tbody.innerHTML = packages.map(pkg => `
+        <div class="form-group">
+          <label for="notes">Notas (opcional)</label>
+          <textarea id="notes" name="notes" rows="3"></textarea>
+        </div>
+
+        <button type="submit">Registrar Paquete</button>
+      </form>
+      <div id="toast">Paquete registrado con éxito!</div>
+    </div>
+
+    <h2>Lista de Paquetes</h2>
+    <table id="packagesTable">
+      <thead>
         <tr>
-          <td>${pkg.id}</td>
-          <td>${pkg.apartment_number}</td>
-          <td>${pkg.sender}</td>
-          <td>${formatDate(pkg.delivery_date)}</td>
-          <td>${pkg.status}</td>
-          <td>
-            ${pkg.status === 'pendiente' 
-              ? `<button onclick="markAsRetirado(${pkg.id})">Retirar</button>` 
-              : ''
-            }
-          </td>
+          <th>ID</th>
+          <th>Departamento</th>
+          <th>Remitente</th>
+          <th>Fecha Entrega</th>
+          <th>Estado</th>
+          <th>Acciones</th>
         </tr>
-      `).join('');
-    } catch (error) {
-      showToast("Error al cargar paquetes", false);
-      console.error(error);
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button onclick="logout()" style="margin-top: 20px;">Cerrar sesión</button>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:8000/api/packages';
+
+    // Funciones para cambiar entre secciones
+    function showSignup() {
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('signupSection').classList.remove('hidden');
     }
-  }
 
-  document.getElementById('packageForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    clearErrors();
+    function showLogin() {
+      document.getElementById('signupSection').classList.add('hidden');
+      document.getElementById('loginSection').classList.remove('hidden');
+    }
 
-    const formData = {
-      apartment_number: document.getElementById('apartment_number').value.trim(),
-      sender: document.getElementById('sender').value.trim(),
-      delivery_date: document.getElementById('delivery_date').value,
-      status: document.getElementById('status').value.trim(),
-      qr_code: document.getElementById('qr_code').value.trim(),
-      notes: document.getElementById('notes').value.trim()
-    };
+    function showPackagesSection() {
+      document.getElementById('authSection').classList.add('hidden');
+      document.getElementById('packagesSection').classList.remove('hidden');
+      loadPackages();
+    }
 
-    try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        document.getElementById('packageForm').reset();
-        showToast("Paquete registrado con éxito");
-        loadPackages();
+    function logout() {
+      localStorage.removeItem('authToken');
+      document.getElementById('packagesSection').classList.add('hidden');
+      document.getElementById('authSection').classList.remove('hidden');
+      showLogin();
+    }
+    document.addEventListener("DOMContentLoaded", function() {
+      const authToken = localStorage.getItem('authToken');
+      if (!authToken) {
+        document.getElementById('authSection').classList.remove('hidden');
+        document.getElementById('packagesSection').classList.add('hidden');
       } else {
-        if (data.type === "ValidationError") {
-          const field = data.error.match(/campo (\w+)/i)?.[1];
-          if (field) {
-            const input = document.getElementById(field);
-            input?.classList.add("error-field");
-            document.getElementById(`${field}_error`).textContent = data.error;
-          } else {
-            showToast(data.error, false);
-          }
-        } else {
-          throw new Error(data.error);
-        }
+        showPackagesSection(); // Si hay un token, muestra la sección de paquetes
       }
-    } catch (error) {
-      showToast(error.message || "Error al registrar el paquete", false);
-      console.error(error);
-    }
-  });
+    });
+    
+    async function loadPackages() {
+      try {
+        const response = await fetch('/api/packages');
+        if (!response.ok) throw new Error(await response.text());
 
-  async function markAsRetirado(id) {
-    try {
-    const response = await fetch(`${API_URL}/${id}/status`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ status: 'retirado' })
+        const packages = await response.json();
+        const tbody = document.querySelector('#packagesTable tbody');
+        tbody.innerHTML = packages.map(pkg => `
+          <tr>
+            <td>${pkg.id}</td>
+            <td>${pkg.apartment_number}</td>
+            <td>${pkg.sender}</td>
+            <td>${new Date(pkg.delivery_date).toLocaleDateString()}</td>
+            <td>${pkg.status}</td>
+            <td>
+              ${pkg.status === 'pendiente' ?
+                `<button onclick="updatePackageStatus(${pkg.id}, 'retirado')">Marcar como retirado</button>` :
+                ''}
+            </td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        console.error("Error al cargar paquetes:", error);
+      }
+    }
+
+    async function updatePackageStatus(id, newStatus) {
+      try {
+        const response = await fetch(`/api/packages/${id}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+
+        if (response.ok) {
+          loadPackages(); // Recargar la lista
+        }
+      } catch (error) {
+        console.error("Error al actualizar:", error);
+      }
+    }
+
+    // Modifica el login para redirigir
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const errorElement = document.getElementById("loginError");
+      errorElement.textContent = "";
+
+      const username = document.getElementById("loginUsername").value;
+      const password = document.getElementById("loginPassword").value;
+
+      try {
+        const response = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+          if (result.token) {
+            localStorage.setItem('authToken', result.token);
+          }
+          showPackagesSection();
+        } else {
+          errorElement.textContent = result.error || "Credenciales inválidas";
+        }
+      } catch (error) {
+        errorElement.textContent = "Error de conexión";
+        console.error(error);
+      }
     });
 
-    if (response.ok) {
-      showToast("Estado actualizado a retirado ✅");
-      loadPackages(); // recarga tabla
-    } else {
-      const error = await response.json();
-      showToast(error.error || "Error al actualizar estado", false);
-    }
-  } catch (err) {
-    console.error(err);
-    showToast("Error al actualizar estado", false);
-  }
+    document.getElementById("signupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const errorElement = document.getElementById("signupError");
+      errorElement.textContent = "";
+    
+      const formData = {
+        username: document.getElementById("signupUsername").value.trim(),
+        password: document.getElementById("signupPassword").value.trim()
+      };
+    
+      try {
+        const response = await fetch("/api/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(formData)
+        });
+    
+        const result = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(result.error || "Error en el registro");
+        }
+        
+        showToast("¡Registro exitoso! Por favor inicia sesión");
+        showLogin();
+    
+      } catch (error) {
+        console.error("Error en registro:", error);
+        errorElement.textContent = error.message;
+        errorElement.style.color = "red";
+        errorElement.style.marginTop = "10px";
+      }
+    });
+      // Función para mostrar el toast
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.style.display = 'block';
+  
+  setTimeout(() => {
+    toast.style.display = 'none';
+  }, 3000); // El toast desaparecerá después de 3 segundos
 }
-
-  function formatDate(dateString) {
-    const date = new Date(dateString);
-    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-  }
-
-  // Cargar paquetes al iniciar
-  loadPackages();
-</script>
-
+  </script>
 </body>
 </html>
