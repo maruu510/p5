@@ -35,6 +35,14 @@
   </div>
 
   <script>
+    // 🔒 PROTEGER ESTA PÁGINA
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        window.location.href = 'login.html'; // Redirige si no hay token
+      }
+    });
+
     function logout() {
       localStorage.removeItem('authToken');
       window.location.href = 'login.html';
