@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Gestión de Paquetes</title>
+  <link rel="stylesheet" href="./styles/estilos.css">
+</head>
+<body>
+  <header>
+    <img src="./images/ENCOMIENDA.png" alt="Logo Paquete">
+    Gestión de Paquetes
+  </header>
+
+  <div class="container">
+    <h2>Iniciar Sesión</h2>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="Usuario" required>
+      <input type="password" id="password" placeholder="Contraseña" required>
+      <button type="submit">Entrar</button>
+    </form>
+    <div class="link">
+      ¿No tienes cuenta? <a href="signup.html">Regístrate</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        localStorage.setItem('authToken', result.token);
+        window.location.href = 'listPackages.html';
+      } else {
+        alert(result.error || "Error de autenticación");
+      }
+    });
+  </script>
+</body>
+</html>

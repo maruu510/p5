@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrar Paquete - Gestión de Paquetes</title>
+  <link rel="stylesheet" href="./styles/estilos.css">
+</head>
+<body>
+  <header>
+    <img src="./images/ENCOMIENDA.png" alt="Logo Paquete">
+    Registrar Paquete
+  </header>
+
+  <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+
+  <div class="container">
+    <h2>Registrar Encomienda</h2>
+    <form id="packageForm">
+      <input type="text" id="apartment_number" placeholder="Número de Departamento" required>
+      <input type="text" id="sender" placeholder="Remitente" required>
+      <input type="date" id="delivery_date" required>
+      <select id="status" required>
+        <option value="">-- Selecciona Estado --</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="entregado">Entregado</option>
+        <option value="retirado">Retirado</option>
+      </select>
+      <input type="text" id="qr_code" placeholder="Código QR (opcional)">
+      <textarea id="notes" rows="3" placeholder="Notas (opcional)"></textarea>
+      <button type="submit">Registrar</button>
+    </form>
+    <div class="link">
+      <a href="listPackages.html">Ver paquetes</a>
+    </div>
+  </div>
+
+  <script>
+    function logout() {
+      localStorage.removeItem('authToken');
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('packageForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = {
+        apartment_number: document.getElementById('apartment_number').value,
+        sender: document.getElementById('sender').value,
+        delivery_date: document.getElementById('delivery_date').value,
+        status: document.getElementById('status').value,
+        qr_code: document.getElementById('qr_code').value,
+        notes: document.getElementById('notes').value,
+      };
+
+      const response = await fetch('/api/packages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (response.ok) {
+        alert('¡Paquete registrado!');
+        window.location.href = 'listPackages.html';
+      } else {
+        const result = await response.json();
+        alert(result.error || "Error al registrar paquete");
+      }
+    });
+  </script>
+</body>
+</html>
