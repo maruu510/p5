@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Paquetes - Gestión de Paquetes</title>
+  <link rel="stylesheet" href="./styles/estilos.css">
+</head>
+<body>
+  <header>
+    <img src="./images/ENCOMIENDA.png" alt="Logo Paquete">
+    Lista de Paquetes
+  </header>
+
+  <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+
+  <div class="container">
+    <h2>Paquetes Registrados</h2>
+    <table id="packagesTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Departamento</th>
+          <th>Remitente</th>
+          <th>Fecha Entrega</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="link">
+      <a href="registerPackage.html">Registrar Nuevo Paquete</a>
+    </div>
+  </div>
+
+  <script>
+    // 🔒 PROTEGER ESTA PÁGINA
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        window.location.href = 'login.html'; // Si no hay token, redirige
+      } else {
+        loadPackages(); // Si hay token, carga los paquetes
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('authToken');
+      window.location.href = 'login.html';
+    }
+
+    async function loadPackages() {
+      const response = await fetch('/api/packages');
+      const packages = await response.json();
+
+      const tbody = document.querySelector('#packagesTable tbody');
+      tbody.innerHTML = '';
+
+      packages.forEach(pkg => {
+        const row = `
+          <tr>
+            <td>${pkg.id}</td>
+            <td>${pkg.apartment_number}</td>
+            <td>${pkg.sender}</td>
+            <td>${new Date(pkg.delivery_date).toLocaleDateString()}</td>
+            <td>${pkg.status}</td>
+            <td>
+              ${pkg.status === 'pendiente' 
+                ? `<button onclick="updateStatus(${pkg.id})">Marcar Retirado</button>` 
+                : ''}
+            </td>
+          </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    async function updateStatus(id) {
+      await fetch(`/api/packages/${id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'retirado' })
+      });
+      loadPackages();
+    }
+  </script>
+</body>
+</html>

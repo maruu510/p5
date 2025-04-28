@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro - Gestión de Paquetes</title>
+  <link rel="stylesheet" href="./styles/estilos.css">
+</head>
+<body>
+  <header>
+    <img src="./images/ENCOMIENDA.png" alt="Logo Paquete">
+    Gestión de Paquetes
+  </header>
+
+  <div class="container">
+    <h2>Crear Cuenta</h2>
+    <form id="signupForm">
+      <input type="text" id="username" placeholder="Usuario" required>
+      <input type="password" id="password" placeholder="Contraseña" required>
+      <button type="submit">Registrarse</button>
+    </form>
+    <div class="link">
+      ¿Ya tienes cuenta? <a href="login.html">Inicia Sesión</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      const response = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert('¡Cuenta creada! Ahora inicia sesión.');
+        window.location.href = 'login.html';
+      } else {
+        alert(result.error || "Error en el registro");
+      }
+    });
+  </script>
+</body>
+</html>
