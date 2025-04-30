@@ -1,33 +1,265 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Login - Gestión de Paquetes</title>
-  <link rel="stylesheet" href="./styles/estilos.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    html, body { height: 100%; width: 100%; }
+    body {
+      background-image: url('../images/packages-6153947_1280-850x566.webp');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 20px 40px;
+      color: #2c3e50;
+      margin: 0;
+      position: relative;
+      overflow-x: hidden;
+    }
+    nav {
+      position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  background-color: #145a32;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 19px 25px;
+  font-weight: 600;
+  box-shadow: none;
+  z-index: 1000;
+  user-select: none;
+  box-sizing: border-box;
+    }
+    .nav-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    nav label {
+      margin-right: 5px;
+    }
+    nav select {
+      background-color: #145a32;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    nav select:hover {
+      background-color: #145a32;
+    }
+    .header-container {
+      margin-top: 0;
+      width: 100vw;
+      background-color: #145a32;
+      border-radius: 0;
+      padding: 8px 0;
+      box-sizing: border-box;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .header-container {
+  margin-top: 0; /* Sin espacio para que quede pegado */
+  width: 100vw;
+  background-color: #145a32;
+  border-radius: 0;
+  padding: 30px 25px 30px; /* Ajusta el padding para altura deseada */
+  box-sizing: border-box;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  user-select: none;
+  color: white;
+}
+header {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 0 5px rgba(0,0,0,0.3);
+  flex-grow: 1;
+}
+header img {
+  height: 60px;
+  width: auto;
+}
+    .container {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 40px 35px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      margin-top: 40px;
+      backdrop-filter: saturate(180%) blur(10px);
+    }
+    .container h2 { margin-bottom: 25px; font-weight: 700; color: #34495e; }
+    form { display: flex; flex-direction: column; gap: 20px; }
+    input[type="text"], input[type="password"] {
+      padding: 12px 15px; border: 2px solid #ccc; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;
+    }
+    input[type="text"]:focus, input[type="password"]:focus {
+      border-color: #145a32; outline: none; box-shadow: 0 0 8px rgba(41, 128, 185, 0.5);
+    }
+    button[type="submit"] {
+      background-color: #145a32; color: white; border: none; padding: 14px 0; font-size: 1.1rem; font-weight: 700;
+      border-radius: 10px; cursor: pointer; transition: background-color 0.3s ease;
+    }
+    button[type="submit"]:hover { background-color: #145a32; }
+    .link { margin-top: 20px; font-size: 0.9rem; color: #555; }
+    .link a { color: #145a32; font-weight: 600; text-decoration: none; transition: color 0.3s ease; }
+    .link a:hover { color: #145a32; text-decoration: underline; }
+    @media (max-width: 450px) {
+      .container { padding: 30px 20px; }
+      .header-content { padding: 0 10px; }
+      header { font-size: 1.6rem; }
+      nav { font-size: 0.9rem; padding: 10px 15px; }
+      nav select { padding: 5px 10px; font-size: 0.9rem; }
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <img src="./images/ENCOMIENDA.png" alt="Logo Paquete">
-    Gestión de Paquetes
-  </header>
+  <nav>
+    <div class="nav-group">
+      <label id="userTypeLabel" for="userTypeSelect">Tipo de usuario</label>
+      <select id="userTypeSelect" aria-label="Seleccionar tipo de usuario">
+        <option value="Residente" selected>Residente</option>
+        <option value="Administrador">Administrador</option>
+      </select>
+    </div>
+    <div class="nav-group">
+      <label id="languageLabel" for="languageSelect">Seleccionar idioma</label>
+      <select id="languageSelect" aria-label="Seleccionar idioma">
+        <option value="es" selected>Español</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+  </nav>
+
+  <div class="header-container">
+    <div class="header-content">
+      <img src="./images/ENCOMIENDA.png" alt="Logo Paquete" />
+      <header id="pageTitle">Gestión de Paquetes</header>
+    </div>
+  </div>
+  
 
   <div class="container">
-    <h2>Iniciar Sesión</h2>
+    <h2 id="loginTitle">Iniciar Sesión</h2>
     <form id="loginForm">
-      <input type="text" id="username" placeholder="Usuario" required>
-      <input type="password" id="password" placeholder="Contraseña" required>
-      <button type="submit">Entrar</button>
+      <input type="text" id="username" placeholder="Usuario" required autocomplete="username" />
+      <input type="password" id="password" placeholder="Contraseña" required autocomplete="current-password" />
+      <button type="submit" id="loginButton">Entrar</button>
     </form>
-    <div class="link">
+    <div class="link" id="signupLink">
       ¿No tienes cuenta? <a href="signup.html">Regístrate</a>
     </div>
   </div>
 
   <script>
+    const translations = {
+      es: {
+        userTypeLabel: "Tipo de usuario",
+        languageLabel: "Seleccionar idioma",
+        pageTitle: "Gestión de Paquetes",
+        loginTitle: "Iniciar Sesión",
+        usernamePlaceholder: "Usuario",
+        passwordPlaceholder: "Contraseña",
+        loginButton: "Entrar",
+        signupText: "¿No tienes cuenta? ",
+        signupLink: "Regístrate",
+        authError: "Error de autenticación",
+        userTypeOptions: {
+          Residente: "Residente",
+          Administrador: "Administrador"
+        }
+      },
+      en: {
+        userTypeLabel: "User type",
+        languageLabel: "Select language",
+        pageTitle: "Package Management",
+        loginTitle: "Login",
+        usernamePlaceholder: "Username",
+        passwordPlaceholder: "Password",
+        loginButton: "Sign In",
+        signupText: "Don't have an account? ",
+        signupLink: "Sign up",
+        authError: "Authentication error",
+        userTypeOptions: {
+          Residente: "Resident",
+          Administrador: "Administrator"
+        }
+      }
+    };
+
+    const languageSelect = document.getElementById('languageSelect');
+    const userTypeSelect = document.getElementById('userTypeSelect');
+    const userTypeLabel = document.getElementById('userTypeLabel');
+    const languageLabel = document.getElementById('languageLabel');
+    const pageTitle = document.getElementById('pageTitle');
+    const loginTitle = document.getElementById('loginTitle');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const loginButton = document.getElementById('loginButton');
+    const signupLink = document.getElementById('signupLink');
+
+    function updateLanguage(lang) {
+      const t = translations[lang];
+      userTypeLabel.textContent = t.userTypeLabel;
+      languageLabel.textContent = t.languageLabel;
+      pageTitle.textContent = t.pageTitle;
+      loginTitle.textContent = t.loginTitle;
+      usernameInput.placeholder = t.usernamePlaceholder;
+      passwordInput.placeholder = t.passwordPlaceholder;
+      loginButton.textContent = t.loginButton;
+      signupLink.innerHTML = `${t.signupText}<a href="signup.html">${t.signupLink}</a>`;
+      // Actualizar opciones del selector de tipo de usuario
+      userTypeSelect.options[0].text = t.userTypeOptions.Residente;
+      userTypeSelect.options[1].text = t.userTypeOptions.Administrador;
+      document.documentElement.lang = lang;
+    }
+
+    // Inicializar idioma y tipo de usuario desde localStorage o valores por defecto
+    const savedLang = localStorage.getItem('language') || 'es';
+    const savedUserType = localStorage.getItem('userType') || 'Residente';
+
+    languageSelect.value = savedLang;
+    userTypeSelect.value = savedUserType;
+
+    updateLanguage(savedLang);
+
+    languageSelect.addEventListener('change', (e) => {
+      const selectedLang = e.target.value;
+      localStorage.setItem('language', selectedLang);
+      updateLanguage(selectedLang);
+    });
+
+    userTypeSelect.addEventListener('change', (e) => {
+      const selectedUserType = e.target.value;
+      localStorage.setItem('userType', selectedUserType);
+    });
+
+    // Login funcionalidad sin cambios
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+      const username = usernameInput.value;
+      const password = passwordInput.value;
 
       const response = await fetch('/api/login', {
         method: 'POST',
@@ -38,9 +270,13 @@
       const result = await response.json();
       if (response.ok) {
         localStorage.setItem('authToken', result.token);
+        if(result.userType === 'Administrador' || result.userType === 'Residente'){
+          localStorage.setItem('userType', result.userType);
+          userTypeSelect.value = result.userType;
+        }
         window.location.href = 'listPackages.html';
       } else {
-        alert(result.error || "Error de autenticación");
+        alert(result.error || translations[languageSelect.value].authError);
       }
     });
   </script>
