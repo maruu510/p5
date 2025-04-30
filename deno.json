@@ -11,7 +11,10 @@
     "std/path": "https://deno.land/std@0.177.0/path/mod.ts"
   },
   "nodeModulesDir": "auto",
-  "tasks": {
-    "start": "deno run --allow-net --allow-read --allow-write --allow-env main.ts"
-  }
+  
+    "tasks": {
+      "start": "deno run --allow-env --allow-net main.ts",
+      "dev": "deno run --allow-env --allow-net --watch main.ts"
+    }
+  
 }
