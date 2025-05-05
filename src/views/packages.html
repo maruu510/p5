@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Paquetes</title>
+    <style>
+        .qr-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .qr-image {
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Registro de Paquetes</h1>
+    <form id="packageForm">
+        <div>
+            <label for="apartment_number">Número de Apartamento:</label>
+            <input type="text" id="apartment_number" required>
+        </div>
+        <div>
+            <label for="sender">Remitente:</label>
+            <input type="text" id="sender" required>
+        </div>
+        <div>
+            <label for="delivery_date">Fecha de Entrega:</label>
+            <input type="date" id="delivery_date" required>
+        </div>
+        <div>
+            <label for="status">Estado:</label>
+            <select id="status">
+                <option value="pendiente">Pendiente</option>
+                <option value="entregado">Entregado</option>
+                <option value="rechazado">Rechazado</option>
+            </select>
+        </div>
+        <div>
+            <label for="notes">Notas:</label>
+            <textarea id="notes"></textarea>
+        </div>
+        <button type="submit">Registrar Paquete</button>
+    </form>
+
+    <div id="qrContainer" class="qr-container"></div>
+
+    <script>
+        document.getElementById('packageForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const body = {
+                apartment_number: document.getElementById('apartment_number').value,
+                sender: document.getElementById('sender').value.trim(),
+                delivery_date: document.getElementById('delivery_date').value,
+                status: document.getElementById('status').value,
+                notes: document.getElementById('notes').value.trim(),
+            };
+
+            try {
+                const response = await fetch('/api/packages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (response.ok) {
+                    const paquete = await response.json();
+                    mostrarQR(paquete.qr_code);
+                    alert('¡Paquete registrado! Escanea el código QR generado.');
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${error.message || 'No se pudo registrar el paquete'}`);
+                }
+            } catch (error) {
+                alert('Error al conectar con el servidor');
+                console.error(error);
+            }
+        });
+
+        function mostrarQR(qrCode) {
+            const container = document.getElementById('qrContainer');
+            container.innerHTML = `<img src="${qrCode}" class="qr-image" alt="Código QR del paquete">`;
+        }
+    </script>
+</body>
+</html>

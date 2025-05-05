@@ -1,48 +1,590 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Gestión de Paquetes</title>
-  <link rel="stylesheet" href="./styles/estilos.css">
+  <style>
+    :root {
+      --primary: #145a32;
+      --primary-dark: #0b3a1f;
+      --secondary: #2c3e50;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    
+    /* Loader animado - From Uiverse.io by Shoh2008 */
+    .loader-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(255, 255, 255, 0.85);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    
+    .loader-container.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .loader {
+      position: relative;
+      border-style: solid;
+      box-sizing: border-box;
+      border-width: 40px 60px 30px 60px;
+      border-color: #3760C9 #96DDFC #96DDFC #36BBF7;
+      animation: envFloating 1s ease-in infinite alternate;
+    }
+    
+    .loader:after {
+      content: "";
+      position: absolute;
+      right: 62px;
+      top: -40px;
+      height: 70px;
+      width: 50px;
+      background-image: linear-gradient(#fff 45px, transparent 0),
+                linear-gradient(#fff 45px, transparent 0),
+                linear-gradient(#fff 45px, transparent 0);
+      background-repeat: no-repeat;
+      background-size: 30px 4px;
+      background-position: 0px 11px, 8px 35px, 0px 60px;
+      animation: envDropping 0.75s linear infinite;
+    }
+    
+    .loader-text {
+      position: absolute;
+      bottom: -50px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--primary);
+    }
+    
+    @keyframes envFloating {
+      0% {
+        transform: translate(-2px, -5px)
+      }
+      100% {
+        transform: translate(0, 5px)
+      }
+    }
+    
+    @keyframes envDropping {
+      0% {
+        background-position: 100px 11px, 115px 35px, 105px 60px;
+        opacity: 1;
+      }
+      50% {
+        background-position: 0px 11px, 20px 35px, 5px 60px;
+      }
+      60% {
+        background-position: -30px 11px, 0px 35px, -10px 60px;
+      }
+      75%, 100% {
+        background-position: -30px 11px, -30px 35px, -30px 60px;
+        opacity: 0;
+      }
+    }
+
+    body {
+      min-height: 100vh;
+      background: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Menú superior fijo */
+    .top-menu {
+      background: var(--secondary);
+      color: white;
+      padding: 0.5rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .top-menu-content {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .menu-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .menu-group label {
+      font-size: 0.9rem;
+      margin-right: 0.25rem;
+    }
+
+    .menu-select {
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      border: 1px solid #ddd;
+      background: white;
+      color: var(--secondary);
+      font-size: 0.85rem;
+    }
+
+    nav {
+      background: white;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .nav-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .nav-group span {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    .header-container {
+      background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
+      padding: 3rem 1rem;
+      text-align: center;
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header-content img {
+      width: 120px;
+      height: auto;
+      margin-bottom: 1.5rem;
+    }
+
+    .header-content h1 {
+      color: white;
+      font-size: 2.5rem;
+      font-weight: 600;
+    }
+
+    .form_main {
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: white;
+      padding: 2.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      margin: -3rem auto 2rem;
+      position: relative;
+    }
+
+    .heading {
+      font-size: 2rem;
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .inputContainer {
+      width: 100%;
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .inputIcon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--primary);
+    }
+
+    .inputField {
+      width: 100%;
+      height: 3rem;
+      padding: 0 3rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 0.5rem;
+      outline: none;
+      background-color: #f8f9fa;
+      color: #2e2e2e;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .inputField:focus {
+      border-color: var(--primary);
+      background-color: white;
+      box-shadow: 0 0 0 4px rgba(20, 90, 50, 0.1);
+    }
+
+    #button {
+      width: 100%;
+      border: none;
+      background-color: var(--primary);
+      color: white;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin: 1rem 0;
+    }
+
+    #button:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .forgotLink {
+      color: var(--primary);
+      font-size: 0.9rem;
+      text-decoration: none;
+      margin: 1rem 0;
+      transition: all 0.3s ease;
+    }
+
+    .forgotLink:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+
+    #signupLink {
+      margin-top: 1.5rem;
+      color: #666;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    #signupLink a {
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    #signupLink a:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .top-menu-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header-content h1 {
+        font-size: 2rem;
+      }
+
+      .form_main {
+        padding: 2rem;
+        width: 95%;
+      }
+
+      .heading {
+        font-size: 1.75rem;
+      }
+
+      .inputField {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <img src="./images/ENCOMIENDA.png" alt="Logo Paquete">
-    Gestión de Paquetes
-  </header>
-
-  <div class="container">
-    <h2>Iniciar Sesión</h2>
-    <form id="loginForm">
-      <input type="text" id="username" placeholder="Usuario" required>
-      <input type="password" id="password" placeholder="Contraseña" required>
-      <button type="submit">Entrar</button>
-    </form>
-    <div class="link">
-      ¿No tienes cuenta? <a href="signup.html">Regístrate</a>
+  <!-- Menú superior fijo -->
+  <div class="top-menu">
+    <div class="top-menu-content">
+      <div class="menu-group">
+        <label for="language" id="languageLabel">Idioma:</label>
+        <select id="language" class="menu-select" aria-label="Seleccionar idioma">
+          <option value="es" selected>Español</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div class="menu-group">
+        <label for="userType" id="userTypeLabel">Tipo de usuario:</label>
+        <select id="userType" class="menu-select" aria-label="Seleccionar tipo de usuario">
+          <option value="resident" selected>Residente</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
     </div>
   </div>
 
+  <nav>
+    <div class="nav-group">
+      <img src="./images/ENCOMIENDA.png" alt="Logo" height="40">
+      <span id="navTitle">Gestión de Paquetes</span>
+    </div>
+  </nav>
+
+  <div class="header-container">
+    <div class="header-content">
+      <img src="./images/ENCOMIENDA.png" alt="Logo">
+      <h1 id="welcomeTitle">Bienvenido al Sistema</h1>
+    </div>
+  </div>
+
+  <!-- Contenedor del loader -->
+  <div class="loader-container" id="loaderContainer">
+    <div class="loader"></div>
+    <div class="loader-text" id="loaderText">Procesando...</div>
+  </div>
+
+  <form class="form_main" id="loginForm"> 
+    <h1 class="heading" id="loginTitle">Iniciar Sesión</h1> 
+    <div class="inputContainer"> 
+      <svg class="inputIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"> 
+        <path d="M13.106 7.222c0-2.967-2.249-5.032-5.482-5.032-3.35 0-5.646 2.318-5.646 5.702 0 3.493 2.235 5.708 5.762 5.708.862 0 1.689-.123 2.304-.335v-.862c-.43.199-1.354.328-2.29.328-2.926 0-4.813-1.88-4.813-4.798 0-2.844 1.921-4.881 4.594-4.881 2.735 0 4.608 1.688 4.608 4.156 0 1.682-.554 2.769-1.416 2.769-.492 0-.772-.28-.772-.76V5.206H8.923v.834h-.11c-.266-.595-.881-.964-1.6-.964-1.4 0-2.378 1.162-2.378 2.823 0 1.737.957 2.906 2.379 2.906.8 0 1.415-.39 1.709-1.087h.11c.081.67.703 1.148 1.503 1.148 1.572 0 2.57-1.415 2.57-3.643zm-7.177.704c0-1.197.54-1.907 1.456-1.907.93 0 1.524.738 1.524 1.907S8.308 9.84 7.371 9.84c-.895 0-1.442-.725-1.442-1.914z"></path> 
+      </svg> 
+      <label for="username" class="sr-only">Nombre de usuario</label>
+      <input type="text" class="inputField" id="username" placeholder="Nombre de usuario" required aria-label="Nombre de usuario"> 
+    </div> 
+    
+    <div class="inputContainer"> 
+      <svg class="inputIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"> 
+        <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path> 
+      </svg> 
+      <label for="password" class="sr-only">Contraseña</label>
+      <input type="password" class="inputField" id="password" placeholder="Contraseña" required aria-label="Contraseña"> 
+    </div> 
+    
+    <button id="button" type="submit">Iniciar Sesión</button>
+    <a class="forgotLink" href="#" id="forgotPassword">¿Olvidaste tu contraseña?</a>
+    <div class="link" id="signupLink">
+      <span id="noAccountText">¿No tienes cuenta?</span> <a href="signup.html" id="registerLink">Regístrate</a>
+    </div>
+  </form>
+
   <script>
+    // Traducciones
+    const translations = {
+      es: {
+        languageLabel: "Idioma:",
+        userTypeLabel: "Tipo de usuario:",
+        resident: "Residente",
+        admin: "Administrador",
+        navTitle: "Gestión de Paquetes",
+        welcomeTitle: "Bienvenido al Sistema",
+        loginTitle: "Iniciar Sesión",
+        username: "Nombre de usuario",
+        password: "Contraseña",
+        loginButton: "Iniciar Sesión",
+        forgotPassword: "¿Olvidaste tu contraseña?",
+        noAccountText: "¿No tienes cuenta?",
+        registerLink: "Regístrate",
+        loginError: "Error al iniciar sesión",
+        connectionError: "Error al conectar con el servidor",
+        processingLogin: "Procesando...",
+        authenticating: "Autenticando",
+        redirecting: "Redireccionando..."
+      },
+      en: {
+        languageLabel: "Language:",
+        userTypeLabel: "User type:",
+        resident: "Resident",
+        admin: "Administrator",
+        navTitle: "Package Management",
+        welcomeTitle: "Welcome to the System",
+        loginTitle: "Log In",
+        username: "Username",
+        password: "Password",
+        loginButton: "Log In",
+        forgotPassword: "Forgot your password?",
+        noAccountText: "Don't have an account?",
+        registerLink: "Sign up",
+        loginError: "Login error",
+        connectionError: "Error connecting to server",
+        processingLogin: "Processing...",
+        authenticating: "Authenticating",
+        redirecting: "Redirecting..."
+      }
+    };
+
+    // Cargar configuración guardada o usar valores predeterminados
+    const savedLanguage = localStorage.getItem('language') || 'es';
+    const savedUserType = localStorage.getItem('userType') || 'resident';
+    
+    // Establecer los valores iniciales en los selectores
+    document.getElementById('language').value = savedLanguage;
+    document.getElementById('userType').value = savedUserType;
+    
+    // Establecer el atributo lang del HTML
+    document.documentElement.lang = savedLanguage;
+
+    // Función para actualizar textos según el idioma seleccionado
+    function updateLanguage(lang) {
+      const texts = translations[lang];
+      
+      // Actualizar textos en la interfaz
+      document.getElementById('languageLabel').textContent = texts.languageLabel;
+      document.getElementById('userTypeLabel').textContent = texts.userTypeLabel;
+      document.getElementById('navTitle').textContent = texts.navTitle;
+      document.getElementById('welcomeTitle').textContent = texts.welcomeTitle;
+      document.getElementById('loginTitle').textContent = texts.loginTitle;
+      document.getElementById('username').placeholder = texts.username;
+      document.getElementById('username').setAttribute('aria-label', texts.username);
+      document.getElementById('password').placeholder = texts.password;
+      document.getElementById('password').setAttribute('aria-label', texts.password);
+      document.getElementById('button').textContent = texts.loginButton;
+      document.getElementById('forgotPassword').textContent = texts.forgotPassword;
+      document.getElementById('noAccountText').textContent = texts.noAccountText;
+      document.getElementById('registerLink').textContent = texts.registerLink;
+      
+      // Actualizar opciones del select de tipo de usuario
+      const userTypeSelect = document.getElementById('userType');
+      userTypeSelect.options[0].text = texts.resident;
+      userTypeSelect.options[1].text = texts.admin;
+      
+      // Actualizar el atributo lang del HTML
+      document.documentElement.lang = lang;
+    }
+
+    // Aplicar el idioma guardado al cargar la página
+    updateLanguage(savedLanguage);
+
+    // Event listener para el cambio de idioma
+    document.getElementById('language').addEventListener('change', function() {
+      const selectedLanguage = this.value;
+      localStorage.setItem('language', selectedLanguage);
+      updateLanguage(selectedLanguage);
+    });
+
+    // Event listener para el cambio de tipo de usuario
+    document.getElementById('userType').addEventListener('change', function() {
+      const selectedUserType = this.value;
+      localStorage.setItem('userType', selectedUserType);
+    });
+
+    // Función para mostrar/ocultar el loader
+    function toggleLoader(show, message = null) {
+      const loaderContainer = document.getElementById('loaderContainer');
+      const loaderText = document.getElementById('loaderText');
+      const currentLang = document.getElementById('language').value;
+      const texts = translations[currentLang];
+      
+      if (show) {
+        loaderContainer.classList.add('active');
+        if (message) {
+          loaderText.textContent = message;
+        } else {
+          loaderText.textContent = texts.processingLogin;
+        }
+      } else {
+        loaderContainer.classList.remove('active');
+      }
+    }
+    
+    // Event listener para el formulario de login
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+      
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const userType = document.getElementById('userType').value;
+      const lang = document.getElementById('language').value;
+      const texts = translations[lang];
+      
+      // Mostrar el loader
+      toggleLoader(true);
+      
+      try {
+        // Simular tiempo de autenticación (opcional, solo para ver la animación)
+        toggleLoader(true, texts.authenticating);
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password, userType })
+        });
 
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        localStorage.setItem('authToken', result.token);
-        window.location.href = 'listPackages.html';
-      } else {
-        alert(result.error || "Error de autenticación");
+        const data = await response.json();
+        
+        if (response.ok) {
+          localStorage.setItem('authToken', data.token);
+          localStorage.setItem('language', lang);
+          localStorage.setItem('userType', userType);
+          
+          // Mensaje de redirección
+          toggleLoader(true, texts.redirecting);
+          
+          // Pequeña pausa antes de redireccionar
+          setTimeout(() => {
+            // Redireccionar según el tipo de usuario
+            if (userType === 'admin') {
+              window.location.href = 'adminDashboard.html';
+            } else {
+              window.location.href = 'listPackages.html';
+            }
+          }, 500);
+        } else {
+          // Ocultar el loader
+          toggleLoader(false);
+          const errorMessage = texts.loginError;
+          alert(data.error || errorMessage);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        // Ocultar el loader
+        toggleLoader(false);
+        const errorMessage = texts.connectionError;
+        alert(errorMessage);
       }
     });
+
+    // Añadir clase sr-only (screen-reader-only) para etiquetas ocultas visualmente pero accesibles
+    const style = document.createElement('style');
+    style.textContent = `
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+      }
+    `;
+    document.head.appendChild(style);
   </script>
 </body>
 </html>

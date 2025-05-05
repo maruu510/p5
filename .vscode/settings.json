@@ -1,3 +1,10 @@
 {
+<<<<<<< HEAD
     "deno.enable": true
 }
+=======
+    "deno.enable": true,
+    "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+    "typescript.validate.enable": false
+  }
+>>>>>>> scrum-191

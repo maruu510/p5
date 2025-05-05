@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # p5
 # 📌 Instrucciones para ejecutar el proyecto
 
@@ -79,12 +80,19 @@ DB_PORT=5432
 ```bash
 deno run --allow-env main.ts
 ```
+=======
+git checkout -b feature/loading-component
+git add .
+git commit -m "Agregado componente de loading y mejoras en la interfaz"
+git push origin feature/loading-component
+>>>>>>> scrum-191
 
 - Con permisos para entorno y red (recomendado):
 
 ```bash
 deno run --allow-env --allow-net main.ts
 ```
+<<<<<<< HEAD
 
 > ⚠️ Te va a pedir permisos, ingresa "y" las 3 veces para otorgarlos si no usas `--allow-all`.
 > ⚠️ **Importante:** Si no está corriendo PostgreSQL, o el `.env` está mal configurado, la conexión fallará.
@@ -162,3 +170,5 @@ git push origin nombre-de-tu-rama
 ```bash
 git pull origin main
 ```
+=======
+>>>>>>> scrum-191
