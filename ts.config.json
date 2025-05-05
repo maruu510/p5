@@ -1,5 +1,0 @@
-{
-    "deno.enable": true,
-    "typescript.tsserver.experimental.enableProjectDiagnostics": false,
-    "typescript.validate.enable": false
-  }
