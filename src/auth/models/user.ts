@@ -51,6 +51,3 @@ async function getUserByUsername(username: string): Promise<User | null> {
 }
 
 export { createUsersTable, insertUser, getUserByUsername };
-
-
-
