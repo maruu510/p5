@@ -2,12 +2,228 @@
 <html lang="es">
 <head>
 <<<<<<< HEAD
+<<<<<<< HEAD
   <meta charset="UTF-8">
+=======
+  <meta charset="UTF-8" />
+>>>>>>> 998c5bb (SCRUM-191 <qr>)
   <title>Registrar Paquete - Gestión de Paquetes</title>
-  <link rel="stylesheet" href="./styles/estilos.css">
+  <style>
+    /* Reset básico */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #27ae60, #145a32);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 15px 50px;
+      color: #2c3e50;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+      margin-bottom: 40px;
+      user-select: none;
+      max-width: 900px;
+      width: 100%;
+      padding: 0 20px;
+    }
+
+    header img {
+      height: 60px;
+      width: auto;
+    }
+
+    .logout-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #1e8449;
+      border: none;
+      color: white;
+      padding: 10px 18px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      user-select: none;
+      z-index: 1000;
+    }
+
+    .logout-btn:hover {
+      background-color: #145a32;
+    }
+
+    .container {
+      background-color: #fff;
+      max-width: 480px;
+      width: 100%;
+      border-radius: 15px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+      padding: 40px 35px;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    .container h2 {
+      font-weight: 700;
+      color: #27ae60;
+      text-align: center;
+      font-size: 1.8rem;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    select, input[type="text"], input[type="date"], textarea {
+      padding: 14px 18px;
+      border-radius: 10px;
+      border: 2px solid #ddd;
+      font-size: 1rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    select:focus,
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    textarea:focus {
+      border-color: #27ae60;
+      outline: none;
+      box-shadow: 0 0 8px rgba(39, 174, 96, 0.5);
+    }
+
+    textarea {
+      min-height: 70px;
+    }
+
+    button {
+      background-color: #27ae60;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 16px 0;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+    }
+
+    button:hover {
+      background-color: #1e8449;
+      box-shadow: 0 8px 20px rgba(30, 132, 73, 0.6);
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    .link a {
+      color: #27ae60;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .link a:hover {
+      color: #1e8449;
+      text-decoration: underline;
+    }
+
+    /* QR Code Styles */
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 15px;
+      gap: 10px;
+    }
+
+    #qrCode {
+      padding: 10px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .qr-buttons {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .qr-buttons button {
+      flex: 1;
+      padding: 12px 0;
+      font-size: 0.95rem;
+    }
+
+    .qr-buttons button.secondary {
+      background-color: #7f8c8d;
+    }
+
+    .qr-buttons button.secondary:hover {
+      background-color: #636e72;
+    }
+
+    .qr-buttons button.print {
+      background-color: #2980b9;
+    }
+
+    .qr-buttons button.print:hover {
+      background-color: #2069a0;
+    }
+
+    .qr-info {
+      font-size: 0.9rem;
+      color: #555;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    /* Responsive */
+    @media (max-width: 520px) {
+      .container {
+        padding: 30px 25px;
+      }
+
+      header {
+        font-size: 1.6rem;
+        padding: 0 10px;
+      }
+    }
+  </style>
 </head>
 <body>
   <header>
+<<<<<<< HEAD
     <img src="./images/ENCOMIENDA.png" alt="Logo Paquete">
 =======
   <meta charset="UTF-8" />
@@ -229,6 +445,9 @@
   <header>
     <img src="./images/ENCOMIENDA.png" alt="Logo Paquete" />
 >>>>>>> scrum-191
+=======
+    <img src="./images/ENCOMIENDA.png" alt="Logo Paquete" />
+>>>>>>> 998c5bb (SCRUM-191 <qr>)
     Registrar Paquete
   </header>
 
@@ -238,11 +457,14 @@
     <h2>Registrar Encomienda</h2>
     <form id="packageForm">
 <<<<<<< HEAD
+<<<<<<< HEAD
       <input type="text" id="apartment_number" placeholder="Número de Departamento" required>
       <input type="text" id="sender" placeholder="Remitente" required>
       <input type="date" id="delivery_date" required>
       <select id="status" required>
 =======
+=======
+>>>>>>> 998c5bb (SCRUM-191 <qr>)
       <select id="apartment_number" required aria-label="Selecciona departamento">
         <option value="">-- Selecciona Departamento --</option>
       </select>
@@ -252,16 +474,22 @@
       <input type="date" id="delivery_date" required aria-label="Fecha de entrega" />
 
       <select id="status" required aria-label="Selecciona estado">
+<<<<<<< HEAD
 >>>>>>> scrum-191
+=======
+>>>>>>> 998c5bb (SCRUM-191 <qr>)
         <option value="">-- Selecciona Estado --</option>
         <option value="pendiente">Pendiente</option>
         <option value="entregado">Entregado</option>
         <option value="retirado">Retirado</option>
       </select>
 <<<<<<< HEAD
+<<<<<<< HEAD
       <input type="text" id="qr_code" placeholder="Código QR (opcional)">
       <textarea id="notes" rows="3" placeholder="Notas (opcional)"></textarea>
 =======
+=======
+>>>>>>> 998c5bb (SCRUM-191 <qr>)
 
       <div class="qr-container">
         <button type="button" id="generateQrBtn">Generar Código QR</button>
@@ -276,7 +504,10 @@
 
       <textarea id="notes" rows="3" placeholder="Notas (opcional)" aria-label="Notas"></textarea>
 
+<<<<<<< HEAD
 >>>>>>> scrum-191
+=======
+>>>>>>> 998c5bb (SCRUM-191 <qr>)
       <button type="submit">Registrar</button>
     </form>
     <div class="link">
@@ -285,15 +516,26 @@
   </div>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  <!-- Añadimos librería QR Code -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+>>>>>>> 998c5bb (SCRUM-191 <qr>)
   <script>
     // 🔒 PROTEGER ESTA PÁGINA
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       const token = localStorage.getItem('authToken');
       if (!token) {
         window.location.href = 'login.html'; // Redirige si no hay token
+      } else {
+        await cargarDepartamentos(); // Cargar departamentos si hay token
       }
+      
+      // Inicializar eventos para el QR
+      setupQRCodeGenerator();
     });
 
+<<<<<<< HEAD
 =======
   <!-- Añadimos librería QR Code -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -311,6 +553,8 @@
       setupQRCodeGenerator();
     });
 
+=======
+>>>>>>> 998c5bb (SCRUM-191 <qr>)
     function setupQRCodeGenerator() {
       const generateQrBtn = document.getElementById('generateQrBtn');
       const printQrBtn = document.getElementById('printQrBtn');
@@ -515,7 +759,10 @@
       }
     }
 
+<<<<<<< HEAD
 >>>>>>> scrum-191
+=======
+>>>>>>> 998c5bb (SCRUM-191 <qr>)
     function logout() {
       localStorage.removeItem('authToken');
       window.location.href = 'login.html';
@@ -524,21 +771,41 @@
     document.getElementById('packageForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+      
+      // Si no hay código QR generado, preguntar si desea continuar
+      if (!document.getElementById('qr_code').value) {
+        if (!confirm('No has generado un código QR para este paquete. ¿Deseas continuar sin código QR?')) {
+          return;
+        }
+      }
+      
+>>>>>>> 998c5bb (SCRUM-191 <qr>)
       const body = {
         apartment_number: document.getElementById('apartment_number').value,
-        sender: document.getElementById('sender').value,
+        sender: document.getElementById('sender').value.trim(),
         delivery_date: document.getElementById('delivery_date').value,
         status: document.getElementById('status').value,
-        qr_code: document.getElementById('qr_code').value,
-        notes: document.getElementById('notes').value,
+        qr_code: document.getElementById('qr_code').value.trim(),
+        notes: document.getElementById('notes').value.trim(),
       };
 
-      const response = await fetch('/api/packages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
+      try {
+        // Primero intentamos con la API
+        let registroExitoso = false;
+        
+        try {
+          const response = await fetch('/api/packages', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            body: JSON.stringify(body)
+          });
 
+<<<<<<< HEAD
       if (response.ok) {
         alert('¡Paquete registrado!');
         window.location.href = 'listPackages.html';
@@ -577,6 +844,8 @@
             body: JSON.stringify(body)
           });
 
+=======
+>>>>>>> 998c5bb (SCRUM-191 <qr>)
           if (response.ok) {
             registroExitoso = true;
           } else {
@@ -624,13 +893,20 @@
         }
       } catch (error) {
         alert(error.message);
+<<<<<<< HEAD
 >>>>>>> scrum-191
+=======
+>>>>>>> 998c5bb (SCRUM-191 <qr>)
       }
     });
   </script>
 </body>
 <<<<<<< HEAD
+<<<<<<< HEAD
 </html>
 =======
 </html>
 >>>>>>> scrum-191
+=======
+</html>
+>>>>>>> 998c5bb (SCRUM-191 <qr>)
