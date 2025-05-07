@@ -215,6 +215,37 @@
       }
     }
   </style>
+
+<style>
+    /* Estilos base para móviles primero */
+    .container {
+        width: 95%;
+        margin: 20px auto;
+        padding: 15px;
+    }
+
+    /* Para tablets */
+    @media (min-width: 768px) {
+        .container {
+            width: 80%;
+            padding: 25px;
+        }
+    }
+
+    /* Para escritorios */
+    @media (min-width: 1024px) {
+        .container {
+            width: 60%;
+            max-width: 800px;
+        }
+    }
+
+    /* Ajustes para inputs en móviles */
+    input, select, textarea {
+        width: 100%;
+        box-sizing: border-box;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -222,20 +253,20 @@
     Registrar Paquete
   </header>
 
-  <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+  <button class="logout-btn">Cerrar Sesión</button>
 
   <div class="container">
     <h2>Registrar Encomienda</h2>
     <form id="packageForm">
-      <select id="apartment_number" required aria-label="Selecciona departamento">
+      <select id="apartment_number" required>
         <option value="">-- Selecciona Departamento --</option>
       </select>
 
-      <input type="text" id="sender" placeholder="Remitente" required aria-label="Remitente" />
+      <input type="text" id="sender" placeholder="Remitente" required />
 
-      <input type="date" id="delivery_date" required aria-label="Fecha de entrega" />
+      <input type="date" id="delivery_date" required />
 
-      <select id="status" required aria-label="Selecciona estado">
+      <select id="status" required>
         <option value="">-- Selecciona Estado --</option>
         <option value="pendiente">Pendiente</option>
         <option value="entregado">Entregado</option>
@@ -245,7 +276,7 @@
       <div class="qr-container">
         <button type="button" id="generateQrBtn">Generar Código QR</button>
         <div id="qrCode"></div>
-        <input type="text" id="qr_code" placeholder="Código QR (generado automáticamente)" aria-label="Código QR" readonly />
+        <input type="text" id="qr_code" placeholder="Código QR (generado automáticamente)" readonly />
         <div class="qr-buttons" id="qrButtons" style="display: none;">
           <button type="button" class="print" id="printQrBtn">Imprimir QR</button>
           <button type="button" class="secondary" id="downloadQrBtn">Descargar QR</button>
@@ -253,7 +284,7 @@
         <div class="qr-info">El código QR contiene la información del paquete y facilita su seguimiento</div>
       </div>
 
-      <textarea id="notes" rows="3" placeholder="Notas (opcional)" aria-label="Notas"></textarea>
+      <textarea id="notes" rows="3" placeholder="Notas (opcional)"></textarea>
 
       <button type="submit">Registrar</button>
     </form>
@@ -262,313 +293,376 @@
     </div>
   </div>
 
-  <!-- Añadimos librería QR Code -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
-    // 🔒 PROTEGER ESTA PÁGINA
-    document.addEventListener('DOMContentLoaded', async () => {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        window.location.href = 'login.html'; // Redirige si no hay token
-      } else {
-        await cargarDepartamentos(); // Cargar departamentos si hay token
+    document.addEventListener('DOMContentLoaded', () => {
+      // Verificar autenticación
+      if (!localStorage.getItem('authToken')) {
+        window.location.href = 'login.html';
+        return;
       }
-      
-      // Inicializar eventos para el QR
-      setupQRCodeGenerator();
-    });
 
-    function setupQRCodeGenerator() {
-      const generateQrBtn = document.getElementById('generateQrBtn');
-      const printQrBtn = document.getElementById('printQrBtn');
-      const downloadQrBtn = document.getElementById('downloadQrBtn');
-      const qrCodeDiv = document.getElementById('qrCode');
-      const qrCodeInput = document.getElementById('qr_code');
-      const qrButtons = document.getElementById('qrButtons');
-      
-      generateQrBtn.addEventListener('click', () => {
-        // Recopilar datos del formulario
-        const apartmentNumber = document.getElementById('apartment_number').value;
-        const sender = document.getElementById('sender').value.trim();
-        const deliveryDate = document.getElementById('delivery_date').value;
-        
-        // Validar datos mínimos necesarios
-        if (!apartmentNumber || !sender || !deliveryDate) {
-          alert('Por favor completa al menos: Departamento, Remitente y Fecha de entrega para generar el QR');
+      // Botón generar QR
+      document.getElementById('generateQrBtn').addEventListener('click', async function() {
+        const apartment = document.getElementById('apartment_number').value;
+        const sender = document.getElementById('sender').value;
+
+        if (!apartment || !sender) {
+          alert('Complete departamento y remitente');
           return;
         }
-        
-        // Generar un código único para el paquete
-        const timestamp = new Date().getTime();
-        const uniqueCode = `PKG-${apartmentNumber}-${timestamp}`;
-        qrCodeInput.value = uniqueCode;
-        
-        // Crear contenido para el QR (datos estructurados)
-        const qrContent = JSON.stringify({
-          id: uniqueCode,
-          apt: apartmentNumber,
-          sender: sender,
-          date: deliveryDate,
-          generated: new Date().toISOString()
-        });
-        
-        // Limpiar QR anterior si existe
-        qrCodeDiv.innerHTML = '';
-        
-        // Generar nuevo QR
-        new QRCode(qrCodeDiv, {
-          text: qrContent,
-          width: 180,
-          height: 180,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.H
-        });
-        
-        // Mostrar el QR y los botones
-        qrCodeDiv.style.display = 'block';
-        qrButtons.style.display = 'flex';
-      });
-      
-      // Imprimir QR
-      printQrBtn.addEventListener('click', () => {
-        const apartmentNumber = document.getElementById('apartment_number').value;
-        const sender = document.getElementById('sender').value.trim();
-        
-        // Crear una ventana de impresión
-        const printWindow = window.open('', '', 'width=600,height=600');
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>QR Paquete - Depto ${apartmentNumber}</title>
-              <style>
-                body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-                .qr-print { margin: 20px auto; }
-                .details { margin: 15px 0; line-height: 1.5; }
-              </style>
-            </head>
-            <body>
-              <h2>Paquete para Departamento ${apartmentNumber}</h2>
-              <div class="qr-print">
-                ${qrCodeDiv.innerHTML}
-              </div>
-              <div class="details">
-                <p><strong>Remitente:</strong> ${sender}</p>
-                <p><strong>Fecha:</strong> ${document.getElementById('delivery_date').value}</p>
-                <p><strong>Código:</strong> ${qrCodeInput.value}</p>
-              </div>
-            </body>
-          </html>
-        `);
-        printWindow.document.close();
-        
-        // Esperar a que cargue el contenido antes de imprimir
-        setTimeout(() => {
-          printWindow.print();
-          printWindow.close();
-        }, 500);
-      });
-      
-      // Descargar QR
-      downloadQrBtn.addEventListener('click', () => {
-        // Obtener la imagen desde el canvas generado por la librería
-        const canvas = qrCodeDiv.querySelector('canvas');
-        if (!canvas) return;
-        
-        // Convertir canvas a imagen descargable
-        const imgData = canvas.toDataURL('image/png');
-        const downloadLink = document.createElement('a');
-        const apartmentNumber = document.getElementById('apartment_number').value;
-        
-        downloadLink.href = imgData;
-        downloadLink.download = `QR-Paquete-Depto-${apartmentNumber}.png`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-      });
-    }
 
-    async function cargarDepartamentos() {
-      try {
-        // Intenta obtener departamentos de la API
-        let departamentos = [];
         try {
-          const response = await fetch('/api/departamentos');
-          if (!response.ok) {
-            throw new Error('Error en respuesta del servidor');
-          }
-          departamentos = await response.json();
-        } catch (apiError) {
-          console.warn('Error al conectar con API. Usando datos locales:', apiError);
-          // Si hay un error, usa datos de ejemplo
-          departamentos = [
-            { numero: 101, piso: 1 },
-            { numero: 102, piso: 1 },
-            { numero: 103, piso: 1 },
-            { numero: 201, piso: 2 },
-            { numero: 202, piso: 2 },
-            { numero: 203, piso: 2 },
-            { numero: 301, piso: 3 },
-            { numero: 302, piso: 3 },
-            { numero: 303, piso: 3 },
-            { numero: 401, piso: 4 },
-            { numero: 402, piso: 4 },
-            { numero: 403, piso: 4 }
-          ];
-        }
-
-        const select = document.getElementById('apartment_number');
-        // Limpiar opciones existentes (por si se recarga)
-        select.innerHTML = '<option value="">-- Selecciona Departamento --</option>';
-        
-        // Ordenar por número
-        departamentos.sort((a, b) => a.numero - b.numero);
-
-        // Agrupar por piso si existe esa propiedad
-        const tienePisos = departamentos.some(d => d.piso !== undefined);
-        
-        if (tienePisos) {
-          // Agrupar por pisos
-          const pisos = {};
-          departamentos.forEach(depto => {
-            const piso = depto.piso || 'Otro';
-            if (!pisos[piso]) pisos[piso] = [];
-            pisos[piso].push(depto);
-          });
-          
-          // Crear los grupos con optgroup
-          Object.keys(pisos).sort((a, b) => a - b).forEach(piso => {
-            const group = document.createElement('optgroup');
-            group.label = `Piso ${piso}`;
-            
-            pisos[piso].forEach(depto => {
-              const option = document.createElement('option');
-              option.value = depto.numero;
-              option.textContent = `Departamento ${depto.numero}`;
-              group.appendChild(option);
-            });
-            
-            select.appendChild(group);
-          });
-        } else {
-          // Formato simple sin agrupar
-          departamentos.forEach(depto => {
-            const option = document.createElement('option');
-            option.value = depto.numero;
-            option.textContent = `Departamento ${depto.numero}`;
-            select.appendChild(option);
-          });
-        }
-        
-        console.log('Departamentos cargados:', departamentos.length);
-      } catch (error) {
-        console.error('Error en cargarDepartamentos:', error);
-        alert('Error al cargar los departamentos. Se han cargado datos de ejemplo.');
-        
-        // Cargar datos de respaldo en caso de cualquier error
-        const select = document.getElementById('apartment_number');
-        select.innerHTML = '<option value="">-- Selecciona Departamento --</option>';
-        
-        // Datos básicos de respaldo
-        for (let i = 1; i <= 4; i++) {
-          for (let j = 1; j <= 5; j++) {
-            const num = i * 100 + j;
-            const option = document.createElement('option');
-            option.value = num;
-            option.textContent = `Departamento ${num}`;
-            select.appendChild(option);
-          }
-        }
-      }
-    }
-
-    function logout() {
-      localStorage.removeItem('authToken');
-      window.location.href = 'login.html';
-    }
-
-    document.getElementById('packageForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      // Si no hay código QR generado, preguntar si desea continuar
-      if (!document.getElementById('qr_code').value) {
-        if (!confirm('No has generado un código QR para este paquete. ¿Deseas continuar sin código QR?')) {
-          return;
-        }
-      }
-      
-      const body = {
-        apartment_number: document.getElementById('apartment_number').value,
-        sender: document.getElementById('sender').value.trim(),
-        delivery_date: document.getElementById('delivery_date').value,
-        status: document.getElementById('status').value,
-        qr_code: document.getElementById('qr_code').value.trim(),
-        notes: document.getElementById('notes').value.trim(),
-      };
-
-      try {
-        // Primero intentamos con la API
-        let registroExitoso = false;
-        
-        try {
-          const response = await fetch('/api/packages', {
+          const response = await fetch('/api/generate-qr', {
             method: 'POST',
-            headers: { 
+            headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${localStorage.getItem('authToken')}`
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify({ apartment_number: apartment, sender: sender })
           });
 
+          const data = await response.json();
+
           if (response.ok) {
-            registroExitoso = true;
+            document.getElementById('qrCode').innerHTML =
+              `<img src="${data.qr_code}" alt="Código QR" style="max-width:200px;">`;
+            document.getElementById('qrButtons').style.display = 'flex';
+            document.getElementById('qr_code').value = data.qr_code;
+            document.getElementById('qrCode').style.display = 'block';
           } else {
-            const result = await response.json();
-            throw new Error(result.error || "Error al registrar paquete");
+            throw new Error(data.error || 'Error al generar QR');
           }
-        } catch (apiError) {
-          console.warn('Error al conectar con API de paquetes:', apiError);
-          
-          // Si estamos en modo desarrollo o pruebas, simulamos éxito
-          if (window.location.hostname === 'localhost' || 
-              window.location.hostname === '127.0.0.1' ||
-              confirm('No se pudo conectar con el servidor. ¿Deseas simular el registro para pruebas?')) {
-            
-            // Simular registro exitoso para pruebas
-            console.log('Simulando registro exitoso. Datos del paquete:', body);
-            
-            // Guardar en localStorage para pruebas
-            try {
-              const paquetesGuardados = JSON.parse(localStorage.getItem('paquetesPrueba') || '[]');
-              body.id = Date.now(); // Simular ID
-              body.created_at = new Date().toISOString();
-              paquetesGuardados.push(body);
-              localStorage.setItem('paquetesPrueba', JSON.stringify(paquetesGuardados));
-              console.log('Paquete guardado localmente para pruebas');
-              registroExitoso = true;
-            } catch (localError) {
-              console.error('Error al guardar localmente:', localError);
-              throw new Error('No se pudo conectar con el servidor ni guardar localmente');
-            }
-          } else {
-            throw new Error('No se pudo conectar con el servidor. Intente más tarde.');
-          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert(error.message);
         }
-        
-        if (registroExitoso) {
-          alert('¡Paquete registrado exitosamente!');
-          
-          // En modo local, redirigir a la lista o recargar
-          if (window.location.href.includes('listPackages.html')) {
-            window.location.reload();
-          } else {
-            window.location.href = 'listPackages.html';
-          }
+      });
+
+      // Botón logout
+      document.querySelector('.logout-btn').addEventListener('click', () => {
+        localStorage.removeItem('authToken');
+        window.location.href = 'login.html';
+      });
+
+      // Botón imprimir QR
+      document.getElementById('printQrBtn').addEventListener('click', () => {
+        const qrImg = document.querySelector('#qrCode img');
+        if (qrImg) {
+          const printWindow = window.open('', '_blank');
+          printWindow.document.write(`<img src="${qrImg.src}" style="width: 300px;">`);
+          printWindow.document.close();
+          printWindow.focus();
+          printWindow.print();
         }
-      } catch (error) {
-        alert(error.message);
-      }
+      });
+
+      // Botón descargar QR
+      document.getElementById('downloadQrBtn').addEventListener('click', () => {
+        const qrImg = document.querySelector('#qrCode img');
+        if (qrImg) {
+          const a = document.createElement('a');
+          a.href = qrImg.src;
+          a.download = 'codigo_qr.png';
+          a.click();
+        }
+      });
     });
+// Crear una ventana de impresión
+const printButton = document.getElementById('printQR');
+const qrCodeDiv = document.getElementById('qrDisplay');
+const qrCodeInput = document.getElementById('qr_code');
+const downloadQrBtn = document.getElementById('downloadQR');
+
+printButton.addEventListener('click', () => {
+  const apartmentNumber = document.getElementById('apartment_number').value;
+  const sender = document.getElementById('sender').value;
+  const deliveryDate = document.getElementById('delivery_date').value;
+
+  const printWindow = window.open('', '', 'width=600,height=600');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>QR Paquete - Depto ${apartmentNumber}</title>
+        <style>
+          body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+          .qr-print { margin: 20px auto; }
+          .details { margin: 15px 0; line-height: 1.5; }
+
+          .container {
+              width: 95%;
+              margin: 20px auto;
+              padding: 15px;
+          }
+          @media (min-width: 768px) {
+              .container {
+                  width: 80%;
+                  padding: 25px;
+              }
+          }
+          @media (min-width: 1024px) {
+              .container {
+                  width: 60%;
+                  max-width: 800px;
+              }
+          }
+          input, select, textarea {
+              width: 100%;
+              box-sizing: border-box;
+          }
+        </style>
+      </head>
+      <body>
+        <h2>Paquete para Departamento ${apartmentNumber}</h2>
+        <div class="qr-print">
+          ${qrCodeDiv.innerHTML}
+        </div>
+        <div class="details">
+          <p><strong>Remitente:</strong> ${sender}</p>
+          <p><strong>Fecha:</strong> ${deliveryDate}</p>
+          <p><strong>Código:</strong> ${qrCodeInput.value}</p>
+        </div>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  setTimeout(() => {
+    printWindow.print();
+    printWindow.close();
+  }, 500);
+});
+
+downloadQrBtn.addEventListener('click', () => {
+  const canvas = qrCodeDiv.querySelector('canvas');
+  if (!canvas) return;
+  const imgData = canvas.toDataURL('image/png');
+  const downloadLink = document.createElement('a');
+  const apartmentNumber = document.getElementById('apartment_number').value;
+
+  downloadLink.href = imgData;
+  downloadLink.download = `QR-Paquete-Depto-${apartmentNumber}.png`;
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+});
+async function cargarDepartamentos() {
+  try {
+    // Intenta obtener departamentos de la API
+    let departamentos = [];
+    try {
+      const response = await fetch('/api/departamentos');
+      if (!response.ok) {
+        throw new Error('Error en respuesta del servidor');
+      }
+      departamentos = await response.json();
+    } catch (apiError) {
+      console.warn('Error al conectar con API. Usando datos locales:', apiError);
+      // Si hay un error, usa datos de ejemplo
+      departamentos = [
+        { numero: 101, piso: 1 },
+        { numero: 102, piso: 1 },
+        { numero: 103, piso: 1 },
+        { numero: 201, piso: 2 },
+        { numero: 202, piso: 2 },
+        { numero: 203, piso: 2 },
+        { numero: 301, piso: 3 },
+        { numero: 302, piso: 3 },
+        { numero: 303, piso: 3 },
+        { numero: 401, piso: 4 },
+        { numero: 402, piso: 4 },
+        { numero: 403, piso: 4 }
+      ];
+    }
+
+    const select = document.getElementById('apartment_number');
+    // Limpiar opciones existentes (por si se recarga)
+    select.innerHTML = '<option value="">-- Selecciona Departamento --</option>';
+    
+    // Ordenar por número
+    departamentos.sort((a, b) => a.numero - b.numero);
+
+    // Agrupar por piso si existe esa propiedad
+    const tienePisos = departamentos.some(d => d.piso !== undefined);
+    
+    if (tienePisos) {
+      // Agrupar por pisos
+      const pisos = {};
+      departamentos.forEach(depto => {
+        const piso = depto.piso || 'Otro';
+        if (!pisos[piso]) pisos[piso] = [];
+        pisos[piso].push(depto);
+      });
+      
+      // Crear los grupos con optgroup
+      Object.keys(pisos).sort((a, b) => a - b).forEach(piso => {
+        const group = document.createElement('optgroup');
+        group.label = `Piso ${piso}`;
+        
+        pisos[piso].forEach(depto => {
+          const option = document.createElement('option');
+          option.value = depto.numero;
+          option.textContent = `Departamento ${depto.numero}`;
+          group.appendChild(option);
+        });
+        
+        select.appendChild(group);
+      });
+    } else {
+      // Formato simple sin agrupar
+      departamentos.forEach(depto => {
+        const option = document.createElement('option');
+        option.value = depto.numero;
+        option.textContent = `Departamento ${depto.numero}`;
+        select.appendChild(option);
+      });
+    }
+    
+    console.log('Departamentos cargados:', departamentos.length);
+  } catch (error) {
+    console.error('Error en cargarDepartamentos:', error);
+    alert('Error al cargar los departamentos. Se han cargado datos de ejemplo.');
+    
+    // Cargar datos de respaldo en caso de cualquier error
+    const select = document.getElementById('apartment_number');
+    select.innerHTML = '<option value="">-- Selecciona Departamento --</option>';
+    
+    // Datos básicos de respaldo
+    for (let i = 1; i <= 4; i++) {
+      for (let j = 1; j <= 5; j++) {
+        const num = i * 100 + j;
+        const option = document.createElement('option');
+        option.value = num;
+        option.textContent = `Departamento ${num}`;
+        select.appendChild(option);
+      }
+    }
+  }
+}
+
+function logout() {
+  localStorage.removeItem('authToken');
+  window.location.href = 'login.html';
+}
+
+document.getElementById('packageForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  // Si no hay código QR generado, preguntar si desea continuar
+  if (!document.getElementById('qr_code').value) {
+    if (!confirm('No has generado un código QR para este paquete. ¿Deseas continuar sin código QR?')) {
+      return;
+    }
+  }
+  
+  const body = {
+    apartment_number: document.getElementById('apartment_number').value,
+    sender: document.getElementById('sender').value.trim(),
+    delivery_date: document.getElementById('delivery_date').value,
+    status: document.getElementById('status').value,
+    qr_code: document.getElementById('qr_code').value.trim(),
+    notes: document.getElementById('notes').value.trim(),
+  };
+
+  try {
+    // Primero intentamos con la API
+    let registroExitoso = false;
+    
+    try {
+      const response = await fetch('/api/packages', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (response.ok) {
+        registroExitoso = true;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error || "Error al registrar paquete");
+      }
+    } catch (apiError) {
+      console.warn('Error al conectar con API de paquetes:', apiError);
+      
+      // Si estamos en modo desarrollo o pruebas, simulamos éxito
+      if (window.location.hostname === 'localhost' || 
+          window.location.hostname === '127.0.0.1' ||
+          confirm('No se pudo conectar con el servidor. ¿Deseas simular el registro para pruebas?')) {
+        
+        // Simular registro exitoso para pruebas
+        console.log('Simulando registro exitoso. Datos del paquete:', body);
+        
+        // Guardar en localStorage para pruebas
+        try {
+          const paquetesGuardados = JSON.parse(localStorage.getItem('paquetesPrueba') || '[]');
+          body.id = Date.now(); // Simular ID
+          body.created_at = new Date().toISOString();
+          paquetesGuardados.push(body);
+          localStorage.setItem('paquetesPrueba', JSON.stringify(paquetesGuardados));
+          console.log('Paquete guardado localmente para pruebas');
+          registroExitoso = true;
+        } catch (localError) {
+          console.error('Error al guardar localmente:', localError);
+          throw new Error('No se pudo conectar con el servidor ni guardar localmente');
+        }
+      } else {
+        throw new Error('No se pudo conectar con el servidor. Intente más tarde.');
+      }
+    }
+    
+    if (registroExitoso) {
+      alert('¡Paquete registrado exitosamente!');
+      
+      // En modo local, redirigir a la lista o recargar
+      if (window.location.href.includes('listPackages.html')) {
+        window.location.reload();
+      } else {
+        window.location.href = 'listPackages.html';
+      }
+    }
+  } catch (error) {
+    alert(error.message);
+  }
+});
   </script>
+
+<script>
+document.getElementById('generateQR').addEventListener('click', async function() {
+    const apartment = document.getElementById('apartment_number').value;
+    const sender = document.getElementById('sender').value;
+    
+    if (!apartment || !sender) {
+        alert('Por favor complete los campos de departamento y remitente');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/generate-qr', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                apartment_number: apartment,
+                sender: sender
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            document.getElementById('qrImage').src = data.qr_code;
+            document.getElementById('qrCodeText').textContent = data.qr_content;
+            document.getElementById('qrDisplay').style.display = 'block';
+            document.getElementById('qr_code').value = data.qr_content;
+        } else {
+            alert('Error al generar QR: ' + (data.error || ''));
+        }
+    } catch (error) {
+        alert('Error de conexión: ' + error.message);
+    }
+});
+</script>
+
 </body>
+
 </html>

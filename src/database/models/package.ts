@@ -1,6 +1,7 @@
-import { pool } from "../connection.ts";
 //package.ts
-// Modelo de datos 
+import { pool } from "../connection.ts";
+import { generateQRCode } from "../../services/packageService.ts";
+
 interface Package {
   id?: number;
   apartment_number: string;
@@ -13,7 +14,6 @@ interface Package {
   delivery_method?: string;
 }
 
-// Function to create the "packages" table if it doesn't exist
 async function createPackagesTable() {
   const client = await pool.connect();
   try {
@@ -26,8 +26,7 @@ async function createPackagesTable() {
         status TEXT NOT NULL,
         qr_code TEXT NOT NULL,
         pickup_date TIMESTAMP,
-        notes TEXT,
-        delivery_method TEXT
+        notes TEXT
       )
     `);
   } finally {
@@ -35,13 +34,10 @@ async function createPackagesTable() {
   }
 }
 
-// Function to insert a new package and return the inserted id
 async function insertPackage(pkg: Package): Promise<number> {
   const client = await pool.connect();
   try {
-    const result = await client.queryObject<{
-      id: number;
-    }>(
+    const result = await client.queryObject<{ id: number }>(
       `INSERT INTO packages (
         apartment_number,
         sender,
@@ -49,18 +45,16 @@ async function insertPackage(pkg: Package): Promise<number> {
         status,
         qr_code,
         pickup_date,
-        notes,
-        delivery_method
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+        notes
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
       [
-        pkg.apartment_number,  // Ensure 'pkg' contains these fields
+        pkg.apartment_number,
         pkg.sender,
-        pkg.delivery_date instanceof Date ? pkg.delivery_date.toISOString() : new Date(pkg.delivery_date).toISOString(),  // Ensure valid Date and convert to ISO string
+        pkg.delivery_date.toISOString(), 
         pkg.status,
         pkg.qr_code,
-        pkg.pickup_date ? (pkg.pickup_date instanceof Date ? pkg.pickup_date.toISOString() : new Date(pkg.pickup_date).toISOString()) : null,  // Ensure pickup_date is a Date object if provided
-        pkg.notes ?? null,  // Use null if no notes
-        pkg.delivery_method ?? null,  // Use null if no delivery method
+        pkg.pickup_date?.toISOString() ?? null,
+        pkg.notes
       ]
     );
     return result.rows[0].id;
@@ -69,11 +63,10 @@ async function insertPackage(pkg: Package): Promise<number> {
   }
 }
 
-// Function to get all packages
 async function getAllPackages(): Promise<Package[]> {
   const client = await pool.connect();
   try {
-    const result = await client.queryObject<Package>(
+    const result = await client.queryObject<Package[]>(
       "SELECT * FROM packages ORDER BY delivery_date DESC"
     );
     return result.rows;
@@ -82,11 +75,10 @@ async function getAllPackages(): Promise<Package[]> {
   }
 }
 
-// Function to get a package by ID
 async function getPackageById(id: number): Promise<Package | null> {
   const client = await pool.connect();
   try {
-    const result = await client.queryObject<Package>(
+    const result = await client.queryObject<Package[]>(
       "SELECT * FROM packages WHERE id = $1",
       [id]
     );
@@ -96,9 +88,11 @@ async function getPackageById(id: number): Promise<Package | null> {
   }
 }
 
-
-//para actualizar datos del paquete en estado pendiente
-export async function updateStatusById(id: number, status: string, pickup_date: Date | null): Promise<boolean> {
+export async function updateStatusById(
+  id: number,
+  status: string,
+  pickup_date: Date | null
+): Promise<boolean> {
   const client = await pool.connect();
   try {
     const result = await client.queryObject(

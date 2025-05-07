@@ -1,3 +1,4 @@
+//loadPackages.js
 import { showLoading, hideLoading } from './loading.js';
 
 export async function loadPackages() {

@@ -1,3 +1,4 @@
+//loading.js
 // Funciones para controlar el loading
 export function showLoading() {
   const loading = document.querySelector('.loading-overlay');

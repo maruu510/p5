@@ -1,15 +1,13 @@
 import { Application, Router, send } from "./deps.ts";
 import { createPackagesTable } from "./src/database/models/package.ts";
 import { createUsersTable } from "./src/auth/models/user.ts";
-import packageRouter from "./src/routes/packages.ts";
-import authRouter from "./src/routes/routes.ts";
+import { router as packageRouter } from "./src/routes/packages.ts";
+import { router as authRouter } from "./src/routes/routes.ts";  
 import { oakCors } from "./deps.ts";
 import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
 import "https://deno.land/std@0.204.0/dotenv/load.ts";
 
-
-
-// Verificar variables de entorno
+// Verificación de variables de entorno
 console.log("Variables de entorno:", {
   user: Deno.env.get("DB_USER"),
   database: Deno.env.get("DB_NAME"),
@@ -28,7 +26,7 @@ app.use(oakCors({
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }));
 
-// Middleware para parsear JSON
+// Middleware para manejo de errores
 app.use(async (ctx, next) => {
   try {
     await next();
@@ -39,42 +37,64 @@ app.use(async (ctx, next) => {
   }
 });
 
-// Middleware para servir archivos estáticos
-app.use(async (ctx, next) => {  // This is the async function causing the warning
+// Middleware para archivos estáticos (corregido)
+app.use(async (ctx, next) => {
   const path = ctx.request.url.pathname;
-  if (path.startsWith("/styles") || path.startsWith("/images") || path.endsWith(".html")) {
-    await send(ctx, path, {      // This function uses await
-      root: join(Deno.cwd(), "src", "views"),
-    });
-  } else {
-    await next();               // This function uses await
+  const staticDir = join(Deno.cwd(), "src", "views");
+  
+  try {
+    if (path.startsWith("/images/")) {
+      await send(ctx, path, {
+        root: staticDir,  // Busca en src/views/images/
+        index: "ENCOMIENDA.png"
+      });
+    } else if (path.startsWith("/styles/")) {
+      await send(ctx, path, {
+        root: staticDir   // Busca en src/views/styles/
+      });
+    } else if (path.endsWith(".html")) {
+      await send(ctx, path, {
+        root: staticDir
+      });
+    } else {
+      await next();
+    }
+  } catch (err) {
+    if (err.status === 404) {
+      console.warn(`Archivo no encontrado: ${path}`);
+      await next();
+    } else {
+      throw err;
+    }
   }
 });
 
-// Router para redirigir la raíz "/" hacia "login.html"
-const router = new Router();
-// ... existing code ...
-
-router.get("/", (ctx) => {  // Removed async keyword
+// Router principal
+const mainRouter = new Router();
+mainRouter.get("/", (ctx) => {
   ctx.response.redirect("/login.html");
 });
 
-
-
-app.use(router.routes());
-app.use(router.allowedMethods());
-
-// API REST para autenticación
+// Uso de routers
 app.use(authRouter.routes());
 app.use(authRouter.allowedMethods());
-
-// API REST para paquetes
 app.use(packageRouter.routes());
 app.use(packageRouter.allowedMethods());
+app.use(mainRouter.routes());
+app.use(mainRouter.allowedMethods());
 
-// Crear tablas si no existen
-await createUsersTable();
-await createPackagesTable();
+// Inicialización de la base de datos
+async function initializeDatabase() {
+  try {
+    await createUsersTable();
+    await createPackagesTable();
+    console.log("Tablas creadas exitosamente");
+  } catch (error) {
+    console.error("Error al inicializar la base de datos:", error);
+  }
+}
+
+await initializeDatabase();
 
 console.log(`Servidor web corriendo en http://localhost:${port}`);
 await app.listen({ port });

@@ -1,3 +1,4 @@
+//authService.ts
 import { create, verify, getNumericDate } from "https://deno.land/x/djwt@v2.8/mod.ts";
 
 const JWT_SECRET = Deno.env.get("JWT_SECRET") || "tu_super_secreto";

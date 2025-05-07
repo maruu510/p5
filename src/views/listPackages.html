@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Paquetes - Gestión de Paquetes</title>
     <link rel="stylesheet" href="./styles/estilos.css">
-
     <style>
         /* Reset básico */
         * {
@@ -15,25 +15,26 @@
         }
 
         body {
-            background-image: url('../images/packages-6153947_1280-850x566.webp'); /* Reemplaza con la URL de tu imagen */
+            background-image: url('../images/packages-6153947_1280-850x566.webp');
             background-size: cover;
             background-position: center;
+            background-attachment: fixed;
             color: #333;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px 10px;
-            position: relative; /* Para posicionar el botón de cerrar sesión */
+            padding: 10px;
+            position: relative;
         }
 
         header {
             width: 100%;
-            max-width: 900px;
+            max-width: 1200px;
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             font-size: 1.8rem;
             font-weight: 700;
             color: #2c3e50;
@@ -47,10 +48,10 @@
         }
 
         .logout-btn {
-            position: absolute;
+            position: fixed;
             top: 20px;
             right: 20px;
-            background-color: #27ae60; /* Verde */
+            background-color: #27ae60;
             border: none;
             color: white;
             padding: 10px 18px;
@@ -58,19 +59,21 @@
             border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            z-index: 1000;
         }
 
         .logout-btn:hover {
-            background-color: #1e8449; /* Verde más oscuro */
+            background-color: #1e8449;
         }
 
         .container {
-            background-color: white;
-            max-width: 900px;
-            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            width: 95%;
+            max-width: 1200px;
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            padding: 30px 25px;
+            padding: 20px;
+            margin-bottom: 30px;
         }
 
         .container h2 {
@@ -91,8 +94,7 @@
             text-align: left;
         }
 
-        th,
-        td {
+        th, td {
             padding: 12px 15px;
             border-bottom: 1px solid #ddd;
             max-width: 150px;
@@ -113,6 +115,7 @@
             cursor: pointer;
             font-size: 0.9rem;
             transition: background-color 0.3s ease;
+            margin: 2px;
         }
 
         table button:hover {
@@ -140,26 +143,99 @@
             background-color: #1e8449;
         }
 
+        /* QR Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 90%;
+        }
+
         /* Responsive */
-        @media (max-width: 600px) {
+        @media (max-width: 1024px) {
+            .container {
+                width: 90%;
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
             header {
-                font-size: 1.4rem;
-                gap: 10px;
+                font-size: 1.5rem;
+                flex-direction: column;
+                text-align: center;
+                padding-top: 15px;
             }
 
-            th,
-            td {
+            .container {
+                padding: 15px;
+                width: 95%;
+            }
+
+            th, td {
                 padding: 8px 10px;
                 font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            header {
+                font-size: 1.3rem;
+                padding-bottom: 5px;
+            }
+
+            header img {
+                height: 40px;
             }
 
             .logout-btn {
                 padding: 8px 14px;
                 font-size: 0.9rem;
+                top: 10px;
+                right: 10px;
             }
 
             .container {
-                padding: 20px 15px;
+                padding: 10px;
+                width: 98%;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 6px 8px;
+            }
+
+            table button {
+                padding: 4px 8px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            table {
+                display: block;
+                overflow-x: auto;
             }
         }
     </style>
@@ -193,56 +269,158 @@
         </div>
     </div>
 
+    <!-- Modal para QR -->
+    <div class="modal" id="qrModal">
+        <div class="modal-content">
+            <img id="modalQrImage" src="" alt="Código QR del paquete">
+            <button onclick="document.getElementById('qrModal').style.display = 'none'">
+                Cerrar
+            </button>
+        </div>
+    </div>
+
     <script>
-        // 🔒 PROTEGER ESTA PÁGINA
-        document.addEventListener('DOMContentLoaded', () => {
+       
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Verificar autenticación
             const token = localStorage.getItem('authToken');
             if (!token) {
-                window.location.href = 'login.html'; // Si no hay token, redirige
-            } else {
-                loadPackages(); // Si hay token, carga los paquetes
+              window.location.href = 'login.html';
+              return;
             }
-        });
-
-        function logout() {
-            localStorage.removeItem('authToken');
-            window.location.href = 'login.html';
-        }
-
-        async function loadPackages() {
-            const response = await fetch('/api/packages');
-            const packages = await response.json();
-
-            const tbody = document.querySelector('#packagesTable tbody');
-            tbody.innerHTML = '';
-
-            packages.forEach(pkg => {
-                const row = `
-                    <tr>
-                        <td>${pkg.id}</td>
-                        <td>${pkg.apartment_number}</td>
-                        <td>${pkg.sender}</td>
-                        <td>${new Date(pkg.delivery_date).toLocaleDateString()}</td>
-                        <td>${pkg.status}</td>
-                        <td>
-                            ${pkg.status === 'pendiente'
-                                ? `<button onclick="updateStatus(${pkg.id})" aria-label="Marcar paquete ${pkg.id} como retirado">Marcar Retirado</button>`
-                                : ''}
-                        </td>
-                    </tr>`;
-                tbody.innerHTML += row;
+          
+            // Configurar logout
+            document.querySelector('.logout-btn').addEventListener('click', () => {
+              localStorage.removeItem('authToken');
+              window.location.href = 'login.html';
             });
-        }
-
-        async function updateStatus(id) {
-            await fetch(`/api/packages/${id}/status`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: 'retirado' })
-            });
+          
+            // Cargar paquetes
+            async function loadPackages() {
+              try {
+                const response = await fetch('/api/packages', {
+                  headers: {
+                    'Authorization': `Bearer ${token}`
+                  }
+                });
+                
+                if (!response.ok) throw new Error('Error al cargar paquetes');
+                
+                const packages = await response.json();
+                const tbody = document.querySelector('#packagesTable tbody');
+                tbody.innerHTML = '';
+          
+                packages.forEach(pkg => {
+                  const row = document.createElement('tr');
+                  row.innerHTML = `
+                    <td>${pkg.id}</td>
+                    <td>${pkg.apartment_number}</td>
+                    <td>${pkg.sender}</td>
+                    <td>${new Date(pkg.delivery_date).toLocaleDateString()}</td>
+                    <td>${pkg.status}</td>
+                    <td>
+                      ${pkg.status === 'pendiente' ? 
+                        `<button onclick="updateStatus(${pkg.id})">Marcar Retirado</button>` : ''}
+                      <button onclick="showQR('${pkg.qr_code}')">Ver QR</button>
+                    </td>
+                  `;
+                  tbody.appendChild(row);
+                });
+              } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar paquetes');
+              }
+            }
+          
+            window.updateStatus = async function(id) {
+              try {
+                const response = await fetch(`/api/packages/${id}/status`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  },
+                  body: JSON.stringify({ status: 'retirado' })
+                });
+          
+                if (response.ok) {
+                  loadPackages();
+                } else {
+                  throw new Error('Error al actualizar estado');
+                }
+              } catch (error) {
+                console.error('Error:', error);
+                alert(error.message);
+              }
+            };
+          
+            window.showQR = function(qrCode) {
+              const modal = document.getElementById('qrModal');
+              document.getElementById('modalQrImage').src = qrCode;
+              modal.style.display = 'flex';
+              
+              // Cerrar modal al hacer clic fuera
+              modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                  modal.style.display = 'none';
+                }
+              });
+            };
+          
+            // Cargar paquetes inicialmente
             loadPackages();
+          });
+function showQR(qrCode) {
+    const modal = document.createElement('div');
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
+    modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
+    modal.style.display = 'flex';
+    modal.style.justifyContent = 'center';
+    modal.style.alignItems = 'center';
+    modal.style.zIndex = '1000';
+    
+    modal.innerHTML = `
+        <div style="background: white; padding: 20px; border-radius: 10px; text-align: center;">
+            <img src="${qrCode}" style="max-width: 300px; height: auto;">
+            <button onclick="this.parentElement.parentElement.remove()" 
+                    style="margin-top: 20px; padding: 10px 20px;">
+                Cerrar
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+        async function updateStatus(id) {
+            try {
+                const response = await fetch(`/api/packages/${id}/status`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify({ status: 'retirado' })
+                });
+
+                if (response.ok) {
+                    loadPackages();
+                } else {
+                    throw new Error('Error al actualizar el estado');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert(error.message);
+            }
+        }
+
+        function showQR(qrCode) {
+            document.getElementById('modalQrImage').src = qrCode;
+            document.getElementById('qrModal').style.display = 'flex';
         }
     </script>
 </body>
-
 </html>
