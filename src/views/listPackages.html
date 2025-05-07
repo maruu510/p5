@@ -2,164 +2,215 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Paquetes - Gestión de Paquetes</title>
-    <link rel="stylesheet" href="./styles/estilos.css">
 
     <style>
-        /* Reset básico */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --primary: #27ae60;
+            --primary-dark: #1e8449;
+            --text: #2c3e50;
+            --background: #f8fafc;
+            --white: #ffffff;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-700: #334155;
         }
 
         body {
-            background-image: url('../images/packages-6153947_1280-850x566.webp'); /* Reemplaza con la URL de tu imagen */
-            background-size: cover;
-            background-position: center;
-            color: #333;
+            background: var(--background);
+            color: var(--text);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px 10px;
-            position: relative; /* Para posicionar el botón de cerrar sesión */
+            padding: 1.25rem;
+            position: relative;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .modal {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-width: 28rem;
+            width: 90%;
         }
 
         header {
             width: 100%;
-            max-width: 900px;
+            max-width: 64rem;
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #2c3e50;
-            border-bottom: 2px solid #1e8449;
-            padding-bottom: 10px;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--white);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         header img {
-            height: 50px;
+            height: 3rem;
             width: auto;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 
         .logout-btn {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: #27ae60; /* Verde */
-            border: none;
-            color: white;
-            padding: 10px 18px;
-            font-size: 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .logout-btn:hover {
-            background-color: #1e8449; /* Verde más oscuro */
+            top: 1.25rem;
+            right: 1.25rem;
         }
 
         .container {
-            background-color: white;
-            max-width: 900px;
+            background-color: var(--white);
+            max-width: 64rem;
             width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            padding: 30px 25px;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
         }
 
-        .container h2 {
-            margin-bottom: 20px;
-            color: #34495e;
-            text-align: center;
+        .container-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .loading-spinner {
+            border: 3px solid var(--gray-200);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 1.5rem;
+            height: 1.5rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 0 -1rem;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.95rem;
+            font-size: 0.875rem;
+            min-width: 40rem;
         }
 
-        thead tr {
-            background-color: #1e8449;
-            color: white;
+        thead {
+            background-color: var(--gray-100);
+        }
+
+        th {
+            font-weight: 600;
             text-align: left;
+            color: var(--gray-700);
         }
 
-        th,
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #ddd;
-            max-width: 150px;
-            word-wrap: break-word;
+        th, td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--gray-200);
         }
 
         tbody tr:hover {
-            background-color: #f1f7ff;
+            background-color: var(--gray-100);
         }
 
-        /* Botón dentro de tabla */
-        table button {
-            background-color: #27ae60;
-            border: none;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.3s ease;
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: capitalize;
         }
 
-        table button:hover {
-            background-color: #1e8449;
+        .status-pendiente {
+            background-color: #fef3c7;
+            color: #92400e;
         }
 
-        /* Link para registrar nuevo paquete */
-        .link {
-            margin-top: 25px;
-            text-align: center;
+        .status-retirado {
+            background-color: #dcfce7;
+            color: #166534;
         }
 
-        .link a {
-            text-decoration: none;
-            background-color: #1e8449;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-            display: inline-block;
+        .error-message {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
         }
 
-        .link a:hover {
-            background-color: #1e8449;
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            header {
-                font-size: 1.4rem;
-                gap: 10px;
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
             }
 
-            th,
-            td {
-                padding: 8px 10px;
-                font-size: 0.85rem;
+            .container-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
             }
 
             .logout-btn {
-                padding: 8px 14px;
-                font-size: 0.9rem;
-            }
-
-            .container {
-                padding: 20px 15px;
+                position: static;
+                margin-top: 1rem;
+                width: 100%;
+                text-align: center;
             }
         }
     </style>
@@ -167,82 +218,161 @@
 
 <body>
     <header>
-        <img src="./images/ENCOMIENDA.png" alt="Logo Paquete">
-        Lista de Paquetes
+        <img src="./images/ENCOMIENDA.png" alt="Logo de Gestión de Paquetes">
+        <h1>Lista de Paquetes</h1>
     </header>
 
-    <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+    <button class="btn logout-btn" onclick="logout()" id="logoutBtn">
+        <span>Cerrar Sesión</span>
+    </button>
 
     <div class="container">
-        <h2>Paquetes Registrados</h2>
-        <table id="packagesTable" aria-label="Lista de paquetes registrados">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Departamento</th>
-                    <th>Remitente</th>
-                    <th>Fecha Entrega</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <div class="link">
-            <a href="registerPackage.html">Registrar Nuevo Paquete</a>
+        <div class="container-header">
+            <h2>Paquetes Registrados</h2>
+            <a href="registerPackage.html" class="btn">Registrar Nuevo Paquete</a>
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display: none;">
+            Ha ocurrido un error al cargar los paquetes
+        </div>
+
+        <div class="table-container">
+            <table id="packagesTable" aria-label="Lista de paquetes registrados">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Departamento</th>
+                        <th scope="col">Remitente</th>
+                        <th scope="col">Fecha Entrega</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="6" style="text-align: center;">
+                            <div class="loading-spinner"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="overlay" style="display: none;">
+        <div class="modal">
+            <h3>Confirmar actualización</h3>
+            <p style="margin: 1rem 0;">¿Está seguro que desea marcar este paquete como retirado?</p>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button class="btn" style="background-color: var(--gray-700);" onclick="closeModal()">Cancelar</button>
+                <button class="btn" id="confirmButton">Confirmar</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // 🔒 PROTEGER ESTA PÁGINA
+        let currentPackageId = null;
+
         document.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('authToken');
             if (!token) {
-                window.location.href = 'login.html'; // Si no hay token, redirige
+                window.location.href = 'login.html';
             } else {
-                loadPackages(); // Si hay token, carga los paquetes
+                loadPackages();
             }
         });
 
         function logout() {
+            const logoutBtn = document.getElementById('logoutBtn');
+            logoutBtn.disabled = true;
             localStorage.removeItem('authToken');
             window.location.href = 'login.html';
         }
 
         async function loadPackages() {
-            const response = await fetch('/api/packages');
-            const packages = await response.json();
-
+            const errorMessage = document.getElementById('errorMessage');
             const tbody = document.querySelector('#packagesTable tbody');
-            tbody.innerHTML = '';
+            
+            try {
+                const response = await fetch('/api/packages', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
 
-            packages.forEach(pkg => {
-                const row = `
+                if (!response.ok) throw new Error('Error al cargar los paquetes');
+
+                const packages = await response.json();
+                errorMessage.style.display = 'none';
+                
+                tbody.innerHTML = packages.map(pkg => `
                     <tr>
                         <td>${pkg.id}</td>
                         <td>${pkg.apartment_number}</td>
                         <td>${pkg.sender}</td>
-                        <td>${new Date(pkg.delivery_date).toLocaleDateString()}</td>
-                        <td>${pkg.status}</td>
+                        <td>${new Date(pkg.delivery_date).toLocaleDateString('es-ES')}</td>
+                        <td>
+                            <span class="status-badge status-${pkg.status.toLowerCase()}">
+                                ${pkg.status}
+                            </span>
+                        </td>
                         <td>
                             ${pkg.status === 'pendiente'
-                                ? `<button onclick="updateStatus(${pkg.id})" aria-label="Marcar paquete ${pkg.id} como retirado">Marcar Retirado</button>`
+                                ? `<button class="btn" onclick="showConfirmModal(${pkg.id})" aria-label="Marcar paquete ${pkg.id} como retirado">
+                                    Marcar Retirado
+                                   </button>`
                                 : ''}
                         </td>
-                    </tr>`;
-                tbody.innerHTML += row;
-            });
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Ha ocurrido un error al cargar los paquetes';
+            }
+        }
+
+        function showConfirmModal(packageId) {
+            currentPackageId = packageId;
+            document.getElementById('confirmModal').style.display = 'flex';
+            document.getElementById('confirmButton').onclick = () => updateStatus(packageId);
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            currentPackageId = null;
         }
 
         async function updateStatus(id) {
-            await fetch(`/api/packages/${id}/status`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: 'retirado' })
-            });
-            loadPackages();
+            const confirmButton = document.getElementById('confirmButton');
+            confirmButton.disabled = true;
+            
+            try {
+                const response = await fetch(`/api/packages/${id}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify({ status: 'retirado' })
+                });
+
+                if (!response.ok) throw new Error('Error al actualizar el estado');
+
+                await loadPackages();
+                closeModal();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Ha ocurrido un error al actualizar el estado del paquete');
+            } finally {
+                confirmButton.disabled = false;
+            }
         }
+
+        // Cerrar modal con Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
     </script>
 </body>
-
 </html>

@@ -338,8 +338,8 @@
       <div class="menu-group">
         <label for="userType" id="userTypeLabel">Tipo de usuario:</label>
         <select id="userType" class="menu-select" aria-label="Seleccionar tipo de usuario">
-          <option value="resident" selected>Residente</option>
-          <option value="admin">Administrador</option>
+          <option value="admin" selected>Administrador</option>
+          <option value="resident" >Residente</option>
         </select>
       </div>
     </div>
@@ -347,7 +347,7 @@
 
   <nav>
     <div class="nav-group">
-      <img src="./images/ENCOMIENDA.png" alt="Logo" height="40">
+      <img src="./images/logo1.jpg" alt="Logo" height="40">
       <span id="navTitle">Gestión de Paquetes</span>
     </div>
   </nav>
@@ -383,208 +383,97 @@
       <input type="password" class="inputField" id="password" placeholder="Contraseña" required aria-label="Contraseña"> 
     </div> 
     
-    <button id="button" type="submit">Iniciar Sesión</button>
-    <a class="forgotLink" href="#" id="forgotPassword">¿Olvidaste tu contraseña?</a>
-    <div class="link" id="signupLink">
-      <span id="noAccountText">¿No tienes cuenta?</span> <a href="signup.html" id="registerLink">Regístrate</a>
-    </div>
+    <button id="button" type="submit">Iniciar Sesión</button> 
+    <a href="#" class="forgotLink" id="forgotPassword">¿Olvidaste tu contraseña?</a> 
+    <p id="signupLink">¿No tienes cuenta? <a href="signup.html">Regístrate aquí</a></p> 
   </form>
 
   <script>
-    // Traducciones
+    // Traducción de elementos según el idioma seleccionado
+    const languageSelect = document.getElementById('language');
+    const userTypeSelect = document.getElementById('userType');
+    
+    // Elementos que necesitan traducción
+    const languageLabel = document.getElementById('languageLabel');
+    const userTypeLabel = document.getElementById('userTypeLabel');
+    const navTitle = document.getElementById('navTitle');
+    const welcomeTitle = document.getElementById('welcomeTitle');
+    const loginTitle = document.getElementById('loginTitle');
+    const forgotPassword = document.getElementById('forgotPassword');
+    const signupLink = document.getElementById('signupLink');
+    const button = document.getElementById('button');
+    const loaderText = document.getElementById('loaderText');
+    
+    // Traducciones disponibles
     const translations = {
       es: {
-        languageLabel: "Idioma:",
-        userTypeLabel: "Tipo de usuario:",
-        resident: "Residente",
-        admin: "Administrador",
-        navTitle: "Gestión de Paquetes",
-        welcomeTitle: "Bienvenido al Sistema",
-        loginTitle: "Iniciar Sesión",
-        username: "Nombre de usuario",
-        password: "Contraseña",
-        loginButton: "Iniciar Sesión",
-        forgotPassword: "¿Olvidaste tu contraseña?",
-        noAccountText: "¿No tienes cuenta?",
-        registerLink: "Regístrate",
-        loginError: "Error al iniciar sesión",
-        connectionError: "Error al conectar con el servidor",
-        processingLogin: "Procesando...",
-        authenticating: "Autenticando",
-        redirecting: "Redireccionando..."
+        languageLabel: 'Idioma:',
+        userTypeLabel: 'Tipo de usuario:',
+        navTitle: 'Gestión de Paquetes',
+        welcomeTitle: 'Bienvenido al Sistema',
+        loginTitle: 'Iniciar Sesión',
+        forgotPassword: '¿Olvidaste tu contraseña?',
+        signupLink: '¿No tienes cuenta? <a href="signup.html">Regístrate aquí</a>',
+        button: 'Iniciar Sesión',
+        loaderText: 'Procesando...'
       },
       en: {
-        languageLabel: "Language:",
-        userTypeLabel: "User type:",
-        resident: "Resident",
-        admin: "Administrator",
-        navTitle: "Package Management",
-        welcomeTitle: "Welcome to the System",
-        loginTitle: "Log In",
-        username: "Username",
-        password: "Password",
-        loginButton: "Log In",
-        forgotPassword: "Forgot your password?",
-        noAccountText: "Don't have an account?",
-        registerLink: "Sign up",
-        loginError: "Login error",
-        connectionError: "Error connecting to server",
-        processingLogin: "Processing...",
-        authenticating: "Authenticating",
-        redirecting: "Redirecting..."
+        languageLabel: 'Language:',
+        userTypeLabel: 'User type:',
+        navTitle: 'Package Management',
+        welcomeTitle: 'Welcome to the System',
+        loginTitle: 'Login',
+        forgotPassword: 'Forgot your password?',
+        signupLink: 'Don\'t have an account? <a href="signup.html">Register here</a>',
+        button: 'Login',
+        loaderText: 'Processing...'
       }
     };
-
-    // Cargar configuración guardada o usar valores predeterminados
-    const savedLanguage = localStorage.getItem('language') || 'es';
-    const savedUserType = localStorage.getItem('userType') || 'resident';
     
-    // Establecer los valores iniciales en los selectores
-    document.getElementById('language').value = savedLanguage;
-    document.getElementById('userType').value = savedUserType;
-    
-    // Establecer el atributo lang del HTML
-    document.documentElement.lang = savedLanguage;
-
-    // Función para actualizar textos según el idioma seleccionado
+    // Función para actualizar el idioma
     function updateLanguage(lang) {
-      const texts = translations[lang];
-      
-      // Actualizar textos en la interfaz
-      document.getElementById('languageLabel').textContent = texts.languageLabel;
-      document.getElementById('userTypeLabel').textContent = texts.userTypeLabel;
-      document.getElementById('navTitle').textContent = texts.navTitle;
-      document.getElementById('welcomeTitle').textContent = texts.welcomeTitle;
-      document.getElementById('loginTitle').textContent = texts.loginTitle;
-      document.getElementById('username').placeholder = texts.username;
-      document.getElementById('username').setAttribute('aria-label', texts.username);
-      document.getElementById('password').placeholder = texts.password;
-      document.getElementById('password').setAttribute('aria-label', texts.password);
-      document.getElementById('button').textContent = texts.loginButton;
-      document.getElementById('forgotPassword').textContent = texts.forgotPassword;
-      document.getElementById('noAccountText').textContent = texts.noAccountText;
-      document.getElementById('registerLink').textContent = texts.registerLink;
-      
-      // Actualizar opciones del select de tipo de usuario
-      const userTypeSelect = document.getElementById('userType');
-      userTypeSelect.options[0].text = texts.resident;
-      userTypeSelect.options[1].text = texts.admin;
-      
-      // Actualizar el atributo lang del HTML
-      document.documentElement.lang = lang;
-    }
-
-    // Aplicar el idioma guardado al cargar la página
-    updateLanguage(savedLanguage);
-
-    // Event listener para el cambio de idioma
-    document.getElementById('language').addEventListener('change', function() {
-      const selectedLanguage = this.value;
-      localStorage.setItem('language', selectedLanguage);
-      updateLanguage(selectedLanguage);
-    });
-
-    // Event listener para el cambio de tipo de usuario
-    document.getElementById('userType').addEventListener('change', function() {
-      const selectedUserType = this.value;
-      localStorage.setItem('userType', selectedUserType);
-    });
-
-    // Función para mostrar/ocultar el loader
-    function toggleLoader(show, message = null) {
-      const loaderContainer = document.getElementById('loaderContainer');
-      const loaderText = document.getElementById('loaderText');
-      const currentLang = document.getElementById('language').value;
-      const texts = translations[currentLang];
-      
-      if (show) {
-        loaderContainer.classList.add('active');
-        if (message) {
-          loaderText.textContent = message;
-        } else {
-          loaderText.textContent = texts.processingLogin;
-        }
-      } else {
-        loaderContainer.classList.remove('active');
-      }
+      const translation = translations[lang];
+      languageLabel.textContent = translation.languageLabel;
+      userTypeLabel.textContent = translation.userTypeLabel;
+      navTitle.textContent = translation.navTitle;
+      welcomeTitle.textContent = translation.welcomeTitle;
+      loginTitle.textContent = translation.loginTitle;
+      forgotPassword.textContent = translation.forgotPassword;
+      signupLink.innerHTML = translation.signupLink;
+      button.textContent = translation.button;
+      loaderText.textContent = translation.loaderText;
     }
     
-    // Event listener para el formulario de login
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    // Escuchar cambios en el selector de idioma
+    languageSelect.addEventListener('change', (e) => {
+      updateLanguage(e.target.value);
+    });
+    
+    // Manejar el envío del formulario de inicio de sesión
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
       e.preventDefault();
       
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const userType = document.getElementById('userType').value;
-      const lang = document.getElementById('language').value;
-      const texts = translations[lang];
-      
       // Mostrar el loader
-      toggleLoader(true);
+      document.getElementById('loaderContainer').classList.add('active');
       
-      try {
-        // Simular tiempo de autenticación (opcional, solo para ver la animación)
-        toggleLoader(true, texts.authenticating);
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        const response = await fetch('/api/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ username, password, userType })
-        });
-
-        const data = await response.json();
-        
-        if (response.ok) {
-          localStorage.setItem('authToken', data.token);
-          localStorage.setItem('language', lang);
-          localStorage.setItem('userType', userType);
-          
-          // Mensaje de redirección
-          toggleLoader(true, texts.redirecting);
-          
-          // Pequeña pausa antes de redireccionar
-          setTimeout(() => {
-            // Redireccionar según el tipo de usuario
-            if (userType === 'admin') {
-              window.location.href = 'adminDashboard.html';
-            } else {
-              window.location.href = 'listPackages.html';
-            }
-          }, 500);
-        } else {
-          // Ocultar el loader
-          toggleLoader(false);
-          const errorMessage = texts.loginError;
-          alert(data.error || errorMessage);
-        }
-      } catch (error) {
-        console.error('Error:', error);
+      // Obtener los valores del formulario
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const userType = document.getElementById('userType').value;
+      
+      // Simulación de autenticación (reemplazar con tu lógica real)
+      setTimeout(() => {
         // Ocultar el loader
-        toggleLoader(false);
-        const errorMessage = texts.connectionError;
-        alert(errorMessage);
-      }
+        document.getElementById('loaderContainer').classList.remove('active');
+        
+        // Redireccionar según el tipo de usuario seleccionado
+        if (userType === 'resident') {
+          window.location.href = 'resident.html';
+        } else if (userType === 'admin') {
+          window.location.href = 'listPackages.html';
+        }
+      }, 1500);
     });
-
-    // Añadir clase sr-only (screen-reader-only) para etiquetas ocultas visualmente pero accesibles
-    const style = document.createElement('style');
-    style.textContent = `
-      .sr-only {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border-width: 0;
-      }
-    `;
-    document.head.appendChild(style);
   </script>
 </body>
 </html>
