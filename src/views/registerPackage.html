@@ -589,6 +589,22 @@ function savePackageForDepartment(packageData) {
       return departments;
     }
 
+    // Función para guardar un paquete para un departamento específico
+    function savePackageForDepartment(packageData) {
+      // Guardar en el formato global
+      const allPackages = JSON.parse(localStorage.getItem(CONFIG.LOCAL_STORAGE_KEY) || '[]');
+      allPackages.push(packageData);
+      localStorage.setItem(CONFIG.LOCAL_STORAGE_KEY, JSON.stringify(allPackages));
+      
+      // También guardar para el departamento específico
+      const deptKey = `packages_${packageData.apartment_number}`;
+      const deptPackages = JSON.parse(localStorage.getItem(deptKey) || '[]');
+      deptPackages.push(packageData);
+      localStorage.setItem(deptKey, JSON.stringify(deptPackages));
+      
+      console.log(`Paquete guardado para departamento ${packageData.apartment_number}`);
+    }
+
     // Gestor de autenticación
     const AuthManager = {
       getToken() {
@@ -629,6 +645,8 @@ function savePackageForDepartment(packageData) {
             });
 
             if (response.ok) {
+              // Guardar también en localStorage para el departamento específico
+              savePackageForDepartment(packageData);
               return true;
             } else {
               const result = await response.json();
@@ -651,6 +669,10 @@ function savePackageForDepartment(packageData) {
                 packageData.created_at = new Date().toISOString();
                 paquetesGuardados.push(packageData);
                 localStorage.setItem(CONFIG.LOCAL_STORAGE_KEY, JSON.stringify(paquetesGuardados));
+                
+                // Guardar también para el departamento específico
+                savePackageForDepartment(packageData);
+                
                 console.log('Paquete guardado localmente para pruebas');
                 return true;
               } catch (localError) {
