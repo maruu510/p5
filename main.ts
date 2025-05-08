@@ -6,6 +6,11 @@ import authRouter from "./src/routes/routes.ts";
 import { oakCors } from "./deps.ts";
 import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
 import "https://deno.land/std@0.204.0/dotenv/load.ts";
+import departmentRoutes from "./src/routes/departmentRoutes.ts";
+// ...otros imports y setup...
+
+
+
 
 
 
@@ -75,6 +80,9 @@ app.use(packageRouter.allowedMethods());
 // Crear tablas si no existen
 await createUsersTable();
 await createPackagesTable();
+
+app.use(departmentRoutes.routes());
+app.use(departmentRoutes.allowedMethods());
 
 console.log(`Servidor web corriendo en http://localhost:${port}`);
 await app.listen({ port });
