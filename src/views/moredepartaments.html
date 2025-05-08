@@ -246,7 +246,13 @@
         <div id="successMessage" class="success-message" style="display: none;"></div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
     <script>
+        // Inicializar EmailJS con tu ID de usuario
+        (function() {
+            emailjs.init("TU_ID_DE_USUARIO_EMAILJS");
+        })();
+        
         // Funciones para manejar las pestañas
         function openTab(evt, tabName) {
             const tabContents = document.getElementsByClassName("tab-content");
@@ -316,11 +322,33 @@
             departments.push(userInfo);
             localStorage.setItem('departments', JSON.stringify(departments));
             
-            // Simulación de envío de email
-            console.log(`Email enviado a ${email} con la contraseña de seguridad.`);
+            // Enviar email real
+            sendEmailToUser(email, firstName, lastName, deptNumber);
             
             return true;
         }
+        
+        // Función para enviar email al usuario
+        function sendEmailToUser(email, firstName, lastName, deptNumber, userRole) {
+            // Enviar email usando EmailJS
+            const templateParams = {
+                to_email: email,
+                to_name: `${firstName} ${lastName}`,
+                department: deptNumber,
+                role: userRole === 'admin' ? 'Administrador' : 'Residente',
+                message: `Bienvenido al sistema de gestión de paquetes. Su departamento es el número ${deptNumber}.`
+            };
+            
+            emailjs.send('TU_SERVICE_ID', 'TU_TEMPLATE_ID', templateParams)
+                .then(function(response) {
+                    console.log('Email enviado!', response.status, response.text);
+                }, function(error) {
+                    console.error('Error al enviar email:', error);
+                });
+        }
+        
+        return true;
+        
         
         // Función para volver atrás
         function goBack() {
@@ -587,146 +615,145 @@
     </script>
 </body>
 </html>
+</script>
 
-</html> lang="es">
-</body>
-    </script>
-// Funciones para gestionar departamentos
-function getAllDepartments() {
-    const departments = localStorage.getItem('departments');
-    return departments ? JSON.parse(departments) : [];
-}
-
-function saveDepartments(departments) {
-    localStorage.setItem('departments', JSON.stringify(departments));
-}
-
-function addDepartment(deptNumber) {
-    const departments = getAllDepartments();
-    
-    // Verificar si el departamento ya existe
-    if (departments.includes(parseInt(deptNumber))) {
-        return false; // El departamento ya existe
+<script>
+    // Funciones para gestionar departamentos
+    function getAllDepartments() {
+        const departments = localStorage.getItem('departments');
+        return departments ? JSON.parse(departments) : [];
     }
-    
-    // Agregar el nuevo departamento
-    departments.push(parseInt(deptNumber));
-    saveDepartments(departments);
-    return true;
-}
 
-// Función para volver a la página de departamentos
-function goBack() {
-    window.location.href = 'departaments.html';
-}
-
-// Función para manejar el envío del formulario individual
-document.addEventListener('DOMContentLoaded', function() {
-    const addDeptForm = document.getElementById('addDeptForm');
-    
-    if (addDeptForm) {
-        addDeptForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const deptNumber = document.getElementById('deptNumber').value.trim();
-            
-            if (!deptNumber) {
-                alert('Por favor, ingrese un número de departamento válido');
-                return;
-            }
-            
-            if (addDepartment(deptNumber)) {
-                alert('Departamento agregado correctamente');
-                document.getElementById('deptNumber').value = '';
-            } else {
-                alert('El departamento ya existe');
-            }
-        });
+    function saveDepartments(departments) {
+        localStorage.setItem('departments', JSON.stringify(departments));
     }
-    
-    // Implementar la funcionalidad para el tab de múltiples departamentos
-    const addMultipleForm = document.getElementById('addMultipleForm');
-    
-    if (addMultipleForm) {
-        addMultipleForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const startRange = parseInt(document.getElementById('startRange').value);
-            const endRange = parseInt(document.getElementById('endRange').value);
 
-            if (isNaN(startRange) || isNaN(endRange) || startRange > endRange) {
-                alert('Por favor, ingrese un rango válido');
-                return;
-            }
-            
-            let addedCount = 0;
-            
-            for (let i = startRange; i <= endRange; i++) {
-                if (addDepartment(i)) {
-                    addedCount++;
+    function addDepartment(deptNumber) {
+        const departments = getAllDepartments();
+        
+        // Verificar si el departamento ya existe
+        if (departments.includes(parseInt(deptNumber))) {
+            return false; // El departamento ya existe
+        }
+        
+        // Agregar el nuevo departamento
+        departments.push(parseInt(deptNumber));
+        saveDepartments(departments);
+        return true;
+    }
+
+    // Función para volver a la página de departamentos
+    function goBack() {
+        window.location.href = 'departaments.html';
+    }
+
+    // Función para manejar el envío del formulario individual
+    document.addEventListener('DOMContentLoaded', function() {
+        const addDeptForm = document.getElementById('addDeptForm');
+        
+        if (addDeptForm) {
+            addDeptForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const deptNumber = document.getElementById('deptNumber').value.trim();
+                
+                if (!deptNumber) {
+                    alert('Por favor, ingrese un número de departamento válido');
+                    return;
                 }
-            }
-            
-            alert(`Se agregaron ${addedCount} departamentos correctamente`);
-        });
-    }
-    
-    // Implementar la funcionalidad para importar CSV
-    const importCSVForm = document.getElementById('importCSVForm');
-    
-    if (importCSVForm) {
-        importCSVForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const fileInput = document.getElementById('csvFile');
-            
-            if (!fileInput.files || fileInput.files.length === 0) {
-                alert('Por favor, seleccione un archivo CSV');
-                return;
-            }
-            
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                const content = e.target.result;
-                const lines = content.split('\n');
+                
+                if (addDepartment(deptNumber)) {
+                    alert('Departamento agregado correctamente');
+                    document.getElementById('deptNumber').value = '';
+                } else {
+                    alert('El departamento ya existe');
+                }
+            });
+        }
+        
+        // Implementar la funcionalidad para el tab de múltiples departamentos
+        const addMultipleForm = document.getElementById('addMultipleForm');
+        
+        if (addMultipleForm) {
+            addMultipleForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const startRange = parseInt(document.getElementById('startRange').value);
+                const endRange = parseInt(document.getElementById('endRange').value);
+
+                if (isNaN(startRange) || isNaN(endRange) || startRange > endRange) {
+                    alert('Por favor, ingrese un rango válido');
+                    return;
+                }
                 
                 let addedCount = 0;
                 
-                for (let line of lines) {
-                    const deptNumber = line.trim();
-                    if (deptNumber && !isNaN(deptNumber)) {
-                        if (addDepartment(deptNumber)) {
-                            addedCount++;
-                        }
+                for (let i = startRange; i <= endRange; i++) {
+                    if (addDepartment(i)) {
+                        addedCount++;
                     }
                 }
                 
-                alert(`Se importaron ${addedCount} departamentos correctamente`);
-                fileInput.value = '';
-            };
-            
-            reader.readAsText(file);
-        });
-    }
-});
+                alert(`Se agregaron ${addedCount} departamentos correctamente`);
+            });
+        }
+        
+        // Implementar la funcionalidad para importar CSV
+        const importCSVForm = document.getElementById('importCSVForm');
+        
+        if (importCSVForm) {
+            importCSVForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const fileInput = document.getElementById('csvFile');
+                
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    alert('Por favor, seleccione un archivo CSV');
+                    return;
+                }
+                
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    const lines = content.split('\n');
+                    
+                    let addedCount = 0;
+                    
+                    for (let line of lines) {
+                        const deptNumber = line.trim();
+                        if (deptNumber && !isNaN(deptNumber)) {
+                            if (addDepartment(deptNumber)) {
+                                addedCount++;
+                            }
+                        }
+                    }
+                    
+                    alert(`Se importaron ${addedCount} departamentos correctamente`);
+                    fileInput.value = '';
+                };
+                
+                reader.readAsText(file);
+            });
+        }
+    });
 
-// Función para cambiar entre pestañas
-function openTab(evt, tabName) {
-    const tabContents = document.getElementsByClassName("tab-content");
-    for (let i = 0; i < tabContents.length; i++) {
-        tabContents[i].classList.remove("active");
+    // Función para cambiar entre pestañas
+    function openTab(evt, tabName) {
+        const tabContents = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < tabContents.length; i++) {
+            tabContents[i].classList.remove("active");
+        }
+        
+        const tabButtons = document.getElementsByClassName("tab-button");
+        for (let i = 0; i < tabButtons.length; i++) {
+            tabButtons[i].classList.remove("active");
+        }
+        
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
     }
-    
-    const tabButtons = document.getElementsByClassName("tab-button");
-    for (let i = 0; i < tabButtons.length; i++) {
-        tabButtons[i].classList.remove("active");
-    }
-    
-    document.getElementById(tabName).classList.add("active");
-    evt.currentTarget.classList.add("active");
-}
-    </script>
+</script>
 </body>
-</html> 
+</html>
