@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lector de Códigos QR - Gestión de Paquetes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --primary-light: #e3f2fd;
+            --secondary: #2ecc71;
+            --secondary-dark: #27ae60;
+            --accent: #6c5ce7;
+            --accent-dark: #5b4cc7;
+            --text: #2c3e50;
+            --background: #f9fafb;
+            --white: #ffffff;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-700: #334155;
+            --red-50: #fef2f2;
+            --red-600: #dc2626;
+            --yellow-50: #fef9c3;
+            --yellow-700: #a16207;
+            --green-50: #f0fdf4;
+            --green-700: #15803d;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-sm: 0.375rem;
+            --radius: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            position: relative;
+            line-height: 1.5;
+            font-size: 16px;
+        }
+
+        header {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        header img {
+            height: 2.5rem;
+            width: auto;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 0.625rem 1rem;
+            border-radius: var(--radius);
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-success {
+            background-color: var(--secondary);
+        }
+
+        .btn-success:hover {
+            background-color: var(--secondary-dark);
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+        }
+
+        .btn-accent:hover {
+            background-color: var(--accent-dark);
+        }
+
+        .btn-gray {
+            background-color: var(--gray-700);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-light);
+        }
+
+        .logout-btn {
+            background-color: transparent;
+            color: var(--text);
+            border: 1px solid var(--gray-300);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logout-btn:hover {
+            background-color: var(--gray-100);
+            color: var(--text);
+            border-color: var(--gray-300);
+        }
+
+        .container {
+            background-color: var(--white);
+            max-width: 1200px;
+            width: 100%;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .container-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .actions-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .qr-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .scanner-container {
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1/1;
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 2px solid var(--accent);
+        }
+
+        #qr-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+        }
+
+        .scanner-corner {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-color: var(--accent);
+            border-width: 3px;
+        }
+
+        .corner-top-left {
+            top: 15px;
+            left: 15px;
+            border-left-style: solid;
+            border-top-style: solid;
+        }
+
+        .corner-top-right {
+            top: 15px;
+            right: 15px;
+            border-right-style: solid;
+            border-top-style: solid;
+        }
+
+        .corner-bottom-left {
+            bottom: 15px;
+            left: 15px;
+            border-left-style: solid;
+            border-bottom-style: solid;
+        }
+
+        .corner-bottom-right {
+            bottom: 15px;
+            right: 15px;
+            border-right-style: solid;
+            border-bottom-style: solid;
+        }
+
+        .scanner-line {
+            position: absolute;
+            height: 2px;
+            width: 80%;
+            background: linear-gradient(90deg, transparent 0%, var(--accent) 50%, transparent 100%);
+            top: 50%;
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            0% {
+                transform: translateY(-80px);
+            }
+            50% {
+                transform: translateY(80px);
+            }
+            100% {
+                transform: translateY(-80px);
+            }
+        }
+
+        .scanner-control {
+            margin-top: 1rem;
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .result-container {
+            background-color: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-top: 1rem;
+            width: 100%;
+            max-width: 400px;
+            display: none;
+        }
+
+        .result-container.active {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .result-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .result-content {
+            font-size: 0.9375rem;
+            line-height: 1.5;
+            word-break: break-all;
+        }
+
+        .help-text {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--gray-700);
+            font-size: 0.875rem;
+            padding: 0 1rem;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            background-color: var(--green-50);
+            color: var(--green-700);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateY(1rem);
+            transition: all 0.3s ease;
+            z-index: 100;
+            max-width: 90%;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .error-notification {
+            background-color: var(--red-50);
+            color: var(--red-600);
+        }
+
+        .info-box {
+            background-color: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            padding: 1.25rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .info-box h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+        }
+
+        .info-box p {
+            font-size: 0.9375rem;
+            color: var(--text);
+        }
+
+        .manual-entry {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        #manual-code {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        #manual-code:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            body {
+                padding: 0.75rem;
+                font-size: 14px;
+            }
+
+            .container, header {
+                padding: 1rem;
+                border-radius: var(--radius);
+            }
+
+            header {
+                margin-bottom: 1rem;
+            }
+
+            header img {
+                height: 2rem;
+            }
+
+            header h1 {
+                font-size: 1.25rem;
+            }
+
+            .container-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .container-header h2 {
+                font-size: 1.125rem;
+            }
+
+            .actions-container {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8125rem;
+            }
+
+            .scanner-container {
+                max-width: 100%;
+                aspect-ratio: 1/1;
+            }
+
+            .scanner-control {
+                max-width: 100%;
+            }
+
+            .result-container, .info-box, .manual-entry {
+                max-width: 100%;
+            }
+
+            .notification {
+                max-width: calc(100% - 2rem);
+                left: 1rem;
+                right: 1rem;
+                bottom: 1rem;
+                font-size: 0.875rem;
+            }
+
+            @keyframes scan {
+                0% {
+                    transform: translateY(-60px);
+                }
+                50% {
+                    transform: translateY(60px);
+                }
+                100% {
+                    transform: translateY(-60px);
+                }
+            }
+        }
+
+        /* Adjustments for very small screens */
+        @media (max-width: 375px) {
+            .logo-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .scanner-corner {
+                width: 12px;
+                height: 12px;
+                border-width: 2px;
+            }
+
+            .corner-top-left {
+                top: 10px;
+                left: 10px;
+            }
+
+            .corner-top-right {
+                top: 10px;
+                right: 10px;
+            }
+
+            .corner-bottom-left {
+                bottom: 10px;
+                left: 10px;
+            }
+
+            .corner-bottom-right {
+                bottom: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="./images/ENCOMIENDA.png" alt="Logo de Gestión de Paquetes">
+            <h1>Lector de Códigos QR</h1>
+        </div>
+        <button class="btn logout-btn" onclick="logout()" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+        </button>
+    </header>
+
+    <div class="container">
+        <div class="container-header">
+            <h2>Escanear Código QR</h2>
+            <div class="actions-container">
+                <a href="listPackages.html" class="btn btn-outline" onclick="window.location.href='listPackages.html'; return false;">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Volver a Paquetes</span>
+                </a>
+                <a href="registerPackage.html" class="btn">
+                    <i class="fas fa-plus"></i>
+                    <span>Registrar Nuevo Paquete</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="info-box" style="max-width: 100%;">
+            <h3><i class="fas fa-info-circle"></i> Instrucciones</h3>
+            <p>Apunte la cámara hacia un código QR para escanear y procesar la información del paquete. Asegúrese de que el código QR esté bien iluminado y centrado en el recuadro. Si no puede acceder a la cámara, use la opción para ingresar el código manualmente.</p>
+        </div>
+        
+        <!-- Opción de entrada manual -->
+        <div class="manual-entry">
+            <button id="toggle-manual" class="btn btn-outline">
+                <i class="fas fa-keyboard"></i>
+                <span>Ingresar código manualmente</span>
+            </button>
+            
+            <div id="manual-form" style="display: none; margin-top: 1rem; width: 100%; max-width: 500px;">
+                <div style="background-color: var(--gray-50); border-radius: var(--radius); padding: 1.5rem; border: 1px solid var(--gray-200);">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.125rem;">Ingreso manual de código</h3>
+                    <input type="text" id="manual-code" placeholder="Ingrese el código del paquete" 
+                           style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: var(--radius); margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 1rem;">
+                        <button id="process-manual" class="btn btn-accent" style="flex: 1;">
+                            <i class="fas fa-check"></i>
+                            <span>Procesar</span>
+                        </button>
+                        <button id="cancel-manual" class="btn btn-outline" style="flex: 1;">
+                            <i class="fas fa-times"></i>
+                            <span>Cancelar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="qr-container">
+            <div class="scanner-container">
+                <video id="qr-video" playsinline></video>
+                <div class="scanner-overlay">
+                    <div class="scanner-line"></div>
+                    <div class="scanner-corner corner-top-left"></div>
+                    <div class="scanner-corner corner-top-right"></div>
+                    <div class="scanner-corner corner-bottom-left"></div>
+                    <div class="scanner-corner corner-bottom-right"></div>
+                </div>
+            </div>
+
+            <div class="scanner-control">
+                <button id="start-button" class="btn btn-accent">
+                    <i class="fas fa-play"></i>
+                    <span>Iniciar Escáner</span>
+                </button>
+                <button id="stop-button" class="btn btn-outline" style="display: none;">
+                    <i class="fas fa-stop"></i>
+                    <span>Detener</span>
+                </button>
+                <button id="switch-camera" class="btn btn-outline">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Cambiar Cámara</span>
+                </button>
+            </div>
+
+            <p class="help-text">Si tiene problemas, asegúrese de permitir el acceso a la cámara y que el código QR esté bien iluminado.</p>
+
+            <div id="result-container" class="result-container">
+                <div class="result-header">
+                    <h3>Resultado del Escaneo</h3>
+                    <button id="close-result" class="btn btn-outline" style="padding: 0.25rem 0.5rem;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="result-content" class="result-content">
+                    <!-- El resultado del escaneo se mostrará aquí -->
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+                    <button id="process-btn" class="btn btn-success">
+                        <i class="fas fa-check"></i>
+                        <span>Procesar Paquete</span>
+                    </button>
+                    <button id="scan-again" class="btn btn-outline">
+                        <i class="fas fa-redo"></i>
+                        <span>Escanear Otro</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-message">Paquete procesado correctamente</span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Comprobar si hay token de autenticación
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Elementos del DOM
+            const video = document.getElementById('qr-video');
+            const startButton = document.getElementById('start-button');
+            const stopButton = document.getElementById('stop-button');
+            const switchCameraButton = document.getElementById('switch-camera');
+            const resultContainer = document.getElementById('result-container');
+            const resultContent = document.getElementById('result-content');
+            const closeResultButton = document.getElementById('close-result');
+            const scanAgainButton = document.getElementById('scan-again');
+            const processButton = document.getElementById('process-btn');
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notification-message');
+            
+            // Elementos para ingreso manual
+            const toggleManualButton = document.getElementById('toggle-manual');
+            const manualForm = document.getElementById('manual-form');
+            const manualCodeInput = document.getElementById('manual-code');
+            const processManualButton = document.getElementById('process-manual');
+            const cancelManualButton = document.getElementById('cancel-manual');
+
+            // Variables para gestionar el escáner
+            let scanner = null;
+            let canvasElement = document.createElement('canvas');
+            let canvas = canvasElement.getContext('2d');
+            let scanning = false;
+            let cameraId = null;
+            let cameraList = [];
+            let currentCameraIndex = 0;
+            let cameraPermissionGranted = false;
+
+            // Función para mostrar notificaciones
+            function showNotification(message, isError = false) {
+                notificationMessage.textContent = message;
+                notification.classList.toggle('error-notification', isError);
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+
+            // Función para solicitar permisos de cámara
+            async function requestCameraPermission() {
+                try {
+                    // Mostrar un mensaje explicando por qué necesitamos acceso a la cámara
+                    showNotification('Se solicitará acceso a la cámara para escanear códigos QR', false);
+                    
+                    // Intentar obtener acceso a la cámara con configuración básica
+                    await navigator.mediaDevices.getUserMedia({ video: true });
+                    
+                    // Si llega aquí, el permiso fue concedido
+                    cameraPermissionGranted = true;
+                    return true;
+                } catch (error) {
+                    console.error('Permiso de cámara denegado:', error);
+                    showNotification('Permiso de cámara denegado. Puede usar la entrada manual de códigos.', true);
+                    
+                    // Mostrar automáticamente la opción de ingreso manual
+                    toggleManualEntry(true);
+                    
+                    return false;
+                }
+            }
+            
+            // Función para iniciar la cámara
+            async function startCamera() {
+                try {
+                    // Si aún no tenemos permiso, solicitarlo primero
+                    if (!cameraPermissionGranted) {
+                        const permissionGranted = await requestCameraPermission();
+                        if (!permissionGranted) return;
+                    }
+                    
+                    // Ocultar el formulario manual si está visible
+                    toggleManualEntry(false);
+                    
+                    // Obtener la lista de cámaras disponibles
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    cameraList = devices.filter(device => device.kind === 'videoinput');
+                    
+                    if (cameraList.length === 0) {
+                        throw new Error('No se encontraron cámaras disponibles');
+                    }
+                    
+                    // Configurar el ID de la cámara actual
+                    cameraId = cameraList[currentCameraIndex].deviceId;
+                    
+                    // En dispositivos móviles intentar usar la cámara trasera por defecto
+                    let facingMode = 'environment'; // Cámara trasera primero
+                    
+                    // Obtener el stream de la cámara
+                    const constraints = {
+                        video: {
+                            deviceId: cameraId ? { exact: cameraId } : undefined,
+                            facingMode: facingMode,
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        }
+                    };
+                    
+                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    video.srcObject = stream;
+                    video.setAttribute('playsinline', true); // Importante para iOS
+                    
+                    // Reproducir el video en pantalla completa en dispositivos móviles cuando sea posible
+                    if (video.webkitEnterFullscreen) {
+                        video.webkitEnterFullscreen();
+                    }
+                    
+                    video.play();
+                    scanning = true;
+                    requestAnimationFrame(tick);
+                    
+                    startButton.style.display = 'none';
+                    stopButton.style.display = 'flex';
+                    
+                    // Habilitar el botón de cambio de cámara solo si hay más de una cámara
+                    switchCameraButton.disabled = cameraList.length <= 1;
+                    
+                    // Mostrar mensaje de éxito
+                    showNotification('Cámara activada. Apunte al código QR', false);
+                    
+                } catch (error) {
+                    console.error('Error al acceder a la cámara:', error);
+                    showNotification('Error al acceder a la cámara: ' + error.message, true);
+                    
+                    // Si hay un error al iniciar la cámara, mostrar la opción manual
+                    toggleManualEntry(true);
+                }
+            }
+
+            // Función para detener la cámara
+            function stopCamera() {
+                scanning = false;
+                if (video.srcObject) {
+                    const tracks = video.srcObject.getTracks();
+                    tracks.forEach(track => track.stop());
+                    video.srcObject = null;
+                }
+                
+                startButton.style.display = 'flex';
+                stopButton.style.display = 'none';
+            }
+
+            // Función para cambiar de cámara
+            function switchCamera() {
+                if (cameraList.length <= 1) return;
+                
+                currentCameraIndex = (currentCameraIndex + 1) % cameraList.length;
+                stopCamera();
+                startCamera();
+            }
+
+            // Función para procesamiento de frames y detección de QR
+            function tick() {
+                if (!scanning) return;
+                
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvasElement.width = video.videoWidth;
+                    canvasElement.height = video.videoHeight;
+                    canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+                    
+                    const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                    
+                    try {
+                        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                            inversionAttempts: "dontInvert",
+                        });
+                        
+                        if (code) {
+                            // QR Code detectado
+                            scanning = false;
+                            stopCamera();
+                            processQRCode(code.data);
+                        }
+                    } catch (e) {
+                        console.error('Error al procesar el QR:', e);
+                    }
+                }
+                
+                if (scanning) {
+                    requestAnimationFrame(tick);
+                }
+            }
+
+            // Función para procesar el código QR
+            function processQRCode(data) {
+                console.log('QR Code escaneado:', data);
+                
+                try {
+                    // Intentar parsear como JSON, pero si falla mostrar como texto
+                    let content;
+                    try {
+                        content = JSON.parse(data);
+                        // Formatear el JSON para mejor visualización
+                        resultContent.innerHTML = `
+                            <p><strong>ID Paquete:</strong> ${content.id || 'No disponible'}</p>
+                            <p><strong>Departamento:</strong> ${content.apartment_number || 'No disponible'}</p>
+                            <p><strong>Remitente:</strong> ${content.sender || 'No disponible'}</p>
+                            <p><strong>Fecha:</strong> ${content.delivery_date ? new Date(content.delivery_date).toLocaleDateString('es-ES') : 'No disponible'}</p>
+                            <p><strong>Estado:</strong> ${content.status || 'Pendiente'}</p>
+                        `;
+                    } catch (e) {
+                        // No es un JSON válido, mostrar como texto plano
+                        resultContent.innerHTML = `<p><strong>Contenido:</strong> ${data}</p>`;
+                    }
+                    
+                    // Mostrar el contenedor de resultados
+                    resultContainer.classList.add('active');
+                    
+                } catch (error) {
+                    console.error('Error al procesar el código QR:', error);
+                    showNotification('Error al procesar el código QR: ' + error.message, true);
+                }
+            }
+
+            // Función para cerrar el sesión
+            function logout() {
+                localStorage.removeItem('authToken');
+                window.location.href = 'login.html';
+            }
+            
+            // Manejador del botón de procesar paquete
+            processButton.addEventListener('click', function() {
+                // Aquí iría la lógica para procesar el paquete en la base de datos
+                // Por ahora, solo simularemos una actualización exitosa
+                showNotification('Paquete procesado correctamente');
+                
+                setTimeout(() => {
+                    resultContainer.classList.remove('active');
+                    startCamera();
+                }, 1000);
+            });
+
+            // Función para mostrar/ocultar el formulario manual de ingreso
+            function toggleManualEntry(show) {
+                if (show) {
+                    manualForm.style.display = 'block';
+                    // Si activamos el modo manual, detener la cámara
+                    if (scanning) {
+                        stopCamera();
+                    }
+                } else {
+                    manualForm.style.display = 'none';
+                    manualCodeInput.value = '';
+                }
+            }
+            
+            // Función para procesar un código manual
+            function processManualCode() {
+                const manualCode = manualCodeInput.value.trim();
+                
+                if (!manualCode) {
+                    showNotification('Por favor ingrese un código válido', true);
+                    return;
+                }
+                
+                // Procesar el código ingresado manualmente
+                processQRCode(manualCode);
+                
+                // Limpiar y ocultar el formulario
+                manualCodeInput.value = '';
+                toggleManualEntry(false);
+            }
+
+            // Event listeners
+            startButton.addEventListener('click', startCamera);
+            stopButton.addEventListener('click', stopCamera);
+            switchCameraButton.addEventListener('click', switchCamera);
+            closeResultButton.addEventListener('click', function() {
+                resultContainer.classList.remove('active');
+            });
+            scanAgainButton.addEventListener('click', function() {
+                resultContainer.classList.remove('active');
+                startCamera();
+            });
+            
+            // Event listeners para el ingreso manual
+            toggleManualButton.addEventListener('click', function() {
+                toggleManualEntry(manualForm.style.display === 'none');
+            });
+            
+            processManualButton.addEventListener('click', processManualCode);
+            
+            cancelManualButton.addEventListener('click', function() {
+                toggleManualEntry(false);
+            });
+            
+            // Permitir enviar el formulario con Enter
+            manualCodeInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    processManualCode();
+                }
+            });
+
+            // Cerrar sesión
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // Verificar permiso de cámara al cargar la página
+            // En dispositivos móviles, esperamos a que el usuario haga clic en iniciar
+            // para solicitar el permiso, para evitar popup no solicitados
+        });
+    </script>
+</body>
+</html>

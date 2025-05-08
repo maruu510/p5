@@ -1,478 +1,473 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Gestión de Paquetes</title>
   <style>
     :root {
       --primary: #145a32;
+      --primary-light: #2ecc71;
       --primary-dark: #0b3a1f;
       --secondary: #2c3e50;
+      --danger: #e74c3c;
+      --success: #2ecc71;
+      --gray-light: #f8f9fa;
+      --gray: #6c757d;
     }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+    body {
+      min-height: 100vh;
+      background-color: var(--gray-light);
+      display: flex;
+      flex-direction: column;
     }
-    
-    /* Loader animado - From Uiverse.io by Shoh2008 */
+    .top-bar {
+      background-color: var(--secondary);
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .top-bar-right { display: flex; align-items: center; gap: 15px; }
+    .select-container { display: flex; align-items: center; gap: 8px; }
+    .select-container label { font-size: 14px; }
+    .select-field {
+      padding: 5px 10px;
+      border-radius: 4px;
+      border: none;
+      font-size: 14px;
+    }
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+    .header { text-align: center; margin-bottom: 30px; }
+    .header img { width: 100px; height: 100px; object-fit: contain; margin-bottom: 15px; }
+    .header h1 { color: var(--primary); font-size: 28px; }
+    .login-card {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      padding: 30px;
+    }
+    .login-title { color: var(--primary); font-size: 24px; margin-bottom: 20px; text-align: center; }
+    .form-group { margin-bottom: 20px; position: relative; }
+    .form-group label { display: block; margin-bottom: 8px; color: var(--secondary); font-weight: 500; }
+    .input-with-icon { position: relative; }
+    .input-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--gray); }
+    .form-input {
+      width: 100%;
+      padding: 12px 12px 12px 40px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+    .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(20, 90, 50, 0.1);
+      outline: none;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--gray);
+      cursor: pointer;
+    }
+    .toggle-password:hover { color: var(--primary); }
+    .checkbox-container { display: flex; align-items: center; margin-bottom: 20px; }
+    .checkbox-container input { margin-right: 10px; }
+    .message {
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+    .message.show { display: block; }
+    .error { background-color: rgba(231, 76, 60, 0.1); color: var(--danger); border: 1px solid rgba(231, 76, 60, 0.3); }
+    .success { background-color: rgba(46, 204, 113, 0.1); color: var(--success); border: 1px solid rgba(46, 204, 113, 0.3); }
+    .login-button {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .login-button:hover { background-color: var(--primary-dark); }
+    .form-links { margin-top: 20px; text-align: center; }
+    .form-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+    .form-link:hover { color: var(--primary-dark); text-decoration: underline; }
+    .register-link { margin-top: 15px; text-align: center; font-size: 14px; color: var(--gray); }
+    .register-link a { color: var(--primary); font-weight: 500; }
     .loader-container {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(255, 255, 255, 0.8);
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: rgba(255, 255, 255, 0.85);
       z-index: 1000;
-      opacity: 0;
       visibility: hidden;
-      transition: opacity 0.3s, visibility 0.3s;
+      opacity: 0;
+      transition: all 0.3s;
     }
-    
-    .loader-container.active {
-      opacity: 1;
-      visibility: visible;
-    }
-    
+    .loader-container.show { visibility: visible; opacity: 1; }
     .loader {
-      position: relative;
-      border-style: solid;
-      box-sizing: border-box;
-      border-width: 40px 60px 30px 60px;
-      border-color: #3760C9 #96DDFC #96DDFC #36BBF7;
-      animation: envFloating 1s ease-in infinite alternate;
-    }
-    
-    .loader:after {
-      content: "";
-      position: absolute;
-      right: 62px;
-      top: -40px;
-      height: 70px;
       width: 50px;
-      background-image: linear-gradient(#fff 45px, transparent 0),
-                linear-gradient(#fff 45px, transparent 0),
-                linear-gradient(#fff 45px, transparent 0);
-      background-repeat: no-repeat;
-      background-size: 30px 4px;
-      background-position: 0px 11px, 8px 35px, 0px 60px;
-      animation: envDropping 0.75s linear infinite;
+      height: 50px;
+      border: 5px solid var(--primary-light);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
     }
-    
-    .loader-text {
-      position: absolute;
-      bottom: -50px;
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--primary);
-    }
-    
-    @keyframes envFloating {
-      0% {
-        transform: translate(-2px, -5px)
-      }
-      100% {
-        transform: translate(0, 5px)
-      }
-    }
-    
-    @keyframes envDropping {
-      0% {
-        background-position: 100px 11px, 115px 35px, 105px 60px;
-        opacity: 1;
-      }
-      50% {
-        background-position: 0px 11px, 20px 35px, 5px 60px;
-      }
-      60% {
-        background-position: -30px 11px, 0px 35px, -10px 60px;
-      }
-      75%, 100% {
-        background-position: -30px 11px, -30px 35px, -30px 60px;
-        opacity: 0;
-      }
-    }
-
-    body {
-      min-height: 100vh;
-      background: #f8f9fa;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Menú superior fijo */
-    .top-menu {
-      background: var(--secondary);
-      color: white;
-      padding: 0.5rem 2rem;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .top-menu-content {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 1.5rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .menu-group {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .menu-group label {
-      font-size: 0.9rem;
-      margin-right: 0.25rem;
-    }
-
-    .menu-select {
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.25rem;
-      border: 1px solid #ddd;
-      background: white;
-      color: var(--secondary);
-      font-size: 0.85rem;
-    }
-
-    nav {
-      background: white;
-      padding: 1rem 2rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .nav-group {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .nav-group span {
-      font-size: 1.2rem;
-      font-weight: 500;
-      color: var(--primary);
-    }
-
-    .header-container {
-      background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
-      padding: 3rem 1rem;
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    footer {
+      margin-top: auto;
+      background-color: #f1f1f1;
+      padding: 15px;
       text-align: center;
+      font-size: 14px;
+      color: var(--gray);
     }
-
-    .header-content {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .header-content img {
-      width: 120px;
-      height: auto;
-      margin-bottom: 1.5rem;
-    }
-
-    .header-content h1 {
-      color: white;
-      font-size: 2.5rem;
-      font-weight: 600;
-    }
-
-    .form_main {
-      width: 90%;
-      max-width: 400px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background-color: white;
-      padding: 2.5rem;
-      border-radius: 1rem;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      margin: -3rem auto 2rem;
-      position: relative;
-    }
-
-    .heading {
-      font-size: 2rem;
-      color: var(--primary);
-      font-weight: 700;
-      margin-bottom: 2rem;
-      text-align: center;
-    }
-
-    .inputContainer {
-      width: 100%;
-      position: relative;
-      margin-bottom: 1.5rem;
-    }
-
-    .inputIcon {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--primary);
-    }
-
-    .inputField {
-      width: 100%;
-      height: 3rem;
-      padding: 0 3rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 0.5rem;
-      outline: none;
-      background-color: #f8f9fa;
-      color: #2e2e2e;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-
-    .inputField:focus {
-      border-color: var(--primary);
-      background-color: white;
-      box-shadow: 0 0 0 4px rgba(20, 90, 50, 0.1);
-    }
-
-    #button {
-      width: 100%;
-      border: none;
-      background-color: var(--primary);
-      color: white;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      margin: 1rem 0;
-    }
-
-    #button:hover {
-      background-color: var(--primary-dark);
-      transform: translateY(-2px);
-    }
-
-    .forgotLink {
-      color: var(--primary);
-      font-size: 0.9rem;
-      text-decoration: none;
-      margin: 1rem 0;
-      transition: all 0.3s ease;
-    }
-
-    .forgotLink:hover {
-      color: var(--primary-dark);
-      text-decoration: underline;
-    }
-
-    #signupLink {
-      margin-top: 1.5rem;
-      color: #666;
-      font-size: 0.95rem;
-      text-align: center;
-    }
-
-    #signupLink a {
-      color: var(--primary);
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.3s ease;
-    }
-
-    #signupLink a:hover {
-      color: var(--primary-dark);
-      text-decoration: underline;
-    }
-
+    footer a { color: var(--primary); text-decoration: none; margin: 0 10px; }
     @media (max-width: 768px) {
-      .top-menu-content {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
-        padding: 0.5rem 0;
-      }
+      .top-bar { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .top-bar-right { width: 100%; justify-content: space-between; }
     }
-
     @media (max-width: 480px) {
-      .header-content h1 {
-        font-size: 2rem;
-      }
-
-      .form_main {
-        padding: 2rem;
-        width: 95%;
-      }
-
-      .heading {
-        font-size: 1.75rem;
-      }
-
-      .inputField {
-        font-size: 0.95rem;
-      }
+      .login-card { padding: 20px; }
+      .header h1 { font-size: 24px; }
+      .login-title { font-size: 20px; }
     }
   </style>
 </head>
 <body>
-  <!-- Menú superior fijo -->
-  <div class="top-menu">
-    <div class="top-menu-content">
-      <div class="menu-group">
-        <label for="language" id="languageLabel">Idioma:</label>
-        <select id="language" class="menu-select" aria-label="Seleccionar idioma">
+  <!-- Barra superior -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <img src="./images/logo1.jpg" alt="Logo" height="28">
+    </div>
+    <div class="top-bar-right">
+      <div class="select-container">
+        <label for="language" id="language-label">Idioma:</label>
+        <select id="language" class="select-field">
           <option value="es" selected>Español</option>
           <option value="en">English</option>
         </select>
       </div>
-      <div class="menu-group">
-        <label for="userType" id="userTypeLabel">Tipo de usuario:</label>
-        <select id="userType" class="menu-select" aria-label="Seleccionar tipo de usuario">
-          <option value="admin" selected>Administrador</option>
-          <option value="resident" >Residente</option>
+      <div class="select-container">
+        <label for="user-type" id="user-type-label">Tipo de usuario:</label>
+        <select id="user-type" class="select-field">
+          <option value="admin">Administrador</option>
+          <option value="resident">Residente</option>
         </select>
       </div>
     </div>
   </div>
 
-  <nav>
-    <div class="nav-group">
-      <img src="./images/logo1.jpg" alt="Logo" height="40">
-      <span id="navTitle">Gestión de Paquetes</span>
+  <!-- Contenedor principal -->
+  <div class="main-container">
+    <!-- Encabezado -->
+    <div class="header">
+      <img src="./images/ENCOMIENDA.png" alt="Logo de gestión de paquetes">
+      <h1 id="welcome-title">Bienvenido al Sistema de Gestión de Paquetes</h1>
     </div>
-  </nav>
 
-  <div class="header-container">
-    <div class="header-content">
-      <img src="./images/ENCOMIENDA.png" alt="Logo">
-      <h1 id="welcomeTitle">Bienvenido al Sistema</h1>
+    <!-- Formulario de login -->
+    <div class="login-card">
+      <h2 class="login-title" id="login-title">Iniciar Sesión</h2>
+      <div id="error-message" class="message error"></div>
+      <div id="success-message" class="message success"></div>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="username" id="username-label">Nombre de usuario</label>
+          <div class="input-with-icon">
+            <span class="input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+              </svg>
+            </span>
+            <input type="text" id="username" class="form-input" placeholder="Ingrese su usuario o correo" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password" id="password-label">Contraseña</label>
+          <div class="input-with-icon">
+            <span class="input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+              </svg>
+            </span>
+            <input type="password" id="password" class="form-input" placeholder="Ingrese su contraseña" required>
+            <button type="button" class="toggle-password" id="toggle-password">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" id="password-icon">
+                <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="checkbox-container">
+          <input type="checkbox" id="remember-me">
+          <label for="remember-me" id="remember-label">Recordar usuario</label>
+        </div>
+        <button type="submit" class="login-button" id="login-button">Iniciar Sesión</button>
+        <div class="form-links">
+          <a href="#" class="form-link" id="forgot-password">¿Olvidaste tu contraseña?</a>
+          <p class="register-link" id="register-text">
+            ¿No tienes cuenta? <a href="signup.html">Regístrate aquí</a>
+          </p>
+        </div>
+      </form>
     </div>
   </div>
-
-  <!-- Contenedor del loader -->
-  <div class="loader-container" id="loaderContainer">
+  <footer>
+    <div>
+      <a href="#" id="support-link">Soporte</a>
+      <a href="#" id="privacy-link">Privacidad</a>
+      <a href="#" id="terms-link">Términos</a>
+    </div>
+    <p id="copyright">© 2025 Sistema de Gestión de Paquetes</p>
+  </footer>
+  <div class="loader-container" id="loader">
     <div class="loader"></div>
-    <div class="loader-text" id="loaderText">Procesando...</div>
   </div>
-
-  <form class="form_main" id="loginForm"> 
-    <h1 class="heading" id="loginTitle">Iniciar Sesión</h1> 
-    <div class="inputContainer"> 
-      <svg class="inputIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"> 
-        <path d="M13.106 7.222c0-2.967-2.249-5.032-5.482-5.032-3.35 0-5.646 2.318-5.646 5.702 0 3.493 2.235 5.708 5.762 5.708.862 0 1.689-.123 2.304-.335v-.862c-.43.199-1.354.328-2.29.328-2.926 0-4.813-1.88-4.813-4.798 0-2.844 1.921-4.881 4.594-4.881 2.735 0 4.608 1.688 4.608 4.156 0 1.682-.554 2.769-1.416 2.769-.492 0-.772-.28-.772-.76V5.206H8.923v.834h-.11c-.266-.595-.881-.964-1.6-.964-1.4 0-2.378 1.162-2.378 2.823 0 1.737.957 2.906 2.379 2.906.8 0 1.415-.39 1.709-1.087h.11c.081.67.703 1.148 1.503 1.148 1.572 0 2.57-1.415 2.57-3.643zm-7.177.704c0-1.197.54-1.907 1.456-1.907.93 0 1.524.738 1.524 1.907S8.308 9.84 7.371 9.84c-.895 0-1.442-.725-1.442-1.914z"></path> 
-      </svg> 
-      <label for="username" class="sr-only">Nombre de usuario</label>
-      <input type="text" class="inputField" id="username" placeholder="Nombre de usuario" required aria-label="Nombre de usuario"> 
-    </div> 
-    
-    <div class="inputContainer"> 
-      <svg class="inputIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"> 
-        <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path> 
-      </svg> 
-      <label for="password" class="sr-only">Contraseña</label>
-      <input type="password" class="inputField" id="password" placeholder="Contraseña" required aria-label="Contraseña"> 
-    </div> 
-    
-    <button id="button" type="submit">Iniciar Sesión</button> 
-    <a href="#" class="forgotLink" id="forgotPassword">¿Olvidaste tu contraseña?</a> 
-    <p id="signupLink">¿No tienes cuenta? <a href="signup.html">Regístrate aquí</a></p> 
-  </form>
-
   <script>
-    // Traducción de elementos según el idioma seleccionado
+    // Referencias a elementos del DOM
+    const loginForm = document.getElementById('login-form');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('toggle-password');
+    const passwordIcon = document.getElementById('password-icon');
+    const rememberMe = document.getElementById('remember-me');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    const loader = document.getElementById('loader');
     const languageSelect = document.getElementById('language');
-    const userTypeSelect = document.getElementById('userType');
-    
-    // Elementos que necesitan traducción
-    const languageLabel = document.getElementById('languageLabel');
-    const userTypeLabel = document.getElementById('userTypeLabel');
-    const navTitle = document.getElementById('navTitle');
-    const welcomeTitle = document.getElementById('welcomeTitle');
-    const loginTitle = document.getElementById('loginTitle');
-    const forgotPassword = document.getElementById('forgotPassword');
-    const signupLink = document.getElementById('signupLink');
-    const button = document.getElementById('button');
-    const loaderText = document.getElementById('loaderText');
-    
-    // Traducciones disponibles
+    const userTypeSelect = document.getElementById('user-type');
+    // Traducciones
     const translations = {
       es: {
+        welcomeTitle: 'Bienvenido al Sistema de Gestión de Paquetes',
+        loginTitle: 'Iniciar Sesión',
         languageLabel: 'Idioma:',
         userTypeLabel: 'Tipo de usuario:',
-        navTitle: 'Gestión de Paquetes',
-        welcomeTitle: 'Bienvenido al Sistema',
-        loginTitle: 'Iniciar Sesión',
+        usernameLabel: 'Nombre de usuario',
+        passwordLabel: 'Contraseña',
+        rememberLabel: 'Recordar usuario',
+        loginButton: 'Iniciar Sesión',
         forgotPassword: '¿Olvidaste tu contraseña?',
-        signupLink: '¿No tienes cuenta? <a href="signup.html">Regístrate aquí</a>',
-        button: 'Iniciar Sesión',
-        loaderText: 'Procesando...'
+        registerText: '¿No tienes cuenta? <a href="signup.html">Regístrate aquí</a>',
+        supportLink: 'Soporte',
+        privacyLink: 'Privacidad',
+        termsLink: 'Términos',
+        copyright: '© 2025 Sistema de Gestión de Paquetes',
+        errorEmpty: 'Por favor, complete todos los campos',
+        errorInvalid: 'Usuario o contraseña incorrectos',
+        successLogin: 'Inicio de sesión exitoso. Redireccionando...'
       },
       en: {
+        welcomeTitle: 'Welcome to the Package Management System',
+        loginTitle: 'Login',
         languageLabel: 'Language:',
         userTypeLabel: 'User type:',
-        navTitle: 'Package Management',
-        welcomeTitle: 'Welcome to the System',
-        loginTitle: 'Login',
+        usernameLabel: 'Username',
+        passwordLabel: 'Password',
+        rememberLabel: 'Remember me',
+        loginButton: 'Login',
         forgotPassword: 'Forgot your password?',
-        signupLink: 'Don\'t have an account? <a href="signup.html">Register here</a>',
-        button: 'Login',
-        loaderText: 'Processing...'
+        registerText: 'Don\'t have an account? <a href="signup.html">Register here</a>',
+        supportLink: 'Support',
+        privacyLink: 'Privacy',
+        termsLink: 'Terms',
+        copyright: '© 2025 Package Management System',
+        errorEmpty: 'Please fill in all fields',
+        errorInvalid: 'Invalid username or password',
+        successLogin: 'Login successful. Redirecting...'
       }
     };
-    
-    // Función para actualizar el idioma
-    function updateLanguage(lang) {
-      const translation = translations[lang];
-      languageLabel.textContent = translation.languageLabel;
-      userTypeLabel.textContent = translation.userTypeLabel;
-      navTitle.textContent = translation.navTitle;
-      welcomeTitle.textContent = translation.welcomeTitle;
-      loginTitle.textContent = translation.loginTitle;
-      forgotPassword.textContent = translation.forgotPassword;
-      signupLink.innerHTML = translation.signupLink;
-      button.textContent = translation.button;
-      loaderText.textContent = translation.loaderText;
-    }
-    
-    // Escuchar cambios en el selector de idioma
-    languageSelect.addEventListener('change', (e) => {
-      updateLanguage(e.target.value);
+
+    // Mostrar/ocultar contraseña
+    togglePassword.addEventListener('click', () => {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        passwordIcon.innerHTML = `
+          <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+          <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+        `;
+      } else {
+        passwordInput.type = 'password';
+        passwordIcon.innerHTML = `
+          <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
+          <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z"/>
+          <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z"/>
+        `;
+      }
     });
-    
-    // Manejar el envío del formulario de inicio de sesión
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
+
+    // Cambiar idioma
+    function changeLanguage(lang) {
+      const translation = translations[lang];
+      document.getElementById('welcome-title').textContent = translation.welcomeTitle;
+      document.getElementById('login-title').textContent = translation.loginTitle;
+      document.getElementById('language-label').textContent = translation.languageLabel;
+      document.getElementById('user-type-label').textContent = translation.userTypeLabel;
+      document.getElementById('username-label').textContent = translation.usernameLabel;
+      document.getElementById('password-label').textContent = translation.passwordLabel;
+      document.getElementById('remember-label').textContent = translation.rememberLabel;
+      document.getElementById('login-button').textContent = translation.loginButton;
+      document.getElementById('forgot-password').textContent = translation.forgotPassword;
+      document.getElementById('register-text').innerHTML = translation.registerText;
+      document.getElementById('support-link').textContent = translation.supportLink;
+      document.getElementById('privacy-link').textContent = translation.privacyLink;
+      document.getElementById('terms-link').textContent = translation.termsLink;
+      document.getElementById('copyright').textContent = translation.copyright;
+    }
+
+    // Mostrar mensajes
+    function showError(msg) {
+      errorMessage.textContent = msg;
+      errorMessage.classList.add('show');
+      successMessage.classList.remove('show');
+    }
+    function showSuccess(msg) {
+      successMessage.textContent = msg;
+      successMessage.classList.add('show');
+      errorMessage.classList.remove('show');
+    }
+    function hideMessages() {
+      errorMessage.classList.remove('show');
+      successMessage.classList.remove('show');
+    }
+    function showLoader() { loader.classList.add('show'); }
+    function hideLoader() { loader.classList.remove('show'); }
+
+    // Login con usuario fijo admin
+    function validarLogin(username, password, userType) {
+      // Permitir usuario fijo admin
+      if (
+        username === 'admin' &&
+        password === 'admin123' &&
+        userType === 'admin'
+      ) {
+        localStorage.setItem('authToken', 'token-' + Date.now());
+        localStorage.setItem('currentUser', JSON.stringify({
+          id: 0,
+          username: 'admin',
+          role: 'admin'
+        }));
+        return true;
+      }
+      // Usuarios del localStorage
+      const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+      const usuario = usuarios.find(user => user.username === username && user.role === userType);
+      if (usuario && usuario.password === btoa(password)) {
+        localStorage.setItem('authToken', 'token-' + Date.now());
+        localStorage.setItem('currentUser', JSON.stringify({
+          id: usuario.id,
+          username: usuario.username,
+          role: usuario.role
+        }));
+        return true;
+      }
+      return false;
+    }
+
+    // Guardar idioma seleccionado
+    languageSelect.addEventListener('change', (e) => {
+      const lang = e.target.value;
+      localStorage.setItem('language', lang);
+      changeLanguage(lang);
+    });
+
+    // Recordar usuario
+    window.addEventListener('DOMContentLoaded', () => {
+      // Idioma guardado
+      const savedLang = localStorage.getItem('language') || 'es';
+      languageSelect.value = savedLang;
+      changeLanguage(savedLang);
+
+      // Recordar usuario
+      const remembered = localStorage.getItem('rememberedUser');
+      if (remembered) {
+        usernameInput.value = remembered;
+        rememberMe.checked = true;
+      }
+    });
+
+    rememberMe.addEventListener('change', () => {
+      if (rememberMe.checked) {
+        localStorage.setItem('rememberedUser', usernameInput.value);
+      } else {
+        localStorage.removeItem('rememberedUser');
+      }
+    });
+
+    // Login
+    loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
-      
-      // Mostrar el loader
-      document.getElementById('loaderContainer').classList.add('active');
-      
-      // Obtener los valores del formulario
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      const userType = document.getElementById('userType').value;
-      
-      // Simulación de autenticación (reemplazar con tu lógica real)
+      hideMessages();
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value;
+      const userType = userTypeSelect.value;
+
+      const lang = languageSelect.value;
+      const translation = translations[lang];
+
+      if (!username || !password) {
+        showError(translation.errorEmpty);
+        return;
+      }
+
+      showLoader();
       setTimeout(() => {
-        // Ocultar el loader
-        document.getElementById('loaderContainer').classList.remove('active');
-        
-        // Redireccionar según el tipo de usuario seleccionado
-        if (userType === 'resident') {
-          window.location.href = 'resident.html';
-        } else if (userType === 'admin') {
-          window.location.href = 'listPackages.html';
+        hideLoader();
+        if (validarLogin(username, password, userType)) {
+          showSuccess(translation.successLogin);
+          // Recordar usuario si está marcado
+          if (rememberMe.checked) {
+            localStorage.setItem('rememberedUser', username);
+          } else {
+            localStorage.removeItem('rememberedUser');
+          }
+          setTimeout(() => {
+            // Redirigir según tipo de usuario
+            if (userType === 'admin') {
+              window.location.href = 'listPackages.html';
+            } else {
+              window.location.href = 'resident.html';
+            }
+          }, 1200);
+        } else {
+          showError(translation.errorInvalid);
         }
-      }, 1500);
+      }, 900);
     });
   </script>
 </body>

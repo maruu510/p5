@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Departamentos - Gestión de Paquetes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .btn {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="./images/ENCOMIENDA.png" alt="Logo de Gestión de Paquetes">
+        <h1>Administración de Departamentos</h1>
+    </header>
+
+    <button class="btn logout-btn" onclick="logout()" id="logoutBtn" aria-label="Cerrar sesión">
+        <span>Cerrar Sesión</span>
+    </button>
+
+    <div class="container">
+        <div class="container-header">
+            <h2>Departamentos Registrados</h2>
+            <button class="btn" id="addDeptBtn" aria-label="Agregar nuevo departamento">Agregar Departamento</button>
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display: none;">
+            Ha ocurrido un error al cargar los departamentos.
+        </div>
+
+        <div class="table-container">
+            <table id="departmentsTable" aria-label="Lista de departamentos registrados">
+                <thead>
+                    <tr>
+                        <th scope="col">Número</th>
+                        <th scope="col">Paquetes Pendientes</th>
+                        <th scope="col">Paquetes Retirados</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4" style="text-align: center;">
+                            <div class="loading-spinner" role="status"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Funciones de gestión de departamentos 
+        function getAllDepartments() { 
+            const departments = localStorage.getItem('departments'); 
+            return departments ? JSON.parse(departments) : [];
+        } 
+        
+        function saveDepartments(departments) { 
+            localStorage.setItem('departments', JSON.stringify(departments)); 
+        } 
+        
+        function getPackagesByDepartment(departmentNumber) { 
+            const key = `packages_${departmentNumber}`; 
+            const packages = localStorage.getItem(key); 
+            return packages ? JSON.parse(packages) : []; 
+        } 
+        
+        function renderDepartments() {
+            const departments = getAllDepartments();
+            const tableBody = document.querySelector('#departmentsTable tbody');
+            
+            if (departments.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4">No hay departamentos registrados</td></tr>';
+                return;
+            }
+            
+            tableBody.innerHTML = '';
+            
+            departments.forEach(dept => {
+                const packages = getPackagesByDepartment(dept.number);
+                const pendingPackages = packages.filter(pkg => pkg && pkg.status === 'pendiente').length;
+                const deliveredPackages = packages.filter(pkg => pkg && pkg.status === 'retirado').length;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${dept.number}</td>
+                    <td>${pendingPackages}</td>
+                    <td>${deliveredPackages}</td>
+                    <td>
+                        <button class="btn btn-view" data-dept="${dept.number}">Ver Paquetes</button>
+                        <button class="btn btn-edit" data-dept="${dept.number}">Editar</button>
+                        <button class="btn btn-delete" data-dept="${dept.number}">Eliminar</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Agregar event listeners para los botones
+            document.querySelectorAll('.btn-view').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const deptNumber = this.getAttribute('data-dept');
+                    window.location.href = `listPackages.html?department=${deptNumber}`;
+                });
+            });
+            
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const deptNumber = this.getAttribute('data-dept');
+                    // Lógica para editar departamento
+                });
+            });
+            
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const deptNumber = this.getAttribute('data-dept');
+                    if (confirm(`¿Está seguro de eliminar el departamento ${deptNumber}?`)) {
+                        deleteDepartment(deptNumber);
+                        renderDepartments();
+                    }
+                });
+            });
+        }
+    </script>
+    
+    <script>
+        function logout() {
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html';
+            } else {
+                loadDepartments();
+            }
+            
+            document.getElementById('addDeptBtn').addEventListener('click', function() {
+                window.location.href = 'moredepartaments.html';
+            });
+        });
+        
+        function loadDepartments() {
+            try {
+                const tbody = document.querySelector('#departmentsTable tbody');
+                
+                // Verificar si la función getAllDepartments existe
+                if (typeof getAllDepartments !== 'function') {
+                    throw new Error('La función getAllDepartments no está definida');
+                }
+                
+                const departments = getAllDepartments();
+                console.log('Departamentos cargados:', departments);
+                
+                if (departments.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="4" style="text-align: center;">
+                                No hay departamentos registrados
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                tbody.innerHTML = '';
+                
+                departments.forEach(dept => {
+                    try {
+                        // Determinar si el departamento es un objeto o un valor simple
+                        const deptNumber = typeof dept === 'object' ? dept.deptNumber : dept;
+                        
+                        const packages = getPackagesByDepartment(deptNumber) || [];
+                        const pendingPackages = packages.filter(pkg => pkg && pkg.status === 'pendiente').length;
+                        const deliveredPackages = packages.filter(pkg => pkg && pkg.status === 'retirado').length;
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>Departamento ${deptNumber}</td>
+                            <td>${pendingPackages}</td>
+                            <td>${deliveredPackages}</td>
+                            <td>
+                                <button class="btn" onclick="viewDepartment('${deptNumber}')" aria-label="Ver paquetes del departamento ${deptNumber}">Ver Paquetes</button>
+                                <button class="btn" style="background-color: #e74c3c;" onclick="deleteDepartment('${deptNumber}')" aria-label="Eliminar departamento ${deptNumber}">Eliminar</button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    } catch (packageError) {
+                        console.error('Error al procesar paquetes del departamento', dept, packageError);
+                        
+                        // Agregar fila con error para este departamento
+                        const deptNumber = typeof dept === 'object' ? dept.deptNumber : dept;
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>Departamento ${deptNumber}</td>
+                            <td colspan="3" style="color: red;">Error al cargar información de paquetes</td>
+                        `;
+                        tbody.appendChild(row);
+                    }
+                });
+            } catch (error) {
+                console.error('Error al cargar departamentos:', error);
+                
+                // Mostrar mensaje de error
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.textContent = 'Error al cargar departamentos: ' + error.message;
+                errorMessage.style.display = 'block';
+                
+                // Quitar el spinner de carga
+                const tbody = document.querySelector('#departmentsTable tbody');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: red;">
+                            Error al cargar los departamentos
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        function viewDepartment(deptNumber) {
+            // En lugar de guardar en localStorage, pasamos el parámetro en la URL
+            window.location.href = `listPackages.html?department=${deptNumber}`;
+        }
+        
+        function deleteDepartment(deptNumber) {
+            if (confirm(`¿Está seguro que desea eliminar el Departamento ${deptNumber}?`)) {
+                const departments = getAllDepartments();
+                
+                // Verificar el formato de los departamentos
+                console.log('Departamentos antes de eliminar:', departments);
+                
+                // Si los departamentos son objetos con propiedad deptNumber
+                if (Array.isArray(departments) && departments.length > 0 && typeof departments[0] === 'object') {
+                    const updatedDepartments = departments.filter(dept => dept.deptNumber !== deptNumber.toString());
+                    saveDepartments(updatedDepartments);
+                } 
+                // Si los departamentos son valores simples (números o strings)
+                else {
+                    const updatedDepartments = departments.filter(dept => dept != deptNumber);
+                    saveDepartments(updatedDepartments);
+                }
+                
+                // Eliminar los paquetes asociados al departamento
+                localStorage.removeItem(`packages_${deptNumber}`);
+                
+                // Recargar la lista de departamentos
+                loadDepartments();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -346,7 +346,7 @@
       border: 5px solid rgba(255, 255, 255, 0.3);
       border-radius: 50%;
       border-top-color: white;
-      animation: spin 1s ease-in-out infinite;
+      animation: spin 1s linear infinite;
     }
 
     @keyframes spin {
@@ -390,6 +390,9 @@
     <a href="listPackages.html" class="btn btn-secondary">
       <i class="fas fa-list-ul"></i> Ver Paquetes
     </a>
+    <a href="departaments.html" class="btn btn-secondary">
+      <i class="fas fa-building"></i> Administrar Departamentos
+    </a>
     <button id="logoutBtn" class="btn">
       <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
     </button>
@@ -401,9 +404,10 @@
       <div class="form-group">
         <label for="apartment_number">Departamento</label>
         <select id="apartment_number" class="form-input" required>
-          <option value="">-- Selecciona Departamento --</option>
+          <option value="" disabled selected>Seleccione un departamento</option>
+          <!-- Los departamentos se cargarán dinámicamente -->
         </select>
-        <span class="form-error">Selecciona un departamento</span>
+        <div class="form-error">Por favor seleccione un departamento</div>
       </div>
 
       <div class="form-group">
@@ -463,6 +467,9 @@
       <a href="listPackages.html" class="link">
         <i class="fas fa-list"></i> Ver lista de paquetes
       </a>
+      <a href="departaments.html" class="link">
+        <i class="fas fa-building"></i> Administrar departamentos
+      </a>
       <a href="dashboard.html" class="link">
         <i class="fas fa-home"></i> Ir al inicio
       </a>
@@ -492,6 +499,12 @@
   <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
+    // Gestión de errores global
+    window.addEventListener('error', function(event) {
+      console.error('Error capturado:', event.error);
+      alert('Se ha producido un error en la aplicación. Por favor, recarga la página.');
+    });
+    
     // Constantes de configuración
     const CONFIG = {
       API_URL: '/api',
@@ -501,6 +514,80 @@
       TOAST_DURATION: 3000,
       QR_CODE_PREFIX: 'PKG'
     };
+
+    // Función para obtener todos los departamentos desde localStorage
+    function getAllDepartments() {
+      // Primero intenta obtener el formato usado en departamento.html
+      let departments = localStorage.getItem('departments');
+      
+      if (departments) {
+        // Parsear los departamentos
+        try {
+          departments = JSON.parse(departments);
+          console.log('Departamentos cargados:', departments);
+          return departments;
+        } catch (e) {
+          console.error('Error al parsear departamentos:', e);
+          return [];
+        }
+      }
+      
+      // Si no hay departamentos, devolver array vacío
+      return [];
+    }
+
+    // Función para agregar un nuevo departamento
+    function addDepartment(deptNumber) {
+      const departments = getAllDepartments();
+      
+      // Verificar el formato de los departamentos existentes
+      const isObjectFormat = departments.length > 0 && typeof departments[0] === 'object';
+      
+      // Verificar si ya existe
+      const exists = isObjectFormat 
+        ? departments.some(dept => (dept.deptNumber || dept.numero) == deptNumber)
+        : departments.includes(deptNumber);
+        
+      if (!exists) {
+        // Si los departamentos están en formato de objeto
+        if (isObjectFormat) {
+          // Verificar el formato (deptNumber o numero)
+          const hasNumero = departments.length > 0 && 'numero' in departments[0];
+          
+          if (hasNumero) {
+            // Formato { numero: X, piso: Y }
+            const piso = Math.floor(deptNumber / 100);
+            departments.push({ numero: deptNumber, piso: piso });
+          } else {
+            // Formato { deptNumber: X }
+            departments.push({ deptNumber: deptNumber });
+          }
+        } else {
+          // Formato simple (array de números)
+          departments.push(deptNumber);
+        }
+      }
+      // Añadir esta función a registerPackage.html
+function savePackageForDepartment(packageData) {
+  // Guardar en el formato global
+  const allPackages = JSON.parse(localStorage.getItem('paquetesPrueba') || '[]');
+  allPackages.push(packageData);
+  localStorage.setItem('paquetesPrueba', JSON.stringify(allPackages));
+  
+  // También guardar para el departamento específico
+  const deptKey = `packages_${packageData.apartment_number}`;
+  const deptPackages = JSON.parse(localStorage.getItem(deptKey) || '[]');
+  deptPackages.push(packageData);
+  localStorage.setItem(deptKey, JSON.stringify(deptPackages));
+  
+  console.log(`Paquete guardado para departamento ${packageData.apartment_number}`);
+}
+      // Guardar los departamentos
+      localStorage.setItem('departments', JSON.stringify(departments));
+      console.log('Departamentos guardados:', departments);
+      
+      return departments;
+    }
 
     // Gestor de autenticación
     const AuthManager = {
@@ -523,6 +610,64 @@
           return false;
         }
         return true;
+      }
+    };
+
+    // Gestor de datos
+    const DataManager = {
+      async savePackage(packageData) {
+        try {
+          // Primero intentamos con la API
+          try {
+            const response = await fetch(`${CONFIG.API_URL}/packages`, {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${AuthManager.getToken()}`
+              },
+              body: JSON.stringify(packageData)
+            });
+
+            if (response.ok) {
+              return true;
+            } else {
+              const result = await response.json();
+              throw new Error(result.error || "Error al registrar paquete");
+            }
+          } catch (apiError) {
+            console.warn('Error al conectar con API de paquetes:', apiError);
+            
+            // Si estamos en modo desarrollo o pruebas, simulamos éxito
+            if (this.isTestEnvironment() || 
+                confirm('No se pudo conectar con el servidor. ¿Deseas simular el registro para pruebas?')) {
+              
+              // Simular registro exitoso para pruebas
+              console.log('Simulando registro exitoso. Datos del paquete:', packageData);
+              
+              // Guardar en localStorage para pruebas
+              try {
+                const paquetesGuardados = JSON.parse(localStorage.getItem(CONFIG.LOCAL_STORAGE_KEY) || '[]');
+                packageData.id = Date.now(); // Simular ID
+                packageData.created_at = new Date().toISOString();
+                paquetesGuardados.push(packageData);
+                localStorage.setItem(CONFIG.LOCAL_STORAGE_KEY, JSON.stringify(paquetesGuardados));
+                console.log('Paquete guardado localmente para pruebas');
+                return true;
+              } catch (localError) {
+                console.error('Error al guardar localmente:', localError);
+                throw new Error('No se pudo conectar con el servidor ni guardar localmente');
+              }
+            } else {
+              throw new Error('No se pudo conectar con el servidor. Intente más tarde.');
+            }
+          }
+        } catch (error) {
+          throw error;
+        }
+      },
+      
+      isTestEnvironment() {
+        return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       }
     };
 
@@ -555,6 +700,40 @@
         
         // Establecer los event listeners
         this.setupEventListeners();
+        
+        // Cargar departamentos existentes
+        this.loadDepartments();
+      },
+      
+      loadDepartments() {
+        const departmentSelect = this.elements.departmentSelect;
+        
+        // Obtener todos los departamentos
+        const departments = getAllDepartments();
+        
+        // Limpiar opciones existentes excepto la primera
+        while (departmentSelect.options.length > 1) {
+          departmentSelect.remove(1);
+        }
+        
+        // Agregar departamentos existentes
+        departments.forEach(dept => {
+          // Manejar tanto si dept es un objeto como si es un valor simple
+          const deptNumber = typeof dept === 'object' 
+            ? (dept.deptNumber || dept.numero) // Intentar obtener deptNumber o numero
+            : dept;
+          
+          const option = document.createElement('option');
+          option.value = deptNumber;
+          option.textContent = `Departamento ${deptNumber}`;
+          departmentSelect.appendChild(option);
+        });
+        
+        // Agregar opción para nuevo departamento
+        const newOption = document.createElement('option');
+        newOption.value = "new";
+        newOption.textContent = "Agregar nuevo departamento";
+        departmentSelect.appendChild(newOption);
       },
       
       setupEventListeners() {
@@ -563,6 +742,25 @@
         this.elements.printQrBtn.addEventListener('click', this.printQRCode.bind(this));
         this.elements.downloadQrBtn.addEventListener('click', this.downloadQRCode.bind(this));
         this.elements.logoutBtn.addEventListener('click', AuthManager.logout);
+        
+        // Manejar selección de nuevo departamento
+        this.elements.departmentSelect.addEventListener('change', function() {
+          if (this.value === 'new') {
+            const newDept = prompt('Ingrese el número del nuevo departamento:');
+            if (newDept && !isNaN(newDept)) {
+              // Usar la función para agregar departamento
+              addDepartment(newDept);
+              
+              // Recargar la lista
+              UIManager.loadDepartments();
+              
+              // Seleccionar el nuevo departamento
+              this.value = newDept;
+            } else {
+              this.value = ''; // Resetear si no es válido
+            }
+          }
+        });
         
         // Validación en tiempo real
         this.elements.form.querySelectorAll('.form-input').forEach(input => {
@@ -777,8 +975,13 @@
       },
       
       formatDate(dateString) {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString('es-ES', options);
+        try {
+          const options = { year: 'numeric', month: 'long', day: 'numeric' };
+          return new Date(dateString).toLocaleDateString('es-ES', options);
+        } catch (error) {
+          console.error('Error al formatear fecha:', error);
+          return dateString; // Devolver la fecha original si hay error
+        }
       },
       
       showSuccess(message) {
@@ -806,187 +1009,15 @@
       }
     };
 
-    // Gestor de datos
-    const DataManager = {
-      async loadDepartments() {
-        try {
-          // Intentar obtener departamentos de la API
-          const departments = await this.fetchDepartments();
-          this.populateDepartmentSelect(departments);
-          console.log('Departamentos cargados:', departments.length);
-        } catch (error) {
-          console.error('Error al cargar departamentos:', error);
-          UIManager.showError('Error al cargar los departamentos. Se han cargado datos de ejemplo.');
-          
-          // Cargar datos de respaldo
-          this.loadFallbackDepartments();
-        }
-      },
-      
-      async fetchDepartments() {
-        try {
-          const response = await fetch(`${CONFIG.API_URL}/departamentos`);
-          
-          if (!response.ok) {
-            throw new Error('Error en respuesta del servidor');
-          }
-          
-          return await response.json();
-        } catch (error) {
-          console.warn('Error al conectar con API. Usando datos locales:', error);
-          return this.getFallbackDepartments();
-        }
-      },
-      
-      getFallbackDepartments() {
-        // Datos de ejemplo en caso de error
-        return [
-          { numero: 101, piso: 1 },
-          { numero: 102, piso: 1 },
-          { numero: 103, piso: 1 },
-          { numero: 201, piso: 2 },
-          { numero: 202, piso: 2 },
-          { numero: 203, piso: 2 },
-          { numero: 301, piso: 3 },
-          { numero: 302, piso: 3 },
-          { numero: 303, piso: 3 },
-          { numero: 401, piso: 4 },
-          { numero: 402, piso: 4 },
-          { numero: 403, piso: 4 }
-        ];
-      },
-      
-      loadFallbackDepartments() {
-        const departments = [];
-        
-        // Generar departamentos de ejemplo
-        for (let i = 1; i <= 4; i++) {
-          for (let j = 1; j <= 5; j++) {
-            const numero = i * 100 + j;
-            departments.push({ numero, piso: i });
-          }
-        }
-        
-        this.populateDepartmentSelect(departments);
-      },
-      
-      populateDepartmentSelect(departments) {
-        const select = UIManager.elements.departmentSelect;
-        
-        // Limpiar opciones existentes
-        select.innerHTML = '<option value="">-- Selecciona Departamento --</option>';
-        
-        // Ordenar por número
-        departments.sort((a, b) => a.numero - b.numero);
-
-        // Agrupar por piso si existe esa propiedad
-        const tienePisos = departments.some(d => d.piso !== undefined);
-        
-        if (tienePisos) {
-          // Agrupar por pisos
-          const pisos = {};
-          departments.forEach(depto => {
-            const piso = depto.piso || 'Otro';
-            if (!pisos[piso]) pisos[piso] = [];
-            pisos[piso].push(depto);
-          });
-          
-          // Crear los grupos con optgroup
-          Object.keys(pisos).sort((a, b) => parseInt(a) - parseInt(b)).forEach(piso => {
-            const group = document.createElement('optgroup');
-            group.label = `Piso ${piso}`;
-            
-            pisos[piso].forEach(depto => {
-              const option = document.createElement('option');
-              option.value = depto.numero;
-              option.textContent = `Departamento ${depto.numero}`;
-              group.appendChild(option);
-            });
-            
-            select.appendChild(group);
-          });
-        } else {
-          // Formato simple sin agrupar
-          departments.forEach(depto => {
-            const option = document.createElement('option');
-            option.value = depto.numero;
-            option.textContent = `Departamento ${depto.numero}`;
-            select.appendChild(option);
-          });
-        }
-      },
-      
-      async savePackage(packageData) {
-        try {
-          // Primero intentamos con la API
-          try {
-            const response = await fetch(`${CONFIG.API_URL}/packages`, {
-              method: 'POST',
-              headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${AuthManager.getToken()}`
-              },
-              body: JSON.stringify(packageData)
-            });
-
-            if (response.ok) {
-              return true;
-            } else {
-              const result = await response.json();
-              throw new Error(result.error || "Error al registrar paquete");
-            }
-          } catch (apiError) {
-            console.warn('Error al conectar con API de paquetes:', apiError);
-            
-            // Si estamos en modo desarrollo o pruebas, simulamos éxito
-            if (this.isTestEnvironment() || 
-                confirm('No se pudo conectar con el servidor. ¿Deseas simular el registro para pruebas?')) {
-              
-              // Simular registro exitoso para pruebas
-              console.log('Simulando registro exitoso. Datos del paquete:', packageData);
-              
-              // Guardar en localStorage para pruebas
-              try {
-                const paquetesGuardados = JSON.parse(localStorage.getItem(CONFIG.LOCAL_STORAGE_KEY) || '[]');
-                packageData.id = Date.now(); // Simular ID
-                packageData.created_at = new Date().toISOString();
-                paquetesGuardados.push(packageData);
-                localStorage.setItem(CONFIG.LOCAL_STORAGE_KEY, JSON.stringify(paquetesGuardados));
-                console.log('Paquete guardado localmente para pruebas');
-                return true;
-              } catch (localError) {
-                console.error('Error al guardar localmente:', localError);
-                throw new Error('No se pudo conectar con el servidor ni guardar localmente');
-              }
-            } else {
-              throw new Error('No se pudo conectar con el servidor. Intente más tarde.');
-            }
-          }
-        } catch (error) {
-          throw error;
-        }
-      },
-      
-      isTestEnvironment() {
-        return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      }
-    };
-
     // Inicialización de la aplicación
-    document.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', () => {
       // Verificar autenticación
-      if (!AuthManager.requireAuth()) return;
-      
-      try {
-        // Inicializar la interfaz
-        UIManager.init();
-        
-        // Cargar departamentos
-        await DataManager.loadDepartments();
-      } catch (error) {
-        console.error('Error en la inicialización:', error);
-        UIManager.showError('Error al inicializar la aplicación. Por favor, recarga la página.');
+      if (!AuthManager.requireAuth()) {
+        return;
       }
+      
+      // Inicializar la interfaz
+      UIManager.init();
     });
   </script>
 </body>
