@@ -370,16 +370,15 @@
 
     // Login con usuario fijo admin
     function validarLogin(username, password, userType) {
-      // Permitir usuario fijo admin
+      // Permitir usuarios fijos admin
       if (
-        username === 'admin' &&
-        password === 'admin123' &&
-        userType === 'admin'
+        (username === 'admin' && password === 'admin123' && userType === 'admin') ||
+        (username === 'superadmin' && password === 'super123' && userType === 'admin')
       ) {
         localStorage.setItem('authToken', 'token-' + Date.now());
         localStorage.setItem('currentUser', JSON.stringify({
-          id: 0,
-          username: 'admin',
+          id: username === 'admin' ? 0 : 1,
+          username: username,
           role: 'admin'
         }));
         return true;
@@ -448,6 +447,9 @@
       showLoader();
       setTimeout(() => {
         hideLoader();
+        // Agregar mensaje de depuración
+        console.log("Intentando login con:", username, password, userType);
+        
         if (validarLogin(username, password, userType)) {
           showSuccess(translation.successLogin);
           // Recordar usuario si está marcado
@@ -456,6 +458,10 @@
           } else {
             localStorage.removeItem('rememberedUser');
           }
+          
+          // Agregar mensaje de depuración
+          console.log("Login exitoso, redirigiendo a:", userType === 'admin' ? 'listPackages.html' : 'resident.html');
+          
           setTimeout(() => {
             // Redirigir según tipo de usuario
             if (userType === 'admin') {
@@ -465,6 +471,8 @@
             }
           }, 1200);
         } else {
+          // Agregar mensaje de depuración
+          console.log("Login fallido");
           showError(translation.errorInvalid);
         }
       }, 900);
