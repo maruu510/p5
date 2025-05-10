@@ -368,35 +368,30 @@
     function showLoader() { loader.classList.add('show'); }
     function hideLoader() { loader.classList.remove('show'); }
 
-    // Login con usuario fijo admin
-    function validarLogin(username, password, userType) {
-      // Permitir usuario fijo admin
-      if (
-        username === 'admin' &&
-        password === 'admin123' &&
-        userType === 'admin'
-      ) {
-        localStorage.setItem('authToken', 'token-' + Date.now());
-        localStorage.setItem('currentUser', JSON.stringify({
-          id: 0,
-          username: 'admin',
-          role: 'admin'
-        }));
-        return true;
+    // Login con API
+    async function validarLogin(username, password, userType) {
+      try {
+        const response = await fetch('http://localhost:8003/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password, role: userType })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('authToken', data.token);
+          localStorage.setItem('userId', data.userId);
+          localStorage.setItem('userRole', data.role);
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error('Error durante el login:', error);
+        return false;
       }
-      // Usuarios del localStorage
-      const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
-      const usuario = usuarios.find(user => user.username === username && user.role === userType);
-      if (usuario && usuario.password === btoa(password)) {
-        localStorage.setItem('authToken', 'token-' + Date.now());
-        localStorage.setItem('currentUser', JSON.stringify({
-          id: usuario.id,
-          username: usuario.username,
-          role: usuario.role
-        }));
-        return true;
-      }
-      return false;
     }
 
     // Guardar idioma seleccionado
@@ -430,7 +425,7 @@
     });
 
     // Login
-    loginForm.addEventListener('submit', function(e) {
+    loginForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       hideMessages();
       const username = usernameInput.value.trim();
@@ -446,9 +441,11 @@
       }
 
       showLoader();
-      setTimeout(() => {
+      try {
+        const loginSuccess = await validarLogin(username, password, userType);
         hideLoader();
-        if (validarLogin(username, password, userType)) {
+        
+        if (loginSuccess) {
           showSuccess(translation.successLogin);
           // Recordar usuario si está marcado
           if (rememberMe.checked) {
@@ -467,7 +464,10 @@
         } else {
           showError(translation.errorInvalid);
         }
-      }, 900);
+      } catch (error) {
+        hideLoader();
+        showError(translation.errorInvalid);
+      }
     });
   </script>
 </body>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Residente - Gestión de Paquetes</title>
+    <link rel="stylesheet" href="../styles/estilos.css">
+    <style>
+        /* Estilos específicos para el panel de residente */
+        .package-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .status-delivered {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .status-lost {
+            background-color: var(--danger);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="../images/ENCOMIENDA.png" alt="Logo" height="30">
+                    Panel de Residente
+                </div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    Inicio
+                </li>
+                <li class="nav-item">
+                    <i class="fas fa-box"></i>
+                    Mis Paquetes
+                </li>
+                <li class="nav-item">
+                    <i class="fas fa-bell"></i>
+                    Notificaciones
+                </li>
+                <li class="nav-item">
+                    <i class="fas fa-user"></i>
+                    Mi Perfil
+                </li>
+                <li class="nav-item" onclick="window.location.href='../login.html'">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>Mis Paquetes</h1>
+                <div class="user-info">
+                    <span class="user-name">Bienvenido, Usuario</span>
+                </div>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-info">
+                        <h3>2</h3>
+                        <p>Paquetes Pendientes</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <h3>5</h3>
+                        <p>Paquetes Retirados</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Paquetes Recientes</h2>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID Paquete</th>
+                                <th>Remitente</th>
+                                <th>Fecha Recepción</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>PKT-001</td>
+                                <td>Amazon</td>
+                                <td>2024-01-20 14:30</td>
+                                <td><span class="package-status status-pending">Pendiente</span></td>
+                                <td>
+                                    <button class="btn btn-primary">Ver QR</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>PKT-002</td>
+                                <td>DHL</td>
+                                <td>2024-01-19 10:15</td>
+                                <td><span class="package-status status-delivered">Retirado</span></td>
+                                <td>
+                                    <button class="btn btn-secondary">Detalles</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Funcionalidad básica de navegación
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Cargar datos del usuario y paquetes al iniciar
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('authToken');
+            const userId = localStorage.getItem('userId');
+
+            if (!token || !userId) {
+                window.location.href = '../login.html';
+                return;
+            }
+
+            try {
+                // Cargar datos del usuario
+                const userResponse = await fetch(`http://localhost:8003/api/users/${userId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const userData = await userResponse.json();
+                document.querySelector('.user-name').textContent = `Bienvenido, ${userData.email}`;
+
+                // Cargar paquetes
+                const packagesResponse = await fetch(`http://localhost:8003/api/packages/user/${userId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const packagesData = await packagesResponse.json();
+
+                // Actualizar estadísticas
+                const pendingPackages = packagesData.filter(p => p.status === 'pending').length;
+                const deliveredPackages = packagesData.filter(p => p.status === 'delivered').length;
+                
+                document.querySelector('.stat-card:nth-child(1) h3').textContent = pendingPackages;
+                document.querySelector('.stat-card:nth-child(2) h3').textContent = deliveredPackages;
+
+                // Actualizar tabla de paquetes
+                const tbody = document.querySelector('table tbody');
+                tbody.innerHTML = packagesData.map(package => `
+                    <tr>
+                        <td>${package.id}</td>
+                        <td>${package.sender}</td>
+                        <td>${new Date(package.reception_date).toLocaleString()}</td>
+                        <td><span class="package-status status-${package.status}">${package.status}</span></td>
+                        <td>
+                            <button class="btn btn-primary" onclick="viewQR('${package.id}')">Ver QR</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error al cargar datos:', error);
+                alert('Error al cargar los datos. Por favor, intente nuevamente.');
+            }
+        });
+
+        // Función para ver el QR de un paquete
+        async function viewQR(packageId) {
+            const token = localStorage.getItem('authToken');
+            try {
+                const response = await fetch(`http://localhost:8003/api/packages/${packageId}/qr`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const qrData = await response.json();
+                // Aquí puedes mostrar el QR en un modal o nueva ventana
+                alert('QR code: ' + qrData.qrCode);
+            } catch (error) {
+                console.error('Error al obtener QR:', error);
+                alert('Error al obtener el código QR');
+            }
+        }
+    </script>
+</body>
+</html>
