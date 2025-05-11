@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Sistema de gestión de paquetes y encomiendas para edificios">
-  <title>Registrar Paquete - Gestión de Paquetes</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <style>
-    :root {
-      --primary-color: #3498db;
-      --primary-hover: #2980b9;
-      --primary-dark: #1c6da8;
-      --primary-light: #e1f0fa;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Sistema de gestión de paquetes y encomiendas para edificios">
+<title>Registrar Paquete - Gestión de Paquetes</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+:root {
+
+      --primary-color: #27ae60;
+      --primary-hover: #219653;
+      --primary-dark: #1e8449;
+      --primary-light: #e3f9ed;
       --secondary-color: #2c3e50;
-      --accent-color: #1abc9c;
-      --accent-hover: #16a085;
+      --accent-color: #2ecc71;
+      --accent-hover: #27ae60;
       --success-color: #2ecc71;
       --warning-color: #f39c12;
       --error-color: #e74c3c;
@@ -23,672 +24,850 @@
       --dark-gray: #495057;
       --text-color: #343a40;
       --white: #ffffff;
-      
-      --shadow-sm: 0 2px 5px rgba(0,0,0,0.05);
-      --shadow-md: 0 4px 10px rgba(0,0,0,0.08);
-      --shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
-      --shadow-inner: inset 0 2px 5px rgba(0,0,0,0.05);
-      
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 20px;
-      --radius-round: 50px;
-      
-      --transition: 0.25s ease;
-      
-      --spacing-xs: 5px;
-      --spacing-sm: 10px;
-      --spacing-md: 20px;
-      --spacing-lg: 30px;
-      --spacing-xl: 50px;
-    }
-
-    /* Reset básico */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    }
-
-    body {
-      background: linear-gradient(135deg, #3949ab, #1e88e5);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 30px 15px 50px;
-      color: var(--text-color);
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border-width: 0;
-    }
-
-    header {
-      width: 100%;
-      max-width: 900px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 15px;
-      margin-bottom: var(--spacing-xl);
-      position: relative;
-    }
-
-    .header-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .header-title {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: var(--white);
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-      margin-bottom: 5px;
-      letter-spacing: -0.5px;
-    }
-
-    .header-subtitle {
-      font-size: 1.2rem;
-      color: rgba(255, 255, 255, 0.9);
-      font-weight: 400;
-    }
-
-    header img {
-      height: 70px;
-      width: auto;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-    }
-
-    .navigation {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      display: flex;
-      gap: var(--spacing-sm);
-      z-index: 1000;
-    }
-
-    .btn {
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 12px 22px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      border-radius: var(--radius-round);
-      cursor: pointer;
-      transition: all var(--transition);
-      box-shadow: var(--shadow-md);
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      letter-spacing: 0.3px;
-    }
-
-    .btn:hover {
-      background-color: var(--primary-hover);
-      box-shadow: var(--shadow-lg);
-      transform: translateY(-2px);
-    }
-
-    .btn:active {
-      transform: translateY(0);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .btn i {
-      font-size: 1rem;
-    }
-
-    .btn-accent {
-      background-color: var(--accent-color);
-    }
-
-    .btn-accent:hover {
-      background-color: var(--accent-hover);
-    }
-
-    .btn-secondary {
-      background-color: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
-    }
-
-    .btn-secondary:hover {
-      background-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .btn-success {
-      background-color: var(--success-color);
-    }
-
-    .btn-success:hover {
-      background-color: #27ae60;
-    }
-
-    .btn-outline {
-      background-color: transparent;
-      color: var(--primary-color);
-      border: 2px solid var(--primary-color);
-    }
-
-    .btn-outline:hover {
-      background-color: var(--primary-color);
-      color: white;
-    }
-
-    .container {
-      background-color: var(--white);
-      max-width: 550px;
-      width: 100%;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg);
-      padding: var(--spacing-xl) var(--spacing-lg);
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-lg);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .container::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 6px;
-      background: linear-gradient(to right, var(--primary-color), var(--accent-color));
-    }
-
-    .container h2 {
-      font-weight: 700;
-      color: var(--primary-color);
-      text-align: center;
-      font-size: 1.8rem;
-      position: relative;
-      padding-bottom: 15px;
-      margin-bottom: 5px;
-    }
-
-    .container h2::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60px;
-      height: 4px;
-      background: linear-gradient(to right, var(--primary-color), var(--accent-color));
-      border-radius: 2px;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-md);
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .form-group label {
-      font-weight: 600;
-      color: var(--secondary-color);
-      font-size: 0.95rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .form-group label i {
-      color: var(--primary-color);
-      font-size: 1rem;
-    }
-
-    .form-input {
-      padding: 15px 18px;
-      border-radius: var(--radius-md);
-      border: 2px solid var(--medium-gray);
-      font-size: 1rem;
-      transition: all var(--transition);
-      font-family: inherit;
-      width: 100%;
-      background-color: var(--light-gray);
-      color: var(--text-color);
-    }
-
-    .form-input:focus {
-      border-color: var(--primary-color);
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
-      background-color: var(--white);
-    }
-
-    .form-input::placeholder {
-      color: #adb5bd;
-    }
-
-    textarea.form-input {
-      min-height: 100px;
-      resize: vertical;
-    }
-
-    .form-error {
-      color: var(--error-color);
-      font-size: 0.85rem;
-      margin-top: 4px;
-      display: none;
-      padding-left: 5px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .invalid .form-input {
-      border-color: var(--error-color);
-      background-color: #fff9f9;
-    }
-
-    .invalid .form-error {
-      display: flex;
-    }
-
-    .form-submit {
-      margin-top: var(--spacing-md);
-    }
-
-    .panel {
-      background-color: var(--light-gray);
-      border-radius: var(--radius-md);
-      padding: var(--spacing-md);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .qr-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: var(--spacing-sm);
-      gap: var(--spacing-md);
-      background-color: var(--primary-light);
-      padding: var(--spacing-md);
-      border-radius: var(--radius-md);
-      border: 1px dashed var(--primary-color);
-      position: relative;
-    }
-
-    .qr-container::before {
-      content: 'Código QR';
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: var(--primary-light);
-      padding: 2px 15px;
-      border-radius: var(--radius-round);
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--primary-color);
-      border: 1px dashed var(--primary-color);
-    }
-
-    #qrCode {
-      padding: var(--spacing-md);
-      background: white;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-md);
-      margin-bottom: var(--spacing-sm);
-      display: none;
-      border: 2px solid var(--primary-color);
-    }
-
-    .qr-buttons {
-      display: flex;
-      gap: var(--spacing-md);
-      width: 100%;
-      justify-content: center;
-    }
-
-    .qr-info {
-      font-size: 0.9rem;
-      color: var(--primary-dark);
-      text-align: center;
-      margin-top: var(--spacing-xs);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background-color: rgba(52, 152, 219, 0.1);
-      padding: 10px 15px;
-      border-radius: var(--radius-sm);
-    }
-
-    .qr-info i {
-      font-size: 1.2rem;
-      color: var(--primary-color);
-    }
-
-    .link-container {
-      text-align: center;
-      margin-top: var(--spacing-lg);
-      padding-top: var(--spacing-md);
-      border-top: 1px solid var(--medium-gray);
-      display: flex;
-      gap: var(--spacing-md);
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .link {
-      color: var(--primary-color);
-      font-weight: 600;
-      text-decoration: none;
-      transition: all var(--transition);
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 15px;
-      border-radius: var(--radius-round);
-    }
-
-    .link:hover {
-      color: var(--primary-hover);
-      background-color: var(--primary-light);
-      transform: translateY(-2px);
-    }
-
-    .link i {
-      font-size: 1.1rem;
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      background-color: white;
-      padding: 16px 20px;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-lg);
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      opacity: 0;
-      transform: translateY(20px) scale(0.9);
-      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      z-index: 1000;
-      max-width: 350px;
-      pointer-events: none;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      pointer-events: all;
-    }
-
-    .toast-success {
-      border-left: 4px solid var(--success-color);
-    }
-
-    .toast-error {
-      border-left: 4px solid var(--error-color);
-    }
-
-    .toast-icon {
-      font-size: 1.8rem;
-      flex-shrink: 0;
-    }
-
-    .toast-success .toast-icon {
-      color: var(--success-color);
-    }
-
-    .toast-error .toast-icon {
-      color: var(--error-color);
-    }
-
-    .toast-message {
-      font-size: 1rem;
-      color: var(--text-color);
-      font-weight: 500;
-    }
-
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(5px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
-    }
-
-    .loading-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .loading-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .spinner {
-      width: 60px;
-      height: 60px;
-      border: 5px solid rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      border-top-color: var(--primary-color);
-      animation: spin 1s linear infinite;
-    }
-
-    .loading-text {
-      color: white;
-      font-weight: 500;
-      letter-spacing: 1px;
-      font-size: 1.1rem;
-    }
-
-    /* Estilos mejorados para el input de fecha */
-    input[type="date"] {
-      appearance: none;
-      -webkit-appearance: none;
-      color: var(--text-color);
-      font-family: inherit;
-      padding: 15px 18px !important;
-      display: inline-block;
-      visibility: visible;
-      background: var(--light-gray) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>') 
-                no-repeat 95% 50%;
-    }
-
-    input[type="date"]:focus {
-      background: white url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%233498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>') 
-                no-repeat 95% 50%;
-    }
-
-    input[type="date"]::-webkit-calendar-picker-indicator {
-      opacity: 0;
-    }
-
-    input[type="date"]::-webkit-inner-spin-button,
-    input[type="date"]::-webkit-clear-button {
-      display: none;
-      -webkit-appearance: none;
-    }
-
-    /* Material Design inspired field with floating labels */
-    .form-field {
-      position: relative;
-      margin-bottom: 25px;
-    }
-
-    .form-field input,
-    .form-field select,
-    .form-field textarea {
-      width: 100%;
-      padding: 15px;
-      border: none;
-      border-radius: 5px 5px 0 0;
-      border-bottom: 2px solid var(--medium-gray);
-      background-color: var(--light-gray);
-      font-size: 16px;
-      transition: all 0.3s;
-    }
-
-    .form-field label {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      color: #777;
-      font-size: 16px;
-      transition: all 0.3s;
-      pointer-events: none;
-    }
-
-    .form-field input:focus,
-    .form-field select:focus,
-    .form-field textarea:focus {
-      border-bottom-color: var(--primary-color);
-      background-color: white;
-      box-shadow: 0 1px 0 0 var(--primary-color);
-    }
-
-    .form-field input:focus ~ label,
-    .form-field select:focus ~ label,
-    .form-field textarea:focus ~ label,
-    .form-field input:not(:placeholder-shown) ~ label,
-    .form-field select:not([value=""]) ~ label,
-    .form-field textarea:not(:placeholder-shown) ~ label {
-      top: -10px;
-      left: 0;
-      font-size: 12px;
-      color: var(--primary-color);
-      font-weight: 600;
-    }
-
-    /* Animated checkmark for success states */
-    .checkmark {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: block;
-      stroke-width: 2;
-      stroke: var(--success-color);
-      stroke-miterlimit: 10;
-      box-shadow: 0 0 0 var(--success-color);
-      animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
-    }
-
-    .checkmark__circle {
-      stroke-dasharray: 166;
-      stroke-dashoffset: 166;
-      stroke-width: 2;
-      stroke-miterlimit: 10;
-      stroke: var(--success-color);
-      fill: none;
-      animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-    }
-
-    .checkmark__check {
-      transform-origin: 50% 50%;
-      stroke-dasharray: 48;
-      stroke-dashoffset: 48;
-      animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
-    }
-
-    @keyframes stroke {
-      100% {
-        stroke-dashoffset: 0;
-      }
-    }
-
-    @keyframes scale {
-      0%, 100% {
-        transform: none;
-      }
-      50% {
-        transform: scale3d(1.1, 1.1, 1);
-      }
-    }
-
-    @keyframes fill {
-      100% {
-        box-shadow: 0 0 0 30px rgba(46, 204, 113, 0.2);
-      }
-    }
-
-    /* Responsive */
-    @media (max-width: 600px) {
-      .container {
-        padding: var(--spacing-lg) var(--spacing-md);
-      }
-
-      header {
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .header-title {
-        font-size: 2rem;
-      }
-
-      .navigation {
-        position: static;
-        margin-bottom: var(--spacing-md);
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-
-      .qr-buttons {
-        flex-direction: column;
-      }
-
-      .link-container {
-        flex-direction: column;
-        gap: var(--spacing-sm);
-      }
-      
-      .btn {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-  </style>
+  
+  --shadow-sm: 0 2px 5px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 10px rgba(0,0,0,0.08);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
+  --shadow-inner: inset 0 2px 5px rgba(0,0,0,0.05);
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-round: 50px;
+  
+  --transition: 0.25s ease;
+  
+  --spacing-xs: 5px;
+  --spacing-sm: 10px;
+  --spacing-md: 20px;
+  --spacing-lg: 30px;
+  --spacing-xl: 50px;
+}
+
+/* Reset básico */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 15px 80px;
+  color: var(--text-color);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.navbar {
+  width: 100%;
+  background-color: var(--secondary-color);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  padding: 10px 0;
+  box-shadow: var(--shadow-md);
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  text-decoration: none;
+}
+
+.navbar-logo {
+  height: 40px;
+  width: auto;
+}
+
+.navbar-title {
+  color: var(--white);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.navbar-menu {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+main {
+  margin-top: 80px;
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.sidebar {
+  background-color: var(--white);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  width: 250px;
+  position: fixed;
+  top: 80px;
+  left: 20px;
+  box-shadow: var(--shadow-md);
+  display: none;
+  z-index: 100;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--medium-gray);
+}
+
+.close-sidebar {
+  background-color: var(--blue-50);
+  border: none;
+  color: var(--primary-color);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.close-sidebar:hover {
+  background-color: var(--primary-color);
+  color: white;
+  transform: rotate(90deg);
+}
+
+.toggle-sidebar {
+  position: fixed;
+  top: 90px;
+  left: 20px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  z-index: 99;
+  transition: all 0.3s;
+}
+
+.toggle-sidebar:hover {
+  background-color: var(--primary-hover);
+  transform: scale(1.05);
+}
+
+.sidebar.active {
+  display: block;
+  animation: slideIn 0.3s forwards;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@media (min-width: 1200px) {
+  .sidebar {
+    display: block;
+  }
+
+  .toggle-sidebar {
+    display: none;
+  }
+
+  main {
+    padding-left: 290px;
+    align-items: flex-start;
+  }
+}
+
+.sidebar-title {
+  font-size: 1.2rem;
+  color: var(--secondary-color);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--primary-light);
+}
+
+.sidebar-menu {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  border-radius: var(--radius-sm);
+  color: var(--dark-gray);
+  text-decoration: none;
+  transition: all var(--transition);
+}
+
+.sidebar-item:hover {
+  background-color: var(--blue-50);
+  color: var(--primary-color);
+}
+
+.sidebar-item.active {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.sidebar-item i {
+  width: 20px;
+  text-align: center;
+}
+
+header {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: var(--spacing-xl);
+  position: relative;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--white);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  margin-bottom: 5px;
+  letter-spacing: -0.5px;
+}
+
+.header-subtitle {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
+}
+
+header img {
+  height: 70px;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.navigation {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: var(--spacing-sm);
+  z-index: 1000;
+}
+
+.btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px 22px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--radius-round);
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: var(--shadow-md);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.3px;
+}
+
+.btn:hover {
+  background-color: var(--primary-hover);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn i {
+  font-size: 1rem;
+}
+
+.btn-accent {
+  background-color: var(--accent-color);
+}
+
+.btn-accent:hover {
+  background-color: var(--accent-hover);
+}
+
+.btn-secondary {
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-success {
+  background-color: var(--success-color);
+}
+
+.btn-success:hover {
+  background-color: #27ae60;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+}
+
+.btn-outline:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.container {
+  background-color: var(--white);
+  max-width: 700px;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-xl) var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+}
+
+.container h2 {
+  font-weight: 700;
+  color: var(--primary-color);
+  text-align: center;
+  font-size: 1.8rem;
+  position: relative;
+  padding-bottom: 15px;
+  margin-bottom: 5px;
+}
+
+.container h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(to right, var(--primary-color), var(--blue-800));
+  border-radius: 2px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--secondary-color);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-group label i {
+  color: var(--primary-color);
+  font-size: 1rem;
+}
+
+.form-input {
+  padding: 15px 18px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--medium-gray);
+  font-size: 1rem;
+  transition: all var(--transition);
+  font-family: inherit;
+  width: 100%;
+  background-color: var(--light-gray);
+  color: var(--text-color);
+}
+
+.form-input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+  background-color: var(--white);
+}
+
+.form-input::placeholder {
+  color: #adb5bd;
+}
+
+textarea.form-input {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-error {
+  color: var(--error-color);
+  font-size: 0.85rem;
+  margin-top: 4px;
+  display: none;
+  padding-left: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.invalid .form-input {
+  border-color: var(--error-color);
+  background-color: #fff9f9;
+}
+
+.invalid .form-error {
+  display: flex;
+}
+
+.actions-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  margin-top: var(--spacing-md);
+}
+
+.form-submit {
+  margin-top: 0;
+}
+
+.panel {
+  background-color: var(--light-gray);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: var(--spacing-sm);
+  gap: var(--spacing-md);
+  background-color: var(--blue-50);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--primary-color);
+  position: relative;
+}
+
+.qr-container::before {
+  content: 'Código QR';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--blue-50);
+  padding: 2px 15px;
+  border-radius: var(--radius-round);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  border: 1px dashed var(--primary-color);
+}
+
+#qrCode {
+  padding: var(--spacing-md);
+  background: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--spacing-sm);
+  display: none;
+  border: 2px solid var(--primary-color);
+}
+
+.qr-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+  width: 100%;
+  justify-content: center;
+}
+
+.qr-info {
+  font-size: 0.9rem;
+  color: var(--primary-dark);
+  text-align: center;
+  margin-top: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(52, 152, 219, 0.1);
+  padding: 10px 15px;
+  border-radius: var(--radius-sm);
+}
+
+.qr-info i {
+  font-size: 1.2rem;
+  color: var(--primary-color);
+}
+
+.link-container {
+  text-align: center;
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--medium-gray);
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.link {
+  color: var(--primary-color);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  border-radius: var(--radius-round);
+}
+
+.link:hover {
+  color: var(--primary-hover);
+  background-color: var(--blue-50);
+  transform: translateY(-2px);
+}
+
+.link i {
+  font-size: 1.1rem;
+}
+
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: white;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 1000;
+  max-width: 350px;
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+
+.toast-success {
+  border-left: 4px solid var(--success-color);
+}
+
+.toast-error {
+  border-left: 4px solid var(--error-color);
+}
+
+.toast-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.toast-success .toast-icon {
+  color: var(--success-color);
+}
+
+.toast-error .toast-icon {
+  color: var(--error-color);
+}
+
+.toast-message {
+  font-size: 1rem;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.loading-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--primary-color);
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  color: white;
+  font-weight: 500;
+  letter-spacing: 1px;
+  font-size: 1.1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Estilos mejorados para el input de fecha */
+input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
+  color: var(--text-color);
+  font-family: inherit;
+  padding: 15px 18px !important;
+  display: inline-block;
+  visibility: visible;
+  background: var(--light-gray) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>') 
+            no-repeat 95% 50%;
+}
+
+input[type="date"]:focus {
+  background: white url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%233498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>') 
+            no-repeat 95% 50%;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button {
+  display: none;
+  -webkit-appearance: none;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .container {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .header-title {
+    font-size: 2rem;
+  }
+
+  .navbar-menu {
+    display: none;
+  }
+
+  .qr-buttons {
+    flex-direction: column;
+  }
+
+  .link-container {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.page-title {
+  width: 100%;
+  max-width: 700px;
+  text-align: center;
+  margin-bottom: 30px;
+  background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+  padding: 20px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.page-title h1 {
+  color: var(--white);
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+}
+
+.breadcrumbs {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  background-color: rgba(255, 255, 255, 0.15);
+  padding: 8px 15px;
+  border-radius: 20px;
+  margin: 5px auto 0;
+  display: inline-flex;
+}
+
+.breadcrumbs a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+  color: var(--white);
+  text-decoration: underline;
+}
+
+.breadcrumbs .separator {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+footer {
+  width: 100%;
+  background-color: rgba(44, 62, 80, 0.95);
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  padding: 12px 0;
+  margin-top: 40px;
+  font-size: 0.85rem;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 50;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.footer-content {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+.footer-divider {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  margin: 0 8px;
+}
+</style>
 </head>
 <body>
-  <header>
-    <div class="header-content">
-      <img src="./images/ENCOMIENDA.png" alt="Logo Encomiendas" />
-      <h1 class="header-title">Sistema de Encomiendas</h1>
-      <p class="header-subtitle">Gestión eficiente de paquetes para edificios</p>
-    </div>
-  </header>
-
-  <div class="navigation">
+<!-- Navbar -->
+<nav class="navbar">
+<div class="navbar-container">
+  <a href="administrador.html" class="navbar-brand">
+    <img src="./images/ENCOMIENDA.png" alt="Logo" class="navbar-logo">
+    <span class="navbar-title">Sistema de Encomiendas</span>
+  </a>
+  <div class="navbar-menu">
     <a href="listPackages.html" class="btn btn-secondary">
       <i class="fas fa-list-ul"></i> Ver Paquetes
     </a>
@@ -699,711 +878,811 @@
       <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
     </button>
   </div>
+</div>
+</nav>
 
-  <div class="container">
-    <h2>Registrar Nueva Encomienda</h2>
-    <form id="packageForm" novalidate>
+<main>
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h3 class="sidebar-title">Menú Principal</h3>
+    <button class="close-sidebar" id="closeSidebar" type="button" aria-label="Cerrar menú">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <ul class="sidebar-menu">
+    <a href="administrador.html" class="sidebar-item">
+      <i class="fas fa-tachometer-alt"></i>
+      <span>Dashboard</span>
+    </a>
+    <a href="listPackages.html" class="sidebar-item">
+      <i class="fas fa-box"></i>
+      <span>Ver Paquetes</span>
+    </a>
+    <a href="#" class="sidebar-item active">
+      <i class="fas fa-plus-circle"></i>
+      <span>Registrar Paquete</span>
+    </a>
+    <a href="departaments.html" class="sidebar-item">
+      <i class="fas fa-building"></i>
+      <span>Departamentos</span>
+    </a>
+    <a href="reports.html" class="sidebar-item">
+      <i class="fas fa-chart-bar"></i>
+      <span>Reportes</span>
+    </a>
+    <a href="settings.html" class="sidebar-item">
+      <i class="fas fa-cog"></i>
+      <span>Configuración</span>
+    </a>
+  </ul>
+</aside>
+
+<!-- Toggle Sidebar Button -->
+<button class="toggle-sidebar" id="toggleSidebar" type="button" aria-label="Abrir menú">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- Page Title -->
+<div class="page-title">
+  <h1>Registrar Paquete</h1>
+  <div class="breadcrumbs">
+    <a href="administrador.html">Inicio</a>
+    <span class="separator"><i class="fas fa-chevron-right"></i></span>
+    <span>Registrar Paquete</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <h2>Registrar Nueva Encomienda</h2>
+  <form id="packageForm" novalidate>
+    <div class="form-group">
+      <label for="apartment_number"><i class="fas fa-home"></i> Departamento</label>
+      <select id="apartment_number" class="form-input" required>
+        <option value="" disabled selected>Seleccione un departamento</option>
+        <!-- Los departamentos se cargarán dinámicamente -->
+      </select>
+      <div class="form-error"><i class="fas fa-exclamation-circle"></i> Por favor seleccione un departamento</div>
+    </div>
+
+    <div class="form-group">
+      <label for="sender"><i class="fas fa-user"></i> Remitente</label>
+      <input type="text" id="sender" class="form-input" placeholder="Nombre de quien envía" required>
+      <span class="form-error"><i class="fas fa-exclamation-circle"></i> Ingresa el nombre del remitente</span>
+    </div>
+
+    <div class="form-group">
+      <label for="delivery_date"><i class="fas fa-calendar-alt"></i> Fecha de entrega</label>
+      <input type="date" id="delivery_date" class="form-input" required>
+      <span class="form-error"><i class="fas fa-exclamation-circle"></i> Selecciona una fecha válida</span>
+    </div>
+
+    <div class="form-group">
+      <label for="status"><i class="fas fa-tasks"></i> Estado</label>
+      <select id="status" class="form-input" required>
+        <option value="">-- Selecciona Estado --</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="entregado">Entregado</option>
+        <option value="retirado">Retirado</option>
+      </select>
+      <span class="form-error"><i class="fas fa-exclamation-circle"></i> Selecciona un estado</span>
+    </div>
+
+    <div class="qr-container">
+      <button type="button" id="generateQrBtn" class="btn btn-accent">
+        <i class="fas fa-qrcode"></i> Generar Código QR
+      </button>
+      <div id="qrCode"></div>
       <div class="form-group">
-        <label for="apartment_number"><i class="fas fa-home"></i> Departamento</label>
-        <select id="apartment_number" class="form-input" required>
-          <option value="" disabled selected>Seleccione un departamento</option>
-          <!-- Los departamentos se cargarán dinámicamente -->
-        </select>
-        <div class="form-error"><i class="fas fa-exclamation-circle"></i> Por favor seleccione un departamento</div>
+        <input type="text" id="qr_code" class="form-input" placeholder="Código QR (generado automáticamente)" readonly>
       </div>
-
-      <div class="form-group">
-        <label for="sender"><i class="fas fa-user"></i> Remitente</label>
-        <input type="text" id="sender" class="form-input" placeholder="Nombre de quien envía" required>
-        <span class="form-error"><i class="fas fa-exclamation-circle"></i> Ingresa el nombre del remitente</span>
-      </div>
-
-      <div class="form-group">
-        <label for="delivery_date"><i class="fas fa-calendar-alt"></i> Fecha de entrega</label>
-        <input type="date" id="delivery_date" class="form-input" required>
-        <span class="form-error"><i class="fas fa-exclamation-circle"></i> Selecciona una fecha válida</span>
-      </div>
-
-      <div class="form-group">
-        <label for="status"><i class="fas fa-tasks"></i> Estado</label>
-        <select id="status" class="form-input" required>
-          <option value="">-- Selecciona Estado --</option>
-          <option value="pendiente">Pendiente</option>
-          <option value="entregado">Entregado</option>
-          <option value="retirado">Retirado</option>
-        </select>
-        <span class="form-error"><i class="fas fa-exclamation-circle"></i> Selecciona un estado</span>
-      </div>
-
-      <div class="qr-container">
-        <button type="button" id="generateQrBtn" class="btn btn-accent">
-          <i class="fas fa-qrcode"></i> Generar Código QR
+      <div class="qr-buttons" id="qrButtons" style="display: none;">
+        <button type="button" class="btn" id="printQrBtn">
+          <i class="fas fa-print"></i> Imprimir QR
         </button>
-        <div id="qrCode"></div>
-        <div class="form-group">
-          <input type="text" id="qr_code" class="form-input" placeholder="Código QR (generado automáticamente)" readonly>
-        </div>
-        <div class="qr-buttons" id="qrButtons" style="display: none;">
-          <button type="button" class="btn" id="printQrBtn">
-            <i class="fas fa-print"></i> Imprimir QR
-          </button>
-          <button type="button" class="btn btn-secondary" id="downloadQrBtn">
-            <i class="fas fa-download"></i> Descargar QR
-          </button>
-        </div>
-        <div class="qr-info">
-          <i class="fas fa-info-circle"></i> 
-          <span>El código QR facilita el seguimiento y entrega del paquete al residente</span>
-        </div>
+        <button type="button" class="btn btn-secondary" id="downloadQrBtn">
+          <i class="fas fa-download"></i> Descargar QR
+        </button>
       </div>
-
-      <div class="form-group">
-        <label for="notes"><i class="fas fa-sticky-note"></i> Notas (opcional)</label>
-        <textarea id="notes" class="form-input" rows="3" placeholder="Agrega observaciones o detalles adicionales"></textarea>
+      <div class="qr-info">
+        <i class="fas fa-info-circle"></i> 
+        <span>El código QR facilita el seguimiento y entrega del paquete al residente</span>
       </div>
+    </div>
 
+    <div class="form-group">
+      <label for="notes"><i class="fas fa-sticky-note"></i> Notas (opcional)</label>
+      <textarea id="notes" class="form-input" rows="3" placeholder="Agrega observaciones o detalles adicionales"></textarea>
+    </div>
+
+    <div class="actions-container">
       <button type="submit" class="btn btn-success form-submit">
         <i class="fas fa-save"></i> Registrar Paquete
       </button>
-    </form>
-    <div class="link-container">
-      <a href="listPackages.html" class="link">
-        <i class="fas fa-list"></i> Ver lista de paquetes
-      </a>
-      <a href="departaments.html" class="link">
-        <i class="fas fa-building"></i> Administrar departamentos
-      </a>
-      <a href="dashboard.html" class="link">
-        <i class="fas fa-home"></i> Ir al inicio
-      </a>
     </div>
+  </form>
+  <div class="link-container">
+    <a href="listPackages.html" class="link">
+      <i class="fas fa-list"></i> Ver paquetes
+    </a>
+    <a href="departaments.html" class="link">
+      <i class="fas fa-building"></i> Departamentos
+    </a>
+    <a href="administrador.html" class="link">
+      <i class="fas fa-home"></i> Inicio
+    </a>
   </div>
+</div>
+</main>
 
-  <!-- Toast notifications -->
-  <div id="toastSuccess" class="toast toast-success">
-    <div class="toast-icon">
-      <i class="fas fa-check-circle"></i>
-    </div>
-    <div class="toast-message">¡Paquete registrado exitosamente!</div>
-  </div>
+<footer>
+<div class="footer-content">
+  <span>© 2025</span>
+  <span class="footer-divider"></span>
+  <span>Sistema de Gestión de Encomiendas</span>
+  <span class="footer-divider"></span>
+  <span>Desarrollado para edificios residenciales</span>
+</div>
+</footer>
 
-  <div id="toastError" class="toast toast-error">
-    <div class="toast-icon">
-      <i class="fas fa-exclamation-circle"></i>
-    </div>
-    <div class="toast-message" id="errorMessage">Ha ocurrido un error.</div>
-  </div>
+<!-- Toast notifications -->
+<div id="toastSuccess" class="toast toast-success">
+<div class="toast-icon">
+  <i class="fas fa-check-circle"></i>
+</div>
+<div class="toast-message">¡Paquete registrado exitosamente!</div>
+</div>
 
-  <!-- Loading overlay -->
-  <div id="loadingOverlay" class="loading-overlay">
-    <div class="spinner"></div>
-  </div>
+<div id="toastError" class="toast toast-error">
+<div class="toast-icon">
+  <i class="fas fa-exclamation-circle"></i>
+</div>
+<div class="toast-message" id="errorMessage">Ha ocurrido un error.</div>
+</div>
 
-  <!-- Scripts -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script>
-    // Gestión de errores global
-    window.addEventListener('error', function(event) {
-      console.error('Error capturado:', event.error);
-      alert('Se ha producido un error en la aplicación. Por favor, recarga la página.');
+<!-- Loading overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+<div class="loading-content">
+  <div class="spinner"></div>
+  <div class="loading-text">Procesando...</div>
+</div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// Gestión de errores global
+window.addEventListener('error', function(event) {
+  console.error('Error capturado:', event.error);
+  alert('Se ha producido un error en la aplicación. Por favor, recarga la página.');
+});
+
+// Constantes de configuración
+const CONFIG = {
+  API_URL: '/api',
+  DEFAULT_QR_SIZE: 180,
+  LOCAL_STORAGE_KEY: 'paquetesPrueba',
+  AUTH_TOKEN_KEY: 'authToken',
+  TOAST_DURATION: 3000,
+  QR_CODE_PREFIX: 'PKG'
+};
+
+// Manejo del sidebar
+document.addEventListener('DOMContentLoaded', function() {
+  const toggleSidebar = document.getElementById('toggleSidebar');
+  const closeSidebar = document.getElementById('closeSidebar');
+  const sidebar = document.getElementById('sidebar');
+  
+  if (toggleSidebar && closeSidebar && sidebar) {
+    // Abrir sidebar
+    toggleSidebar.addEventListener('click', function() {
+      sidebar.classList.add('active');
     });
     
-    // Constantes de configuración
-    const CONFIG = {
-      API_URL: '/api',
-      DEFAULT_QR_SIZE: 180,
-      LOCAL_STORAGE_KEY: 'paquetesPrueba',
-      AUTH_TOKEN_KEY: 'authToken',
-      TOAST_DURATION: 3000,
-      QR_CODE_PREFIX: 'PKG'
-    };
-
-    // Función para obtener todos los departamentos desde localStorage
-    function getAllDepartments() {
-      // Primero intenta obtener el formato usado en departamento.html
-      let departments = localStorage.getItem('departments');
-      
-      if (departments) {
-        // Parsear los departamentos
-        try {
-          departments = JSON.parse(departments);
-          console.log('Departamentos cargados:', departments);
-          return departments;
-        } catch (e) {
-          console.error('Error al parsear departamentos:', e);
-          return [];
-        }
+    // Cerrar con el botón X
+    closeSidebar.addEventListener('click', function() {
+      sidebar.classList.remove('active');
+    });
+    
+    // Cerrar al hacer clic fuera
+    document.addEventListener('click', function(e) {
+      if (sidebar.classList.contains('active') && 
+          !sidebar.contains(e.target) && 
+          e.target !== toggleSidebar &&
+          !toggleSidebar.contains(e.target)) {
+        sidebar.classList.remove('active');
       }
-      
-      // Si no hay departamentos, devolver array vacío
+    });
+  }
+});
+
+// Función para obtener todos los departamentos desde localStorage
+function getAllDepartments() {
+  // Primero intenta obtener el formato usado en departamento.html
+  let departments = localStorage.getItem('departments');
+  
+  if (departments) {
+    // Parsear los departamentos
+    try {
+      departments = JSON.parse(departments);
+      console.log('Departamentos cargados:', departments);
+      return departments;
+    } catch (e) {
+      console.error('Error al parsear departamentos:', e);
       return [];
     }
+  }
+  
+  // Si no hay departamentos, devolver array vacío
+  return [];
+}
 
-    // Función para agregar un nuevo departamento
-    function addDepartment(deptNumber) {
-      const departments = getAllDepartments();
+// Función para agregar un nuevo departamento
+function addDepartment(deptNumber) {
+  const departments = getAllDepartments();
+  
+  // Verificar el formato de los departamentos existentes
+  const isObjectFormat = departments.length > 0 && typeof departments[0] === 'object';
+  
+  // Verificar si ya existe
+  const exists = isObjectFormat 
+    ? departments.some(dept => (dept.deptNumber || dept.numero) == deptNumber)
+    : departments.includes(deptNumber);
+    
+  if (!exists) {
+    // Si los departamentos están en formato de objeto
+    if (isObjectFormat) {
+      // Verificar el formato (deptNumber o numero)
+      const hasNumero = departments.length > 0 && 'numero' in departments[0];
       
-      // Verificar el formato de los departamentos existentes
-      const isObjectFormat = departments.length > 0 && typeof departments[0] === 'object';
-      
-      // Verificar si ya existe
-      const exists = isObjectFormat 
-        ? departments.some(dept => (dept.deptNumber || dept.numero) == deptNumber)
-        : departments.includes(deptNumber);
-        
-      if (!exists) {
-        // Si los departamentos están en formato de objeto
-        if (isObjectFormat) {
-          // Verificar el formato (deptNumber o numero)
-          const hasNumero = departments.length > 0 && 'numero' in departments[0];
-          
-          if (hasNumero) {
-            // Formato { numero: X, piso: Y }
-            const piso = Math.floor(deptNumber / 100);
-            departments.push({ numero: deptNumber, piso: piso });
-          } else {
-            // Formato { deptNumber: X }
-            departments.push({ deptNumber: deptNumber });
-          }
-        } else {
-          // Formato simple (array de números)
-          departments.push(deptNumber);
-        }
+      if (hasNumero) {
+        // Formato { numero: X, piso: Y }
+        const piso = Math.floor(deptNumber / 100);
+        departments.push({ numero: deptNumber, piso: piso });
+      } else {
+        // Formato { deptNumber: X }
+        departments.push({ deptNumber: deptNumber });
       }
-      // Guardar los departamentos
-      localStorage.setItem('departments', JSON.stringify(departments));
-      console.log('Departamentos guardados:', departments);
-      
-      return departments;
+    } else {
+      // Formato simple (array de números)
+      departments.push(deptNumber);
     }
+  }
+  // Guardar los departamentos
+  localStorage.setItem('departments', JSON.stringify(departments));
+  console.log('Departamentos guardados:', departments);
+  
+  return departments;
+}
 
-    // Función para guardar un paquete para un departamento específico
-    function savePackageForDepartment(packageData) {
-      // Guardar en el formato global
-      const allPackages = JSON.parse(localStorage.getItem(CONFIG.LOCAL_STORAGE_KEY) || '[]');
-      allPackages.push(packageData);
-      localStorage.setItem(CONFIG.LOCAL_STORAGE_KEY, JSON.stringify(allPackages));
-      
-      // También guardar para el departamento específico
-      const deptKey = `packages_${packageData.apartment_number}`;
-      const deptPackages = JSON.parse(localStorage.getItem(deptKey) || '[]');
-      deptPackages.push(packageData);
-      localStorage.setItem(deptKey, JSON.stringify(deptPackages));
-      
-      console.log(`Paquete guardado para departamento ${packageData.apartment_number}`);
+// Función para guardar un paquete para un departamento específico
+function savePackageForDepartment(packageData) {
+  // Guardar en el formato global
+  const allPackages = JSON.parse(localStorage.getItem(CONFIG.LOCAL_STORAGE_KEY) || '[]');
+  allPackages.push(packageData);
+  localStorage.setItem(CONFIG.LOCAL_STORAGE_KEY, JSON.stringify(allPackages));
+  
+  // También guardar para el departamento específico
+  const deptKey = `packages_${packageData.apartment_number}`;
+  const deptPackages = JSON.parse(localStorage.getItem(deptKey) || '[]');
+  deptPackages.push(packageData);
+  localStorage.setItem(deptKey, JSON.stringify(deptPackages));
+  
+  console.log(`Paquete guardado para departamento ${packageData.apartment_number}`);
+}
+
+// Gestor de autenticación
+const AuthManager = {
+  getToken() {
+    return localStorage.getItem(CONFIG.AUTH_TOKEN_KEY);
+  },
+  
+  isAuthenticated() {
+    return !!this.getToken();
+  },
+  
+  logout() {
+    localStorage.removeItem(CONFIG.AUTH_TOKEN_KEY);
+    window.location.href = 'login.html';
+  },
+  
+  requireAuth() {
+    if (!this.isAuthenticated()) {
+      window.location.href = 'login.html';
+      return false;
     }
+    return true;
+  }
+};
 
-    // Gestor de autenticación
-    const AuthManager = {
-      getToken() {
-        return localStorage.getItem(CONFIG.AUTH_TOKEN_KEY);
-      },
-      
-      isAuthenticated() {
-        return !!this.getToken();
-      },
-      
-      logout() {
-        localStorage.removeItem(CONFIG.AUTH_TOKEN_KEY);
-        window.location.href = 'login.html';
-      },
-      
-      requireAuth() {
-        if (!this.isAuthenticated()) {
-          window.location.href = 'login.html';
-          return false;
-        }
-        return true;
-      }
-    };
-
-    // Gestor de datos
-    const DataManager = {
-      async savePackage(packageData) {
-        try {
-          // Primero intentamos con la API
-          try {
-            const response = await fetch(`${CONFIG.API_URL}/packages`, {
-              method: 'POST',
-              headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${AuthManager.getToken()}`
-              },
-              body: JSON.stringify(packageData)
-            });
-
-            if (response.ok) {
-              // Guardar también en localStorage para el departamento específico
-              savePackageForDepartment(packageData);
-              return true;
-            } else {
-              const result = await response.json();
-              throw new Error(result.error || "Error al registrar paquete");
-            }
-          } catch (apiError) {
-            console.warn('Error al conectar con API de paquetes:', apiError);
-            
-            // Si estamos en modo desarrollo o pruebas, simulamos éxito
-            if (this.isTestEnvironment() || 
-                confirm('No se pudo conectar con el servidor. ¿Deseas simular el registro para pruebas?')) {
-              
-              // Simular registro exitoso para pruebas
-              console.log('Simulando registro exitoso. Datos del paquete:', packageData);
-              
-              // Guardar en localStorage para pruebas
-              try {
-                const paquetesGuardados = JSON.parse(localStorage.getItem(CONFIG.LOCAL_STORAGE_KEY) || '[]');
-                packageData.id = Date.now(); // Simular ID
-                packageData.created_at = new Date().toISOString();
-                paquetesGuardados.push(packageData);
-                localStorage.setItem(CONFIG.LOCAL_STORAGE_KEY, JSON.stringify(paquetesGuardados));
-                
-                // Guardar también para el departamento específico
-                savePackageForDepartment(packageData);
-                
-                console.log('Paquete guardado localmente para pruebas');
-                return true;
-              } catch (localError) {
-                console.error('Error al guardar localmente:', localError);
-                throw new Error('No se pudo conectar con el servidor ni guardar localmente');
-              }
-            } else {
-              throw new Error('No se pudo conectar con el servidor. Intente más tarde.');
-            }
-          }
-        } catch (error) {
-          throw error;
-        }
-      },
-      
-      isTestEnvironment() {
-        return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      }
-    };
-
-    // Gestor de interfaz de usuario
-    const UIManager = {
-      elements: {
-        form: document.getElementById('packageForm'),
-        departmentSelect: document.getElementById('apartment_number'),
-        senderInput: document.getElementById('sender'),
-        dateInput: document.getElementById('delivery_date'),
-        statusSelect: document.getElementById('status'),
-        notesTextarea: document.getElementById('notes'),
-        qrCodeDiv: document.getElementById('qrCode'),
-        qrCodeInput: document.getElementById('qr_code'),
-        qrButtons: document.getElementById('qrButtons'),
-        generateQrBtn: document.getElementById('generateQrBtn'),
-        printQrBtn: document.getElementById('printQrBtn'),
-        downloadQrBtn: document.getElementById('downloadQrBtn'),
-        logoutBtn: document.getElementById('logoutBtn'),
-        toastSuccess: document.getElementById('toastSuccess'),
-        toastError: document.getElementById('toastError'),
-        errorMessage: document.getElementById('errorMessage'),
-        loadingOverlay: document.getElementById('loadingOverlay')
-      },
-      
-      init() {
-        // Inicializar fecha con el día actual
-        const today = new Date().toISOString().split('T')[0];
-        this.elements.dateInput.value = today;
-        
-        // Establecer los event listeners
-        this.setupEventListeners();
-        
-        // Cargar departamentos existentes
-        this.loadDepartments();
-      },
-      
-      loadDepartments() {
-        const departmentSelect = this.elements.departmentSelect;
-        
-        // Obtener todos los departamentos
-        const departments = getAllDepartments();
-        
-        // Limpiar opciones existentes excepto la primera
-        while (departmentSelect.options.length > 1) {
-          departmentSelect.remove(1);
-        }
-        
-        // Agregar departamentos existentes
-        departments.forEach(dept => {
-          // Manejar tanto si dept es un objeto como si es un valor simple
-          const deptNumber = typeof dept === 'object' 
-            ? (dept.deptNumber || dept.numero) // Intentar obtener deptNumber o numero
-            : dept;
-          
-          const option = document.createElement('option');
-          option.value = deptNumber;
-          option.textContent = `Departamento ${deptNumber}`;
-          departmentSelect.appendChild(option);
+// Gestor de datos
+const DataManager = {
+  async savePackage(packageData) {
+    try {
+      // Primero intentamos con la API
+      try {
+        const response = await fetch(`${CONFIG.API_URL}/packages`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${AuthManager.getToken()}`
+          },
+          body: JSON.stringify(packageData)
         });
-        
-        // Agregar opción para nuevo departamento
-        const newOption = document.createElement('option');
-        newOption.value = "new";
-        newOption.textContent = "Agregar nuevo departamento";
-        departmentSelect.appendChild(newOption);
-      },
-      
-      setupEventListeners() {
-        this.elements.form.addEventListener('submit', this.handleFormSubmit.bind(this));
-        this.elements.generateQrBtn.addEventListener('click', this.generateQRCode.bind(this));
-        this.elements.printQrBtn.addEventListener('click', this.printQRCode.bind(this));
-        this.elements.downloadQrBtn.addEventListener('click', this.downloadQRCode.bind(this));
-        this.elements.logoutBtn.addEventListener('click', AuthManager.logout);
-        
-        // Manejar selección de nuevo departamento
-        this.elements.departmentSelect.addEventListener('change', function() {
-          if (this.value === 'new') {
-            const newDept = prompt('Ingrese el número del nuevo departamento:');
-            if (newDept && !isNaN(newDept)) {
-              // Usar la función para agregar departamento
-              addDepartment(newDept);
-              
-              // Recargar la lista
-              UIManager.loadDepartments();
-              
-              // Seleccionar el nuevo departamento
-              this.value = newDept;
-            } else {
-              this.value = ''; // Resetear si no es válido
-            }
-          }
-        });
-        
-        // Validación en tiempo real
-        this.elements.form.querySelectorAll('.form-input').forEach(input => {
-          input.addEventListener('blur', (e) => this.validateField(e.target));
-          input.addEventListener('input', (e) => {
-            if (e.target.classList.contains('invalid')) {
-              this.validateField(e.target);
-            }
-          });
-        });
-      },
-      
-      validateField(field) {
-        const parent = field.closest('.form-group');
-        
-        if (field.hasAttribute('required') && !field.value.trim()) {
-          parent.classList.add('invalid');
-          return false;
-        } else {
-          parent.classList.remove('invalid');
+
+        if (response.ok) {
+          // Guardar también en localStorage para el departamento específico
+          savePackageForDepartment(packageData);
           return true;
+        } else {
+          const result = await response.json();
+          throw new Error(result.error || "Error al registrar paquete");
         }
-      },
-      
-      validateForm() {
-        let isValid = true;
+      } catch (apiError) {
+        console.warn('Error al conectar con API de paquetes:', apiError);
         
-        this.elements.form.querySelectorAll('.form-input[required]').forEach(input => {
-          if (!this.validateField(input)) {
-            isValid = false;
-          }
-        });
-        
-        return isValid;
-      },
-      
-      generateQRCode() {
-        const { departmentSelect, senderInput, dateInput, qrCodeDiv, qrCodeInput, qrButtons } = this.elements;
-        
-        // Validar campos necesarios
-        if (!departmentSelect.value || !senderInput.value.trim() || !dateInput.value) {
-          this.showError('Por favor completa al menos: Departamento, Remitente y Fecha de entrega para generar el QR');
-          return;
-        }
-        
-        // Generar un código único para el paquete
-        const timestamp = new Date().getTime();
-        const uniqueCode = `${CONFIG.QR_CODE_PREFIX}-${departmentSelect.value}-${timestamp}`;
-        qrCodeInput.value = uniqueCode;
-        
-        // Crear contenido para el QR (datos estructurados)
-        const qrContent = JSON.stringify({
-          id: uniqueCode,
-          apt: departmentSelect.value,
-          sender: senderInput.value.trim(),
-          date: dateInput.value,
-          generated: new Date().toISOString()
-        });
-        
-        // Limpiar QR anterior si existe
-        qrCodeDiv.innerHTML = '';
-        
-        // Generar nuevo QR
-        new QRCode(qrCodeDiv, {
-          text: qrContent,
-          width: CONFIG.DEFAULT_QR_SIZE,
-          height: CONFIG.DEFAULT_QR_SIZE,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.H
-        });
-        
-        // Mostrar el QR y los botones
-        qrCodeDiv.style.display = 'block';
-        qrButtons.style.display = 'flex';
-      },
-      
-      printQRCode() {
-        const { departmentSelect, senderInput, dateInput, qrCodeDiv, qrCodeInput } = this.elements;
-        
-        // Crear una ventana de impresión
-        const printWindow = window.open('', '', 'width=600,height=600');
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>QR Paquete - Depto ${departmentSelect.value}</title>
-              <style>
-                body { 
-                  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-                  text-align: center; 
-                  margin: 20px;
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  justify-content: center;
-                  height: 90vh;
-                  background-color: #f8f9fa;
-                }
-                .qr-card {
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  max-width: 400px;
-                  width: 100%;
-                  background: white;
-                  border-radius: 12px;
-                  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-                  overflow: hidden;
-                }
-                .card-header {
-                  width: 100%;
-                  background: linear-gradient(135deg, #3498db, #1abc9c);
-                  color: white;
-                  padding: 20px;
-                  box-sizing: border-box;
-                  text-align: center;
-                }
-                .logo {
-                  width: 70px;
-                  height: auto;
-                  margin-bottom: 10px;
-                }
-                h2 { 
-                  margin: 0;
-                  font-size: 1.5rem;
-                  font-weight: 600;
-                }
-                .qr-print { 
-                  margin: 20px auto;
-                  padding: 15px;
-                  background: white;
-                  border-radius: 8px;
-                  box-sizing: border-box;
-                }
-                .details { 
-                  width: 100%;
-                  box-sizing: border-box;
-                  margin: 0;
-                  line-height: 1.5;
-                  text-align: left;
-                  padding: 20px;
-                  background-color: white;
-                  border-top: 1px solid #eee;
-                }
-                .info-row {
-                  display: flex;
-                  margin-bottom: 10px;
-                }
-                .info-label {
-                  font-weight: 600;
-                  color: #555;
-                  width: 100px;
-                }
-                .info-value {
-                  flex: 1;
-                  color: #333;
-                }
-                .footer { 
-                  margin-top: 20px; 
-                  font-size: 0.8rem; 
-                  color: #888;
-                  text-align: center;
-                  width: 100%;
-                  padding: 10px 0;
-                  background-color: #f8f9fa;
-                }
-                @media print {
-                  body {
-                    background: white;
-                  }
-                  .qr-card {
-                    box-shadow: none;
-                    border: 1px solid #ddd;
-                  }
-                }
-              </style>
-            </head>
-            <body>
-              <div class="qr-card">
-                <div class="card-header">
-                  <img src="./images/ENCOMIENDA.png" alt="Logo" class="logo" />
-                  <h2>Departamento ${departmentSelect.value}</h2>
-                </div>
-                <div class="qr-print">
-                  ${qrCodeDiv.innerHTML}
-                </div>
-                <div class="details">
-                  <div class="info-row">
-                    <div class="info-label">Remitente:</div>
-                    <div class="info-value">${senderInput.value.trim()}</div>
-                  </div>
-                  <div class="info-row">
-                    <div class="info-label">Fecha:</div>
-                    <div class="info-value">${this.formatDate(dateInput.value)}</div>
-                  </div>
-                  <div class="info-row">
-                    <div class="info-label">Código:</div>
-                    <div class="info-value">${qrCodeInput.value}</div>
-                  </div>
-                </div>
-                <div class="footer">
-                  Generado el ${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}
-                </div>
-              </div>
-            </body>
-          </html>
-        `);
-        printWindow.document.close();
-        
-        // Esperar a que cargue el contenido antes de imprimir
-        setTimeout(() => {
-          printWindow.print();
-          printWindow.close();
-        }, 500);
-      },
-      
-      downloadQRCode() {
-        const { departmentSelect, qrCodeDiv } = this.elements;
-        
-        // Obtener la imagen desde el canvas generado por la librería
-        const canvas = qrCodeDiv.querySelector('canvas');
-        if (!canvas) return;
-        
-        // Convertir canvas a imagen descargable
-        const imgData = canvas.toDataURL('image/png');
-        const downloadLink = document.createElement('a');
-        
-        downloadLink.href = imgData;
-        downloadLink.download = `QR-Paquete-Depto-${departmentSelect.value}.png`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        
-        // Mostrar notificación
-        this.showSuccess('QR descargado correctamente');
-      },
-      
-      async handleFormSubmit(e) {
-        e.preventDefault();
-        
-        // Validar formulario
-        if (!this.validateForm()) {
-          this.showError('Por favor, completa todos los campos requeridos');
-          return;
-        }
-        
-        // Si no hay código QR generado, preguntar si desea continuar
-        if (!this.elements.qrCodeInput.value) {
-          if (!confirm('No has generado un código QR para este paquete. ¿Deseas continuar sin código QR?')) {
-            return;
-          }
-        }
-        
-        // Mostrar loading
-        this.showLoading(true);
-        
-        try {
-          const success = await DataManager.savePackage(this.getFormData());
+        // Si estamos en modo desarrollo o pruebas, simulamos éxito
+        if (this.isTestEnvironment() || 
+            confirm('No se pudo conectar con el servidor. ¿Deseas simular el registro para pruebas?')) {
           
-          if (success) {
-            this.showSuccess('¡Paquete registrado exitosamente!');
-            setTimeout(() => {
-              window.location.href = 'listPackages.html';
-            }, 1000);
+          // Simular registro exitoso para pruebas
+          console.log('Simulando registro exitoso. Datos del paquete:', packageData);
+          
+          // Guardar en localStorage para pruebas
+          try {
+            const paquetesGuardados = JSON.parse(localStorage.getItem(CONFIG.LOCAL_STORAGE_KEY) || '[]');
+            packageData.id = Date.now(); // Simular ID
+            packageData.created_at = new Date().toISOString();
+            paquetesGuardados.push(packageData);
+            localStorage.setItem(CONFIG.LOCAL_STORAGE_KEY, JSON.stringify(paquetesGuardados));
+            
+            // Guardar también para el departamento específico
+            savePackageForDepartment(packageData);
+            
+            console.log('Paquete guardado localmente para pruebas');
+            return true;
+          } catch (localError) {
+            console.error('Error al guardar localmente:', localError);
+            throw new Error('No se pudo conectar con el servidor ni guardar localmente');
           }
-        } catch (error) {
-          this.showError(error.message);
-        } finally {
-          this.showLoading(false);
+        } else {
+          throw new Error('No se pudo conectar con el servidor. Intente más tarde.');
         }
-      },
-      
-      getFormData() {
-        const { departmentSelect, senderInput, dateInput, statusSelect, qrCodeInput, notesTextarea } = this.elements;
-        
-        return {
-          apartment_number: departmentSelect.value,
-          sender: senderInput.value.trim(),
-          delivery_date: dateInput.value,
-          status: statusSelect.value,
-          qr_code: qrCodeInput.value.trim(),
-          notes: notesTextarea.value.trim(),
-        };
-      },
-      
-      formatDate(dateString) {
-        try {
-          const options = { year: 'numeric', month: 'long', day: 'numeric' };
-          return new Date(dateString).toLocaleDateString('es-ES', options);
-        } catch (error) {
-          console.error('Error al formatear fecha:', error);
-          return dateString; // Devolver la fecha original si hay error
-        }
-      },
-      
-      showSuccess(message) {
-        const { toastSuccess } = this.elements;
-        toastSuccess.querySelector('.toast-message').textContent = message;
-        toastSuccess.classList.add('show');
-        
-        setTimeout(() => {
-          toastSuccess.classList.remove('show');
-        }, CONFIG.TOAST_DURATION);
-      },
-      
-      showError(message) {
-        const { toastError, errorMessage } = this.elements;
-        errorMessage.textContent = message;
-        toastError.classList.add('show');
-        
-        setTimeout(() => {
-          toastError.classList.remove('show');
-        }, CONFIG.TOAST_DURATION);
-      },
-      
-      showLoading(show) {
-        this.elements.loadingOverlay.classList.toggle('active', show);
       }
-    };
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  isTestEnvironment() {
+    return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  }
+};
 
-    // Inicialización de la aplicación
-    document.addEventListener('DOMContentLoaded', () => {
-      // Verificar autenticación
-      if (!AuthManager.requireAuth()) {
+// Gestor de interfaz de usuario
+const UIManager = {
+  elements: {
+    form: document.getElementById('packageForm'),
+    departmentSelect: document.getElementById('apartment_number'),
+    senderInput: document.getElementById('sender'),
+    dateInput: document.getElementById('delivery_date'),
+    statusSelect: document.getElementById('status'),
+    notesTextarea: document.getElementById('notes'),
+    qrCodeDiv: document.getElementById('qrCode'),
+    qrCodeInput: document.getElementById('qr_code'),
+    qrButtons: document.getElementById('qrButtons'),
+    generateQrBtn: document.getElementById('generateQrBtn'),
+    printQrBtn: document.getElementById('printQrBtn'),
+    downloadQrBtn: document.getElementById('downloadQrBtn'),
+    logoutBtn: document.getElementById('logoutBtn'),
+    toastSuccess: document.getElementById('toastSuccess'),
+    toastError: document.getElementById('toastError'),
+    errorMessage: document.getElementById('errorMessage'),
+    loadingOverlay: document.getElementById('loadingOverlay')
+  },
+  
+  init() {
+    // Inicializar fecha con el día actual
+    const today = new Date().toISOString().split('T')[0];
+    this.elements.dateInput.value = today;
+    
+    // Establecer los event listeners
+    this.setupEventListeners();
+    
+    // Cargar departamentos existentes
+    this.loadDepartments();
+  },
+  
+  loadDepartments() {
+    const departmentSelect = this.elements.departmentSelect;
+    
+    // Obtener todos los departamentos
+    const departments = getAllDepartments();
+    
+    // Limpiar opciones existentes excepto la primera
+    while (departmentSelect.options.length > 1) {
+      departmentSelect.remove(1);
+    }
+    
+    // Agregar departamentos existentes
+    departments.forEach(dept => {
+      // Manejar tanto si dept es un objeto como si es un valor simple
+      const deptNumber = typeof dept === 'object' 
+        ? (dept.deptNumber || dept.numero) // Intentar obtener deptNumber o numero
+        : dept;
+      
+      const option = document.createElement('option');
+      option.value = deptNumber;
+      option.textContent = `Departamento ${deptNumber}`;
+      departmentSelect.appendChild(option);
+    });
+    
+    // Agregar opción para nuevo departamento
+    const newOption = document.createElement('option');
+    newOption.value = "new";
+    newOption.textContent = "Agregar nuevo departamento";
+    departmentSelect.appendChild(newOption);
+  },
+  
+  setupEventListeners() {
+    this.elements.form.addEventListener('submit', this.handleFormSubmit.bind(this));
+    this.elements.generateQrBtn.addEventListener('click', this.generateQRCode.bind(this));
+    this.elements.printQrBtn.addEventListener('click', this.printQRCode.bind(this));
+    this.elements.downloadQrBtn.addEventListener('click', this.downloadQRCode.bind(this));
+    this.elements.logoutBtn.addEventListener('click', AuthManager.logout);
+    
+    // Manejar selección de nuevo departamento
+    this.elements.departmentSelect.addEventListener('change', function() {
+      if (this.value === 'new') {
+        const newDept = prompt('Ingrese el número del nuevo departamento:');
+        if (newDept && !isNaN(newDept)) {
+          // Usar la función para agregar departamento
+          addDepartment(newDept);
+          
+          // Recargar la lista
+          UIManager.loadDepartments();
+          
+          // Seleccionar el nuevo departamento
+          this.value = newDept;
+        } else {
+          this.value = ''; // Resetear si no es válido
+        }
+      }
+    });
+    
+    // Validación en tiempo real
+    this.elements.form.querySelectorAll('.form-input').forEach(input => {
+      input.addEventListener('blur', (e) => this.validateField(e.target));
+      input.addEventListener('input', (e) => {
+        if (e.target.classList.contains('invalid')) {
+          this.validateField(e.target);
+        }
+      });
+    });
+  },
+  
+  validateField(field) {
+    const parent = field.closest('.form-group');
+    
+    if (field.hasAttribute('required') && !field.value.trim()) {
+      parent.classList.add('invalid');
+      return false;
+    } else {
+      parent.classList.remove('invalid');
+      return true;
+    }
+  },
+  
+  validateForm() {
+    let isValid = true;
+    
+    this.elements.form.querySelectorAll('.form-input[required]').forEach(input => {
+      if (!this.validateField(input)) {
+        isValid = false;
+      }
+    });
+    
+    return isValid;
+  },
+  
+  generateQRCode() {
+    const { departmentSelect, senderInput, dateInput, qrCodeDiv, qrCodeInput, qrButtons } = this.elements;
+    
+    // Validar campos necesarios
+    if (!departmentSelect.value || !senderInput.value.trim() || !dateInput.value) {
+      this.showError('Por favor completa al menos: Departamento, Remitente y Fecha de entrega para generar el QR');
+      return;
+    }
+    
+    // Generar un código único para el paquete
+    const timestamp = new Date().getTime();
+    const uniqueCode = `${CONFIG.QR_CODE_PREFIX}-${departmentSelect.value}-${timestamp}`;
+    qrCodeInput.value = uniqueCode;
+    
+    // Crear contenido para el QR (datos estructurados)
+    const qrContent = JSON.stringify({
+      id: uniqueCode,
+      apt: departmentSelect.value,
+      sender: senderInput.value.trim(),
+      date: dateInput.value,
+      generated: new Date().toISOString()
+    });
+    
+    // Limpiar QR anterior si existe
+    qrCodeDiv.innerHTML = '';
+    
+    // Generar nuevo QR
+    new QRCode(qrCodeDiv, {
+      text: qrContent,
+      width: CONFIG.DEFAULT_QR_SIZE,
+      height: CONFIG.DEFAULT_QR_SIZE,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+    
+    // Mostrar el QR y los botones
+    qrCodeDiv.style.display = 'block';
+    qrButtons.style.display = 'flex';
+  },
+  
+  printQRCode() {
+    const { departmentSelect, senderInput, dateInput, qrCodeDiv, qrCodeInput } = this.elements;
+    
+    // Crear una ventana de impresión
+    const printWindow = window.open('', '', 'width=600,height=600');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>QR Paquete - Depto ${departmentSelect.value}</title>
+          <style>
+            body { 
+              font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+              text-align: center; 
+              margin: 20px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              height: 90vh;
+              background-color: #f8f9fa;
+            }
+            .qr-card {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              max-width: 400px;
+              width: 100%;
+              background: white;
+              border-radius: 12px;
+              box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+              overflow: hidden;
+            }
+            .card-header {
+              width: 100%;
+              background: linear-gradient(135deg, #2c3e50, #1a5276);
+              color: white;
+              padding: 20px;
+              box-sizing: border-box;
+              text-align: center;
+            }
+            .logo {
+              width: 70px;
+              height: auto;
+              margin-bottom: 10px;
+            }
+            h2 { 
+              margin: 0;
+              font-size: 1.5rem;
+              font-weight: 600;
+            }
+            .qr-print { 
+              margin: 20px auto;
+              padding: 15px;
+              background: white;
+              border-radius: 8px;
+              box-sizing: border-box;
+            }
+            .details { 
+              width: 100%;
+              box-sizing: border-box;
+              margin: 0;
+              line-height: 1.5;
+              text-align: left;
+              padding: 20px;
+              background-color: white;
+              border-top: 1px solid #eee;
+            }
+            .info-row {
+              display: flex;
+              margin-bottom: 10px;
+            }
+            .info-label {
+              font-weight: 600;
+              color: #555;
+              width: 100px;
+            }
+            .info-value {
+              flex: 1;
+              color: #333;
+            }
+            .footer { 
+              margin-top: 20px; 
+              font-size: 0.8rem; 
+              color: #888;
+              text-align: center;
+              width: 100%;
+              padding: 10px 0;
+              background-color: #f8f9fa;
+            }
+            @media print {
+              body {
+                background: white;
+              }
+              .qr-card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="qr-card">
+            <div class="card-header">
+              <img src="./images/ENCOMIENDA.png" alt="Logo" class="logo" />
+              <h2>Departamento ${departmentSelect.value}</h2>
+            </div>
+            <div class="qr-print">
+              ${qrCodeDiv.innerHTML}
+            </div>
+            <div class="details">
+              <div class="info-row">
+                <div class="info-label">Remitente:</div>
+                <div class="info-value">${senderInput.value.trim()}</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Fecha:</div>
+                <div class="info-value">${this.formatDate(dateInput.value)}</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Código:</div>
+                <div class="info-value">${qrCodeInput.value}</div>
+              </div>
+            </div>
+            <div class="footer">
+              Generado el ${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}
+            </div>
+          </div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    
+    // Esperar a que cargue el contenido antes de imprimir
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
+  },
+  
+  downloadQRCode() {
+    const { departmentSelect, qrCodeDiv } = this.elements;
+    
+    // Obtener la imagen desde el canvas generado por la librería
+    const canvas = qrCodeDiv.querySelector('canvas');
+    if (!canvas) return;
+    
+    // Convertir canvas a imagen descargable
+    const imgData = canvas.toDataURL('image/png');
+    const downloadLink = document.createElement('a');
+    
+    downloadLink.href = imgData;
+    downloadLink.download = `QR-Paquete-Depto-${departmentSelect.value}.png`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    
+    // Mostrar notificación
+    this.showSuccess('QR descargado correctamente');
+  },
+  
+  async handleFormSubmit(e) {
+    e.preventDefault();
+    
+    // Validar formulario
+    if (!this.validateForm()) {
+      this.showError('Por favor, completa todos los campos requeridos');
+      return;
+    }
+    
+    // Si no hay código QR generado, preguntar si desea continuar
+    if (!this.elements.qrCodeInput.value) {
+      if (!confirm('No has generado un código QR para este paquete. ¿Deseas continuar sin código QR?')) {
         return;
       }
+    }
+    
+    // Mostrar loading
+    this.showLoading(true);
+    
+    try {
+      const success = await DataManager.savePackage(this.getFormData());
       
-      // Inicializar la interfaz
-      UIManager.init();
-      
-      // Aseguramos que se carguen los departamentos
-      console.log("Inicializando aplicación de gestión de paquetes...");
-    });
-  </script>
+      if (success) {
+        this.showSuccess('¡Paquete registrado exitosamente!');
+        setTimeout(() => {
+          window.location.href = 'listPackages.html';
+        }, 1000);
+      }
+    } catch (error) {
+      this.showError(error.message);
+    } finally {
+      this.showLoading(false);
+    }
+  },
+  
+  getFormData() {
+    const { departmentSelect, senderInput, dateInput, statusSelect, qrCodeInput, notesTextarea } = this.elements;
+    
+    return {
+      apartment_number: departmentSelect.value,
+      sender: senderInput.value.trim(),
+      delivery_date: dateInput.value,
+      status: statusSelect.value,
+      qr_code: qrCodeInput.value.trim(),
+      notes: notesTextarea.value.trim(),
+    };
+  },
+  
+  formatDate(dateString) {
+    try {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('es-ES', options);
+    } catch (error) {
+      console.error('Error al formatear fecha:', error);
+      return dateString; // Devolver la fecha original si hay error
+    }
+  },
+  
+  showSuccess(message) {
+    const { toastSuccess } = this.elements;
+    toastSuccess.querySelector('.toast-message').textContent = message;
+    toastSuccess.classList.add('show');
+    
+    setTimeout(() => {
+      toastSuccess.classList.remove('show');
+    }, CONFIG.TOAST_DURATION);
+  },
+  
+  showError(message) {
+    const { toastError, errorMessage } = this.elements;
+    errorMessage.textContent = message;
+    toastError.classList.add('show');
+    
+    setTimeout(() => {
+      toastError.classList.remove('show');
+    }, CONFIG.TOAST_DURATION);
+  },
+  
+  showLoading(show) {
+    this.elements.loadingOverlay.classList.toggle('active', show);
+  }
+};
+
+// Inicialización de la aplicación
+document.addEventListener('DOMContentLoaded', () => {
+  // Verificar autenticación
+  if (!AuthManager.requireAuth()) {
+    return;
+  }
+  
+  // Inicializar la interfaz
+  UIManager.init();
+  
+  // Aseguramos que se carguen los departamentos
+  console.log("Inicializando aplicación de gestión de paquetes...");
+});
+</script>
 </body>
 </html>
