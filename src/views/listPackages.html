@@ -42,8 +42,6 @@
             --radius-lg: 1rem;
         }
 
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
         body {
             background: var(--background);
             color: var(--text);
@@ -468,7 +466,6 @@
         </div>
     </div>
 
-    <script src="../js/departments.js"></script>
     <script>
         let currentPackageId = null;
 
@@ -478,172 +475,114 @@
             window.location.href = 'login.html';
         }
 
-        // Funciones para manejar departamentos y paquetes en localStorage
+        // Función para obtener todos los departamentos
         function getAllDepartments() {
-            const departmentsString = localStorage.getItem('departments');
-            return departmentsString ? JSON.parse(departmentsString) : [];
+            try {
+                const departmentsString = localStorage.getItem('departments');
+                if (!departmentsString) return [];
+                
+                const departments = JSON.parse(departmentsString);
+                return departments || [];
+            } catch (error) {
+                console.error('Error al obtener departamentos:', error);
+                return [];
+            }
         }
 
+        // Función para guardar departamentos
         function saveDepartments(departments) {
             localStorage.setItem('departments', JSON.stringify(departments));
         }
 
-        // Modificar la función savePackages para guardar también por departamento
-        function savePackages(packages) {
-            // Guardar en formato global
-            localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
-            
-            // También guardar paquetes por departamento
-            // Primero agrupar por departamento
-            const packagesByDept = {};
-            packages.forEach(function(pkg) {
-                if (!pkg || !pkg.apartment_number) return;
-                
-                const deptNumber = pkg.apartment_number;
-                if (!packagesByDept[deptNumber]) {
-                    packagesByDept[deptNumber] = [];
-                }
-                packagesByDept[deptNumber].push(pkg);
-            });
-            
-            // Luego guardar cada grupo en su propia clave
-            for (const dept in packagesByDept) {
-                const key = `packages_${dept}`;
-                localStorage.setItem(key, JSON.stringify(packagesByDept[dept]));
-                console.log(`Guardados ${packagesByDept[dept].length} paquetes para departamento ${dept}`);
-            }
-            
-            return true;
-        }
-
+        // Función para obtener paquetes por departamento
         function getPackagesByDepartment(deptNumber) {
-            const key = `packages_${deptNumber}`;
-            const packagesString = localStorage.getItem(key);
-            return packagesString ? JSON.parse(packagesString) : [];
+            try {
+                const key = `packages_${deptNumber}`;
+                const packagesString = localStorage.getItem(key);
+                if (!packagesString) return [];
+                
+                return JSON.parse(packagesString) || [];
+            } catch (error) {
+                console.error(`Error al obtener paquetes del departamento ${deptNumber}:`, error);
+                return [];
+            }
         }
 
+        // Función para guardar paquetes por departamento
         function savePackagesToDepartment(deptNumber, packages) {
             const key = `packages_${deptNumber}`;
             localStorage.setItem(key, JSON.stringify(packages));
         }
 
-        // Agregar datos de prueba si no existen
+        // Función para agregar datos de prueba
         function addTestData() {
             const departments = getAllDepartments();
             
             // Si no hay departamentos, agregar algunos de prueba
             if (departments.length === 0) {
-                const newDepartments = ['101', '102', '103'];
+                // Crear departamentos de prueba
+                const newDepartments = ['101', '102', '103', '201', '202', '301'];
                 saveDepartments(newDepartments);
                 
                 // Agregar paquetes de prueba para cada departamento
-                newDepartments.forEach(dept => {
+                let allPackages = [];
+                
+                newDepartments.forEach((dept, index) => {
                     const packages = [
                         {
-                            id: Math.floor(Math.random() * 1000),
+                            id: `PKG-${dept}-${Date.now()}-${index}`,
                             apartment_number: dept,
-                            sender: 'Remitente de prueba',
+                            sender: `Remitente Prueba ${index + 1}`,
                             delivery_date: new Date().toISOString(),
-                            status: 'pendiente'
+                            status: index % 2 === 0 ? 'pendiente' : 'retirado',
+                            notes: `Paquete de prueba para departamento ${dept}`
                         }
                     ];
+                    
                     savePackagesToDepartment(dept, packages);
+                    allPackages = allPackages.concat(packages);
                 });
                 
-                console.log('Datos de prueba agregados correctamente');
+                // Guardar todos los paquetes en formato global
+                localStorage.setItem('paquetesPrueba', JSON.stringify(allPackages));
             }
         }
 
-        // Ejecutar al cargar la página
-        document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('authToken');
-            if (!token) {
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            // Obtener el parámetro de departamento de la URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const departmentParam = urlParams.get('department');
-            
-            // Agregar datos de prueba si es necesario
-            addTestData();
-            
-            // Primero cargar los departamentos
-            loadDepartments();
-            
-            // Luego, establecer el departamento seleccionado y cargar los paquetes
-            if (departmentParam) {
-                // Verificar si el departamento existe en la lista de departamentos
-                const departments = getAllDepartments();
-                const departmentExists = departments.some(dept => {
-                    const deptNumber = typeof dept === 'object' ? dept.number : dept;
-                    return deptNumber == departmentParam;
-                });
-                
-                if (departmentExists) {
-                    // Establecer el valor del filtro después de un breve retraso para asegurar que las opciones estén cargadas
-                    setTimeout(() => {
-                        const departmentFilter = document.getElementById('departmentFilter');
-                        if (departmentFilter) {
-                            // Buscar la opción que coincida con el departamento
-                            for (let i = 0; i < departmentFilter.options.length; i++) {
-                                if (departmentFilter.options[i].value == departmentParam) {
-                                    departmentFilter.selectedIndex = i;
-                                    break;
-                                }
-                            }
-                            
-                            // Actualizar el título para mostrar el departamento seleccionado
-                            const containerHeader = document.querySelector('.container-header h2');
-                            if (containerHeader) {
-                                containerHeader.textContent = `Paquetes del Departamento ${departmentParam}`;
-                            }
-                            
-                            // Cargar los paquetes del departamento seleccionado
-                            loadPackages();
-                        }
-                    }, 200);
-                } else {
-                    console.warn(`El departamento ${departmentParam} no existe`);
-                    // Cargar todos los paquetes si el departamento no existe
-                    loadPackages();
-                }
-            } else {
-                // Cargar todos los paquetes si no hay departamento especificado
-                loadPackages();
-            }
-        });
-
-        // Función para cargar los departamentos en el filtro
-        async function loadDepartments() {
-            const departments = getAllDepartments();
+        // Cargar departamentos en el selector
+        function loadDepartments() {
             const departmentFilter = document.getElementById('departmentFilter');
+            const departments = getAllDepartments();
             
-            // Limpiar opciones existentes
+            // Limpiar opciones excepto la primera
             departmentFilter.innerHTML = '<option value="all">Todos los departamentos</option>';
             
+            // Agregar departamentos al selector
             departments.forEach(dept => {
-                // Determinar si el departamento es un objeto o un valor simple
-                const deptNumber = typeof dept === 'object' ? dept.number : dept;
+                // Manejar diferentes formatos de departamento
+                let deptNumber;
+                
+                if (typeof dept === 'object') {
+                    // Si es un objeto, intenta obtener deptNumber o numero
+                    deptNumber = dept.deptNumber || dept.numero;
+                } else {
+                    // Si no es un objeto, usar el valor directamente
+                    deptNumber = dept;
+                }
                 
                 const option = document.createElement('option');
                 option.value = deptNumber;
                 option.textContent = `Departamento ${deptNumber}`;
                 departmentFilter.appendChild(option);
             });
-            
-            // Agregar event listener para el cambio de filtro
-            departmentFilter.addEventListener('change', loadPackages);
         }
 
-        // Función para cargar los paquetes en la tabla
-        async function loadPackages() {
+        // Cargar paquetes en la tabla
+        function loadPackages() {
             const tableBody = document.querySelector('#packagesTable tbody');
             const departmentFilter = document.getElementById('departmentFilter');
             const selectedDepartment = departmentFilter.value;
             
-            // Mostrar spinner de carga
+            // Mostrar cargando
             tableBody.innerHTML = `
                 <tr>
                     <td colspan="6">
@@ -652,13 +591,10 @@
                 </tr>
             `;
             
+            // Obtener paquetes según el filtro seleccionado
+            let packages = [];
+            
             try {
-                // Simular retraso para mostrar el spinner (opcional)
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                let packages = [];
-                
-                // Obtener paquetes según el filtro seleccionado
                 if (selectedDepartment === 'all') {
                     // Obtener todos los paquetes
                     const packagesString = localStorage.getItem('paquetesPrueba');
@@ -668,9 +604,7 @@
                     packages = getPackagesByDepartment(selectedDepartment);
                 }
                 
-                console.log('Paquetes cargados:', packages);
-                
-                // Verificar si hay paquetes para mostrar
+                // Verificar si hay paquetes
                 if (!packages || packages.length === 0) {
                     tableBody.innerHTML = `
                         <tr>
@@ -689,24 +623,22 @@
                     return;
                 }
                 
-                // Construir filas de la tabla con los paquetes
+                // Construir filas de la tabla
                 let tableContent = '';
                 packages.forEach((pkg, index) => {
-                    // Asignar un ID basado en el código QR si no existe
+                    // Asignar ID si no existe
                     if (!pkg.id) {
-                        // Generar un código QR basado en información del paquete
-                        const qrCode = generateQRCode(pkg.apartment_number, pkg.delivery_date, index);
-                        pkg.id = qrCode;
+                        pkg.id = `PKG-${pkg.apartment_number}-${Date.now()}-${index}`;
                     }
                     
-                    // Formatear fecha para mostrar
+                    // Formatear fecha
                     let formattedDate = 'Fecha no disponible';
                     if (pkg.delivery_date) {
                         const date = new Date(pkg.delivery_date);
                         formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
                     }
                     
-                    // Determinar clase CSS según el estado
+                    // Determinar estado
                     const status = pkg.status || 'pendiente';
                     const statusClass = status === 'retirado' ? 'status-retirado' : 'status-pendiente';
                     
@@ -724,7 +656,7 @@
                             </td>
                             <td>
                                 ${status === 'pendiente' ? 
-                                    `<button class="btn btn-success" onclick="openModal('${pkg.id})">
+                                    `<button class="btn btn-success" onclick="openModal('${pkg.id}')">
                                         <i class="fas fa-check"></i>
                                         <span>Marcar como retirado</span>
                                     </button>` : 
@@ -740,15 +672,15 @@
                 
                 tableBody.innerHTML = tableContent;
                 
-                // Guardar los paquetes actualizados (con IDs)
+                // Actualizar paquetes
                 if (selectedDepartment === 'all') {
-                    savePackages(packages);
+                    localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
                 } else {
                     savePackagesToDepartment(selectedDepartment, packages);
                 }
                 
             } catch (error) {
-                console.error('Error al cargar los paquetes:', error);
+                console.error('Error al cargar paquetes:', error);
                 document.getElementById('errorMessage').style.display = 'flex';
                 tableBody.innerHTML = `
                     <tr>
@@ -763,104 +695,152 @@
             }
         }
 
-        // Función para generar un código QR único basado en información del paquete
-        function generateQRCode(apartmentNumber, deliveryDate, index) {
-            // Obtener fecha en formato YYYYMMDD
-            const date = new Date(deliveryDate || new Date());
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            
-            // Generar un código único con formato: PKG-DEPT-YYYYMMDD-RANDOM
-            const randomPart = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-            const qrCode = `PKG-${apartmentNumber}-${year}${month}${day}-${randomPart}`;
-            
-            return qrCode;
-        }
-
-        // Función para abrir el modal de confirmación
+        // Abrir modal de confirmación
         function openModal(packageId) {
             currentPackageId = packageId;
             document.getElementById('confirmModal').classList.add('active');
         }
 
-        // Función para cerrar el modal
+        // Cerrar modal
         function closeModal() {
             document.getElementById('confirmModal').classList.remove('active');
         }
 
-        // Cerrar modal con Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
-        });
-
-        // Cerrar modal si se hace clic fuera de él
-        document.getElementById('confirmModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('confirmModal')) {
-                closeModal();
-            }
-        });
-
-        // Agregar evento al filtro de departamentos
-        document.getElementById('departmentFilter').addEventListener('change', function() {
-            loadPackages();
-        });
-    
-        // Configurar el botón de confirmación en el modal
-        document.getElementById('confirmButton').addEventListener('click', function() {
-            if (currentPackageId) {
-                updatePackageStatus(currentPackageId, 'retirado');
-                closeModal();
-            }
-        });
-    
-        // Función para actualizar el estado de un paquete
+        // Actualizar estado de un paquete
         function updatePackageStatus(packageId, newStatus) {
-            // Obtener todos los paquetes
-            const packagesString = localStorage.getItem('paquetesPrueba');
-            let allPackages = packagesString ? JSON.parse(packagesString) : [];
-            
-            // Buscar el paquete por ID
-            const packageIndex = allPackages.findIndex(pkg => pkg.id === packageId);
-            
-            if (packageIndex !== -1) {
-                // Actualizar el estado del paquete
-                allPackages[packageIndex].status = newStatus;
-                
-                // Guardar los cambios
-                savePackages(allPackages);
-                
-                // Recargar la tabla
-                loadPackages();
-            } else {
-                // Si no se encuentra en el almacenamiento global, buscar en los departamentos
-                const departments = getAllDepartments();
-                let found = false;
-                
-                for (const dept of departments) {
-                    const deptNumber = typeof dept === 'object' ? dept.number : dept;
-                    const deptPackages = getPackagesByDepartment(deptNumber);
+            // Actualizar en lista global
+            try {
+                const packagesString = localStorage.getItem('paquetesPrueba');
+                if (packagesString) {
+                    const packages = JSON.parse(packagesString);
+                    const packageIndex = packages.findIndex(pkg => pkg.id === packageId);
                     
-                    const packageIndex = deptPackages.findIndex(pkg => pkg.id === packageId);
                     if (packageIndex !== -1) {
-                        // Actualizar el estado del paquete
-                        deptPackages[packageIndex].status = newStatus;
-                        
-                        // Guardar los cambios
-                        savePackagesToDepartment(deptNumber, deptPackages);
-                        found = true;
-                        break;
+                        packages[packageIndex].status = newStatus;
+                        localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
+                    }
+                }
+            } catch (error) {
+                console.error('Error al actualizar paquete en lista global:', error);
+            }
+            
+            // Actualizar en departamento específico
+            const departments = getAllDepartments();
+            
+            for (const dept of departments) {
+                let deptNumber;
+                
+                if (typeof dept === 'object') {
+                    deptNumber = dept.deptNumber || dept.numero;
+                } else {
+                    deptNumber = dept;
+                }
+                
+                const deptPackages = getPackagesByDepartment(deptNumber);
+                const packageIndex = deptPackages.findIndex(pkg => pkg.id === packageId);
+                
+                if (packageIndex !== -1) {
+                    deptPackages[packageIndex].status = newStatus;
+                    savePackagesToDepartment(deptNumber, deptPackages);
+                    break;
+                }
+            }
+            
+            // Recargar tabla
+            loadPackages();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar autenticación
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Agregar datos de prueba si es necesario
+            addTestData();
+            
+            // Cargar departamentos y paquetes
+            loadDepartments();
+            loadPackages();
+            
+            // Filtro de departamentos
+            document.getElementById('departmentFilter').addEventListener('change', function() {
+                const selectedValue = this.value;
+                
+                // Actualizar título según departamento seleccionado
+                const containerHeader = document.querySelector('.container-header h2');
+                if (containerHeader) {
+                    if (selectedValue === 'all') {
+                        containerHeader.textContent = 'Paquetes Registrados';
+                    } else {
+                        containerHeader.textContent = `Paquetes del Departamento ${selectedValue}`;
                     }
                 }
                 
-                // Recargar la tabla
+                // Cargar paquetes según filtro
                 loadPackages();
+            });
+            
+            // Configurar botón de confirmación
+            document.getElementById('confirmButton').addEventListener('click', function() {
+                if (currentPackageId) {
+                    updatePackageStatus(currentPackageId, 'retirado');
+                    closeModal();
+                }
+            });
+            
+            // Cerrar modal con Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
+            
+            // Cerrar modal al hacer clic fuera
+            document.getElementById('confirmModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('confirmModal')) {
+                    closeModal();
+                }
+            });
+            
+            // Cargar departamento específico desde URL si existe
+            const urlParams = new URLSearchParams(window.location.search);
+            const departmentParam = urlParams.get('department');
+            
+            if (departmentParam) {
+                const departments = getAllDepartments();
+                const departmentExists = departments.some(dept => {
+                    if (typeof dept === 'object') {
+                        return (dept.deptNumber || dept.numero) == departmentParam;
+                    }
+                    return dept == departmentParam;
+                });
                 
-                if (!found) {
-                    console.error(`No se encontró el paquete con ID ${packageId}`);
+                if (departmentExists) {
+                    setTimeout(() => {
+                        const departmentFilter = document.getElementById('departmentFilter');
+                        
+                        // Buscar la opción que coincida con el departamento
+                        for (let i = 0; i < departmentFilter.options.length; i++) {
+                            if (departmentFilter.options[i].value == departmentParam) {
+                                departmentFilter.selectedIndex = i;
+                                break;
+                            }
+                        }
+                        
+                        // Actualizar título
+                        const containerHeader = document.querySelector('.container-header h2');
+                        if (containerHeader) {
+                            containerHeader.textContent = `Paquetes del Departamento ${departmentParam}`;
+                        }
+                        
+                        // Cargar paquetes
+                        loadPackages();
+                    }, 100);
                 }
             }
-        }
+        });
     </script>
 </body>
 </html>
