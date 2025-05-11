@@ -10,20 +10,7 @@ import { updateStatusById } from "../database/models/package.ts";
 import { NotificationService } from "../services/notifications/notificationService.ts";
 import { MultiNotifier } from "../services/notifications/MultiNotifier.ts";
 import { getUserByUsername } from "../auth/models/user.ts";
-export async function registerPackage(ctx: RouterContext) {
-  try {
-    const body = await ctx.request.body().value;
-    const result = await registerPackageService(body);
-    ctx.response.body = result;
-    ctx.response.status = 201;
-  } catch (error) {
-    ctx.response.status = error.name === "ValidationError" ? 400 : 500;
-    ctx.response.body = { 
-      error: error.message,
-      type: error.name // Para identificar el tipo en el frontend
-    };
-  }
-}
+
 const notificationService = new NotificationService(new MultiNotifier());
 export async function registerPackage(ctx: RouterContext) {
   try {
@@ -132,31 +119,3 @@ export async function getPackage(ctx: RouterContext) {
   }
 }
 
-// para actualizar el estado de los paquetes pendientes de la lista
-export async function updatePackageStatus(ctx: RouterContext) {
-  try {
-    const id = Number(ctx.params.id);
-    const { status } = await ctx.request.body().value;
-
-    if (!["entregado", "retirado"].includes(status)) {
-      ctx.response.status = 400;
-      ctx.response.body = { error: "Estado inválido para actualización" };
-      return;
-    }
-
-    const pickup_date = status === "retirado" ? new Date() : null;
-
-    const updated = await updateStatusById(id, status, pickup_date);
-    if (!updated) {
-      ctx.response.status = 404;
-      ctx.response.body = { error: "Paquete no encontrado o no es pendiente" };
-      return;
-    }
-
-    ctx.response.status = 200;
-    ctx.response.body = { message: "Estado actualizado con éxito" };
-  } catch (error) {
-    ctx.response.status = 500;
-    ctx.response.body = { error: error.message };
-  }
-}
