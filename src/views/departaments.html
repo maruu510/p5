@@ -6,212 +6,266 @@
     <title>Administración de Departamentos - Gestión de Paquetes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-        }
-
         :root {
-            --primary: #3498db;
-            --primary-dark: #2980b9;
-            --primary-light: #e3f2fd;
-            --secondary: #2ecc71;
-            --secondary-dark: #27ae60;
-            --secondary-light: #e8f5e9;
-            --accent: #6c5ce7;
-            --accent-dark: #5b4cc7;
+            --primary: #f39c12;
+            --primary-dark: #e67e22;
+            --primary-light: #fef9c3;
+            --secondary: #2c3e50;
+            --accent: #e74c3c;
+            --accent-dark: #c0392b;
+            --accent-light: #fadbd8;
+            --success: #27ae60;
+            --success-light: #e8f5e9;
             --danger: #e74c3c;
             --danger-dark: #c0392b;
             --danger-light: #ffebee;
             --warning: #f39c12;
             --warning-dark: #e67e22;
             --warning-light: #fff8e1;
-            --text: #2c3e50;
-            --text-light: #7f8c8d;
-            --background: #f9fafb;
-            --white: #ffffff;
-            --gray-50: #f8fafc;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --gray-50: #f8f9fa;
             --gray-100: #f1f5f9;
             --gray-200: #e2e8f0;
             --gray-300: #cbd5e1;
-            --gray-400: #94a3b8;
             --gray-700: #334155;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.1);
             --radius-sm: 0.375rem;
             --radius: 0.5rem;
             --radius-md: 0.75rem;
             --radius-lg: 1rem;
         }
-
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         html, body {
             height: 100%;
             width: 100%;
             overflow-x: hidden;
         }
-
+        
         body {
-            background: var(--background);
-            color: var(--text);
+            background-color: #f5f7fb;
+            color: var(--dark);
+            display: flex;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            line-height: 1.5;
-            font-size: 16px;
         }
-
-        header {
-            width: 100%;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: var(--white);
-            padding: 1.5rem 2rem;
-            text-align: center;
+        
+        /* Sidebar styles */
+        .sidebar {
+            width: 250px;
+            background-color: #fff;
             box-shadow: var(--shadow);
-            position: relative;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-light);
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        header img {
-            height: 4rem;
-            width: auto;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
-        }
-
-        header h1 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            margin: 0;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .btn {
-            padding: 0.625rem 1.25rem;
-            margin: 0.5rem 0.25rem;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            background-color: var(--primary);
-            color: var(--white);
+        }
+        
+        .logo {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
             text-decoration: none;
         }
-
-        .btn:hover {
-            transform: translateY(-2px);
+        
+        .logo img {
+            height: 36px;
+            width: auto;
+            object-fit: contain;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gray);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 5px;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--primary);
+        }
+        
+        .nav-item.active {
+            background-color: rgba(243, 156, 18, 0.15);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main content styles */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #f5f7fb;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .card {
+            background-color: #fff;
+            border-radius: 10px;
             box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--gray-light);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
             background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
         }
-
-        .btn:active {
-            transform: translateY(0);
+        
+        .btn-accent {
+            background-color: var(--accent);
+            color: white;
         }
-
-        .logout-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background-color: var(--danger);
-            color: var(--white);
-            font-size: 0.75rem;
-            padding: 0.5rem 1rem;
+        
+        .btn-accent:hover {
+            background-color: var(--accent-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
         }
-
-        .logout-btn:hover {
-            background-color: var(--danger-dark);
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
         }
-
+        
+        .btn-success:hover {
+            background-color: #145a32;
+        }
+        
         .btn-danger {
             background-color: var(--danger);
             color: white;
         }
-
+        
         .btn-danger:hover {
             background-color: var(--danger-dark);
         }
-
+        
         .btn-view {
-            background-color: var(--accent);
-        }
-
-        .btn-view:hover {
-            background-color: var(--accent-dark);
-        }
-
-        .container {
-            max-width: 1000px;
-            width: 90%;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: var(--white);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow);
-        }
-
-        .container-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .container-header h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text);
-            margin: 0;
-        }
-
-        .container-header #addDeptBtn {
             background-color: var(--secondary);
-            display: flex;
-            align-items: center;
+            color: white;
         }
-
-        .container-header #addDeptBtn:hover {
-            background-color: var(--secondary-dark);
+        
+        .btn-view:hover {
+            background-color: #1a252f;
         }
-
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--gray-300);
+            color: var(--gray-700);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--gray-50);
+            border-color: var(--gray-700);
+        }
+        
         .table-container {
-            margin-top: 1.5rem;
             overflow-x: auto;
             border-radius: var(--radius);
             border: 1px solid var(--gray-200);
         }
-
+        
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.9375rem;
         }
-
+        
         th, td {
             padding: 1rem;
             text-align: left;
             border-bottom: 1px solid var(--gray-200);
         }
-
+        
         thead {
             background-color: var(--gray-50);
         }
-
+        
         th {
             font-weight: 600;
             color: var(--gray-700);
@@ -219,275 +273,294 @@
             font-size: 0.75rem;
             letter-spacing: 0.05em;
         }
-
+        
         tbody tr:hover {
             background-color: var(--gray-50);
         }
-
+        
         tbody tr:last-child td {
             border-bottom: none;
         }
-
+        
         .badge {
             display: inline-block;
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
             font-size: 0.75rem;
             font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
-
+        
         .badge-pending {
             background-color: var(--warning-light);
             color: var(--warning-dark);
         }
-
+        
         .badge-success {
-            background-color: var(--secondary-light);
-            color: var(--secondary-dark);
+            background-color: var(--success-light);
+            color: var(--success);
         }
-
+        
         .actions-cell {
             display: flex;
             gap: 0.5rem;
             justify-content: flex-start;
             flex-wrap: wrap;
         }
-
-        .actions-cell .btn {
-            padding: 0.375rem 0.75rem;
-            margin: 0;
-            font-size: 0.75rem;
-        }
-
+        
         .error-message {
             background-color: var(--danger-light);
             color: var(--danger);
-            padding: 1rem;
+            padding: 15px;
             border-radius: var(--radius);
-            margin-bottom: 1rem;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 10px;
         }
-
+        
         .loading-spinner {
             border: 3px solid var(--gray-200);
             border-top: 3px solid var(--primary);
             border-radius: 50%;
-            width: 2rem;
-            height: 2rem;
+            width: 30px;
+            height: 30px;
             animation: spin 1s linear infinite;
-            margin: 2rem auto;
         }
-
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
+        
         .empty-state {
             text-align: center;
-            padding: 3rem 1.5rem;
-            color: var(--gray-400);
+            padding: 40px 20px;
+            color: var(--gray);
         }
-
+        
         .empty-state i {
             font-size: 3rem;
-            margin-bottom: 1rem;
+            margin-bottom: 15px;
+            color: var(--gray-300);
         }
-
+        
         .empty-state p {
-            margin-bottom: 1.5rem;
+            margin-bottom: 20px;
         }
-
-        .back-btn {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background-color: var(--primary);
-            color: white;
-            width: 3.5rem;
-            height: 3.5rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-md);
-            z-index: 10;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .back-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 20px -5px rgba(0, 0, 0, 0.2);
-        }
-
-        .back-btn i {
-            font-size: 1.5rem;
-        }
-
+        
         .notification {
             position: fixed;
-            bottom: 1.5rem;
-            left: 50%;
-            transform: translateX(-50%) translateY(100%);
-            padding: 1rem 1.5rem;
-            background-color: var(--secondary-light);
-            color: var(--secondary-dark);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-md);
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            background-color: var(--success-light);
+            color: var(--success);
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 10px;
+            box-shadow: var(--shadow);
             opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            z-index: 20;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            max-width: 90%;
         }
-
+        
         .notification.show {
-            transform: translateX(-50%) translateY(0);
             opacity: 1;
+            transform: translateY(0);
         }
-
+        
         .notification.error {
             background-color: var(--danger-light);
             color: var(--danger);
         }
-
-        /* Responsive adjustments */
+        
+        /* Responsive styles */
         @media (max-width: 768px) {
-            header {
-                padding: 1rem;
+            .sidebar {
+                width: 70px;
             }
-
-            header img {
-                height: 3rem;
+            
+            .sidebar .logo span, 
+            .sidebar .nav-item span {
+                display: none;
             }
-
-            header h1 {
-                font-size: 1.25rem;
+            
+            .sidebar .nav-item {
+                justify-content: center;
+                padding: 15px 0;
             }
-
-            .container {
-                padding: 1.5rem;
-                margin: 1rem auto;
-                width: 95%;
+            
+            .sidebar .nav-item i {
+                margin-right: 0;
             }
-
-            .container-header {
+            
+            .sidebar .sidebar-header {
+                padding: 15px 0;
+            }
+            
+            .sidebar .logo {
+                justify-content: center;
+            }
+            
+            .sidebar .logo img {
+                height: 34px;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .header {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 15px;
             }
-
-            .container-header #addDeptBtn {
-                width: 100%;
-            }
-
+            
             .actions-cell {
                 flex-direction: column;
+                width: 100%;
             }
-
+            
             .actions-cell .btn {
                 width: 100%;
-                margin-bottom: 0.25rem;
             }
-
-            .back-btn {
-                bottom: 1.5rem;
-                right: 1.5rem;
-                width: 3rem;
-                height: 3rem;
+            
+            .card-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .card-header button {
+                width: 100%;
             }
         }
 
-        @media (max-width: 480px) {
-            th, td {
-                padding: 0.75rem 0.5rem;
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 10px;
             }
-
-            .table-container {
-                margin-left: -0.5rem;
-                margin-right: -0.5rem;
-                width: calc(100% + 1rem);
+            
+            .card {
+                border-radius: 8px;
+            }
+            
+            .card-header, .card-body {
+                padding: 15px;
+            }
+            
+            th, td {
+                padding: 10px 8px;
             }
         }
     </style>
 </head>
 <body>
-    <header>
-        <img src="./images/ENCOMIENDA.png" alt="Logo de Gestión de Paquetes">
-        <h1>Administración de Departamentos</h1>
-        <button class="btn logout-btn" onclick="logout()" id="logoutBtn" aria-label="Cerrar sesión">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Cerrar Sesión</span>
-        </button>
-    </header>
-
-    <div class="container">
-        <div class="container-header">
-            <h2>Departamentos Registrados</h2>
-            <button class="btn" id="addDeptBtn" aria-label="Agregar nuevo departamento">
-                <i class="fas fa-plus"></i>
-                <span>Agregar Departamento</span>
-            </button>
+    <!-- Sidebar / Menú Lateral -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="logo">
+                <img src="./images/ENCOMIENDA.png" alt="Logo Encomiendas">
+                <span>Encomiendas</span>
+            </a>
         </div>
-
-        <div id="errorMessage" class="error-message" style="display: none;">
-            <i class="fas fa-exclamation-circle"></i>
-            <span>Ha ocurrido un error al cargar los departamentos.</span>
+        <ul class="nav-menu">
+            <li class="nav-item" onclick="window.location.href='dashboard.html'">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='registerPackage.html'">
+                <i class="fas fa-plus-square"></i>
+                <span>Registrar Paquete</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='listPackages.html'">
+                <i class="fas fa-list"></i>
+                <span>Lista de Paquetes</span>
+            </li>
+            <li class="nav-item active" onclick="window.location.href='departaments.html'">
+                <i class="fas fa-building"></i>
+                <span>Departamentos</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='codigoqr.html'">
+                <i class="fas fa-qrcode"></i>
+                <span>Lector QR</span>
+            </li>
+            <li class="nav-item" onclick="logout()" style="margin-top: 50px; color: #e74c3c;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <div class="header">
+            <h1 class="page-title">Administración de Departamentos</h1>
         </div>
-
-        <div class="table-container">
-            <table id="departmentsTable" aria-label="Lista de departamentos registrados">
-                <thead>
-                    <tr>
-                        <th scope="col">Número</th>
-                        <th scope="col">Paquetes Pendientes</th>
-                        <th scope="col">Paquetes Retirados</th>
-                        <th scope="col">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="4" style="text-align: center;">
-                            <div class="loading-spinner" role="status"></div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 style="font-size: 1.2rem; font-weight: 600;">Departamentos Registrados</h2>
+                <button class="btn btn-primary" id="addDeptBtn" aria-label="Agregar nuevo departamento">
+                    <i class="fas fa-plus"></i>
+                    <span>Agregar Departamento</span>
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="errorMessage" class="error-message" style="display: none;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Ha ocurrido un error al cargar los departamentos.</span>
+                </div>
+                
+                <div class="table-container">
+                    <table id="departmentsTable" aria-label="Lista de departamentos registrados">
+                        <thead>
+                            <tr>
+                                <th scope="col">Número</th>
+                                <th scope="col">Paquetes Pendientes</th>
+                                <th scope="col">Paquetes Retirados</th>
+                                <th scope="col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" style="text-align: center;">
+                                    <div class="loading-spinner" role="status"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-
-    <a href="listPackages.html" class="back-btn" aria-label="Volver a lista de paquetes">
-        <i class="fas fa-arrow-left"></i>
-    </a>
-
+    
+    <!-- Notificación -->
     <div id="notification" class="notification">
         <i class="fas fa-check-circle"></i>
         <span id="notification-message">Operación completada con éxito</span>
     </div>
-
+    
     <script>
         // Funciones de gestión de departamentos
         function getAllDepartments() {
             const departments = localStorage.getItem('departments');
-            
             // Si no hay departamentos, crear un array vacío
             if (!departments) {
                 return [];
             }
-            
             // Parsear los departamentos almacenados
             const parsedDepts = JSON.parse(departments);
-            
             // Verificar si es un array
             if (!Array.isArray(parsedDepts)) {
                 console.warn('El formato de los departamentos no es un array:', parsedDepts);
                 return [];
             }
-            
             // Convertir los departamentos a un formato consistente (objetos)
             return parsedDepts.map(dept => {
                 // Si es un objeto, verificar que tenga la propiedad number
@@ -499,7 +572,6 @@
                         return { number: dept.deptNumber };
                     }
                 }
-                
                 // Si es un string o número, convertir a objeto
                 return { number: dept.toString() };
             });
@@ -518,11 +590,9 @@
         function showNotification(message, isError = false) {
             const notification = document.getElementById('notification');
             const notificationMessage = document.getElementById('notification-message');
-            
             notificationMessage.textContent = message;
             notification.classList.toggle('error', isError);
             notification.classList.add('show');
-            
             setTimeout(() => {
                 notification.classList.remove('show');
             }, 3000);
@@ -530,24 +600,28 @@
         
         function logout() {
             localStorage.removeItem('authToken');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('userType');
+            localStorage.removeItem('isLoggedIn');
             window.location.href = 'login.html';
         }
+        
+        // Hacer la función de logout global para que funcione con el botón del sidebar
+        window.logout = logout;
         
         function loadDepartments() {
             try {
                 const tbody = document.querySelector('#departmentsTable tbody');
-                
                 // Obtener los departamentos
                 const departments = getAllDepartments();
                 console.log('Departamentos cargados:', departments);
-                
                 if (departments.length === 0) {
                     tbody.innerHTML = `
                         <tr>
                             <td colspan="4" class="empty-state">
                                 <i class="fas fa-building"></i>
                                 <p>No hay departamentos registrados</p>
-                                <button class="btn" onclick="window.location.href='moredepartaments.html'">
+                                <button class="btn btn-primary" onclick="window.location.href='moredepartaments.html'">
                                     <i class="fas fa-plus"></i>
                                     <span>Agregar primer departamento</span>
                                 </button>
@@ -556,21 +630,16 @@
                     `;
                     return;
                 }
-                
                 tbody.innerHTML = '';
-                
                 departments.forEach(dept => {
                     try {
                         // Obtener el número de departamento
                         const deptNumber = dept.number || dept;
-                        
                         // Obtener los paquetes de este departamento
                         const packages = getPackagesByDepartment(deptNumber) || [];
-                        
                         // Contar paquetes pendientes y retirados
                         const pendingPackages = packages.filter(pkg => pkg && pkg.status === 'pendiente').length;
                         const deliveredPackages = packages.filter(pkg => pkg && pkg.status === 'retirado').length;
-                        
                         // Crear la fila
                         const row = document.createElement('tr');
                         row.innerHTML = `
@@ -603,7 +672,6 @@
                         tbody.appendChild(row);
                     } catch (packageError) {
                         console.error('Error al procesar paquetes del departamento', dept, packageError);
-                        
                         // Agregar fila con error para este departamento
                         const deptNumber = dept.number || dept;
                         const row = document.createElement('tr');
@@ -619,7 +687,6 @@
                 });
             } catch (error) {
                 console.error('Error al cargar departamentos:', error);
-                
                 // Mostrar mensaje de error
                 const errorMessage = document.getElementById('errorMessage');
                 errorMessage.innerHTML = `
@@ -627,7 +694,6 @@
                     <span>Error al cargar departamentos: ${error.message}</span>
                 `;
                 errorMessage.style.display = 'flex';
-                
                 // Quitar el spinner de carga
                 const tbody = document.querySelector('#departmentsTable tbody');
                 tbody.innerHTML = `
@@ -650,21 +716,16 @@
             if (confirm(`¿Está seguro que desea eliminar el Departamento ${deptNumber}?`)) {
                 try {
                     const departments = getAllDepartments();
-                    
                     // Filtrar el departamento a eliminar
-                    const updatedDepartments = departments.filter(dept => 
+                    const updatedDepartments = departments.filter(dept =>
                         (typeof dept === 'object' ? dept.number : dept) != deptNumber
                     );
-                    
                     // Guardar los departamentos actualizados
                     saveDepartments(updatedDepartments);
-                    
                     // Eliminar los paquetes asociados al departamento
                     localStorage.removeItem(`packages_${deptNumber}`);
-                    
                     // Mostrar mensaje de éxito
                     showNotification(`Departamento ${deptNumber} eliminado correctamente`);
-                    
                     // Recargar la lista de departamentos
                     loadDepartments();
                 } catch (error) {
@@ -676,8 +737,10 @@
         
         // Inicialización cuando se carga la página
         document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('authToken');
-            if (!token) {
+            const authToken = localStorage.getItem('authToken');
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            
+            if (!authToken || !isLoggedIn) {
                 window.location.href = 'login.html';
             } else {
                 loadDepartments();

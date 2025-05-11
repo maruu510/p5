@@ -7,15 +7,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #145a32;
+            --primary: #27ae60;
+            --primary-dark: #145a32;
             --primary-light: #2ecc71;
-            --primary-dark: #0b3a1f;
             --secondary: #2c3e50;
+            --accent: #3498db;
+            --info: #3498db;
+            --warning: #f39c12;
             --danger: #e74c3c;
-            --success: #2ecc71;
-            --gray-light: #f8f9fa;
+            --light: #f8f9fa;
+            --dark: #212529;
             --gray: #6c757d;
-            --white: #ffffff;
+            --gray-light: #e9ecef;
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
             --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
@@ -23,21 +26,82 @@
             --radius-lg: 10px;
         }
         
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
             min-height: 100vh;
-            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            background-color: #f5f7fb;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Fondo multicolor con formas y colores del dashboard */
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.5;
+            filter: blur(60px);
+        }
+        
+        .shape-1 {
+            background-color: var(--primary);
+            width: 300px;
+            height: 300px;
+            top: -50px;
+            left: -100px;
+        }
+        
+        .shape-2 {
+            background-color: var(--info);
+            width: 350px;
+            height: 350px;
+            bottom: -100px;
+            right: -100px;
+        }
+        
+        .shape-3 {
+            background-color: var(--warning);
+            width: 250px;
+            height: 250px;
+            top: 60%;
+            left: 20%;
+        }
+        
+        .shape-4 {
+            background-color: var(--primary-light);
+            width: 200px;
+            height: 200px;
+            top: 20%;
+            right: 10%;
+        }
+        
+        .shape-5 {
+            background-color: var(--danger);
+            width: 180px;
+            height: 180px;
+            bottom: 10%;
+            left: 10%;
+            opacity: 0.3;
         }
         
         .top-bar {
@@ -60,20 +124,25 @@
             align-items: center;
         }
         
-        .top-bar-right { 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
+        .top-bar-left img {
+            height: 28px;
+            margin-right: 10px;
         }
         
-        .select-container { 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
         
-        .select-container label { 
-            font-size: 14px; 
+        .select-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .select-container label {
+            font-size: 14px;
         }
         
         .select-field {
@@ -81,10 +150,17 @@
             border-radius: 4px;
             border: none;
             font-size: 14px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .select-field option {
+            color: var(--dark);
+            background-color: white;
         }
         
         .login-container {
-            background-color: var(--white);
+            background-color: white;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
             width: 100%;
@@ -92,15 +168,23 @@
             padding: 30px;
             margin-top: 60px;
             text-align: center;
+            position: relative;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .login-logo {
             margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
         }
         
         .login-logo img {
             height: 80px;
             width: auto;
+            object-fit: contain;
         }
         
         .login-title {
@@ -136,12 +220,14 @@
             border-radius: var(--radius);
             font-size: 1rem;
             transition: border-color 0.3s;
+            background-color: rgba(255, 255, 255, 0.8);
         }
         
         .form-input:focus {
             border-color: var(--primary);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(20, 90, 50, 0.1);
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+            background-color: white;
         }
         
         .input-icon {
@@ -176,6 +262,7 @@
         .remember-me input {
             width: 16px;
             height: 16px;
+            accent-color: var(--primary);
         }
         
         .forgot-password {
@@ -210,25 +297,8 @@
         
         .btn-primary:hover {
             background-color: var(--primary-dark);
-        }
-        
-        .login-divider {
-            display: flex;
-            align-items: center;
-            margin: 20px 0;
-            color: var(--gray);
-        }
-        
-        .login-divider::before,
-        .login-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background-color: #ddd;
-        }
-        
-        .login-divider span {
-            padding: 0 10px;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
         
         .user-type-selector {
@@ -245,13 +315,13 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-            background-color: var(--white);
+            background-color: white;
             color: var(--gray);
         }
         
         .user-type-option.active {
             background-color: var(--primary);
-            color: var(--white);
+            color: white;
         }
         
         .user-type-option:first-child {
@@ -271,9 +341,9 @@
         
         .loader-container {
             position: fixed;
-            top: 0; 
+            top: 0;
             left: 0;
-            width: 100%; 
+            width: 100%;
             height: 100%;
             background-color: rgba(255, 255, 255, 0.8);
             display: flex;
@@ -285,9 +355,9 @@
             transition: all 0.3s;
         }
         
-        .loader-container.show { 
-            visibility: visible; 
-            opacity: 1; 
+        .loader-container.show {
+            visibility: visible;
+            opacity: 1;
         }
         
         .loader {
@@ -299,27 +369,43 @@
             animation: spin 1s linear infinite;
         }
         
-        @keyframes spin { 
-            100% { 
-                transform: rotate(360deg); 
-            } 
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
         }
         
         footer {
             margin-top: 30px;
             text-align: center;
             font-size: 14px;
-            color: var(--white);
+            color: var(--secondary);
+            position: relative;
+            z-index: 10;
         }
         
-        footer a { 
-            color: var(--white); 
-            text-decoration: none; 
-            margin: 0 10px; 
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+            margin: 0 10px;
             font-weight: 500;
+            transition: all 0.3s;
         }
         
         footer a:hover {
+            color: var(--primary-dark);
             text-decoration: underline;
         }
         
@@ -345,14 +431,29 @@
             .top-bar-right {
                 display: none;
             }
+            
+            .bg-shapes .shape {
+                opacity: 0.3;
+                filter: blur(40px);
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Fondo multicolor con formas -->
+    <div class="bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+        <div class="shape shape-5"></div>
+    </div>
+    
     <!-- Barra superior -->
     <div class="top-bar">
         <div class="top-bar-left">
-            <img src="./images/logo1.jpg" alt="Logo" height="28">
+            <img src="./images/ENCOMIENDA.png" alt="Logo">
+            <span>Sistema de Gestión de Paquetes</span>
         </div>
         <div class="top-bar-right">
             <div class="select-container">
@@ -364,7 +465,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- Contenedor de login -->
     <div class="login-container">
         <div class="login-logo">
@@ -413,7 +514,6 @@
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
             </button>
-            
             <div class="error-message" id="loginError">Usuario o contraseña incorrectos</div>
         </form>
     </div>
@@ -426,14 +526,21 @@
             <a href="#">Contacto</a>
         </div>
     </footer>
-
+    
     <!-- Loader -->
     <div class="loader-container" id="loader">
         <div class="loader"></div>
     </div>
-
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Animación de formas de fondo
+            const shapes = document.querySelectorAll('.shape');
+            shapes.forEach((shape, index) => {
+                shape.style.animation = `float ${3 + index * 0.5}s ease-in-out infinite`;
+                shape.style.animationDelay = `${index * 0.2}s`;
+            });
+            
             // Limpiar datos de sesión anteriores
             localStorage.removeItem('authToken');
             localStorage.removeItem('userName');
@@ -501,8 +608,7 @@
                     
                     if (usernameInput.value === currentCredentials.username && 
                         passwordInput.value === currentCredentials.password) {
-                        
-                        // Login exitoso - Guardar información de sesión con nombres consistentes
+                        // Login exitoso - Guardar información de sesión
                         localStorage.setItem('authToken', 'simulated-jwt-token');
                         localStorage.setItem('userName', usernameInput.value);
                         localStorage.setItem('userType', userType);
@@ -510,7 +616,7 @@
                         
                         // Redirigir según tipo de usuario
                         if (userType === 'admin') {
-                            window.location.href = 'dashboard.html'; // Modificado para redireccionar al dashboard
+                            window.location.href = 'dashboard.html';
                         } else {
                             window.location.href = 'resident.html';
                         }
