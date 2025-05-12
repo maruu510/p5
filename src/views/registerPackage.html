@@ -694,13 +694,13 @@
         </div>
 
         <div class="link-container">
-            <a href="javascript:navigateTo('listPackages.html')" class="link">
+            <a href="listPackages.html" class="link">
                 <i class="fas fa-list"></i> Ver lista de paquetes
             </a>
-            <a href="javascript:navigateTo('departaments.html')" class="link">
+            <a href="departaments.html" class="link">
                 <i class="fas fa-building"></i> Administrar departamentos
             </a>
-            <a href="javascript:navigateTo('dashboard.html')" class="link">
+            <a href="dashboard.html" class="link">
                 <i class="fas fa-home"></i> Ir al inicio
             </a>
         </div>
@@ -729,281 +729,196 @@
 
   <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Script para verificar que la biblioteca QR se ha cargado correctamente -->
   <script>
-    // Gestor de errores global - versión mejorada
-    window.addEventListener('error', function(event) {
-      console.error('Error capturado:', event.error || 'Error desconocido');
-      alert('Se ha producido un error en la aplicación: ' + (event.error ? event.error.message : 'Error desconocido'));
+    // Verificar que la biblioteca QR Code está disponible
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof QRCode === 'undefined') {
+        console.error('Error: La biblioteca QRCode no se ha cargado correctamente');
+        alert('Error: No se pudo cargar la biblioteca de códigos QR. Verifique su conexión a Internet y recargue la página.');
+      } else {
+        console.log('Biblioteca QRCode cargada correctamente');
+      }
     });
-    
+  </script>
+  <script>
     // Variables globales para simular almacenamiento
     const MOCK_DATA = {
       departments: [],
       packages: []
     };
     
-    // Función para generar código QR
-    function generateQR() {
-      try {
-        // Obtener referencias a los elementos del formulario
-        const apartmentSelect = document.getElementById('apartment_number');
-        const senderInput = document.getElementById('sender');
-        const dateInput = document.getElementById('delivery_date');
-        const qrCodeInput = document.getElementById('qr_code');
-        const qrButtons = document.getElementById('qrButtons');
-        
-        // Verificar que todos los elementos existan
-        if (!apartmentSelect) {
-          throw new Error('No se encontró el elemento apartment_number');
-        }
-        if (!senderInput) {
-          throw new Error('No se encontró el elemento sender');
-        }
-        if (!dateInput) {
-          throw new Error('No se encontró el elemento delivery_date');
-        }
-        
-        
-        // Verificar que los campos requeridos tengan valores
-        if (!apartmentSelect.value) {
-          showToast('error', 'Por favor seleccione un departamento');
-          return;
-        }
-        if (!senderInput.value) {
-          showToast('error', 'Por favor ingrese el nombre del remitente');
-          return;
-        }
-        if (!dateInput.value) {
-          showToast('error', 'Por favor seleccione una fecha de entrega');
-          return;
-        }
-        
-        // Generar un ID único para el paquete
-        const packageId = generateUniqueId();
-        
-        // Crear objeto con datos del paquete
-        const packageData = {
-          id: packageId,
-          apartment: apartmentSelect.options[apartmentSelect.selectedIndex].text,
-          sender: senderInput.value,
-          date: dateInput.value
-        };
-        
-        // Convertir a JSON para el QR
-        const qrData = JSON.stringify(packageData);
-        
-        // Mostrar el código en el campo de texto
-        if (qrCodeInput) {
-          qrCodeInput.value = packageId;
-        }
-        
-        // Limpiar contenedor QR existente
-        const qrContainer = document.getElementById('qrCode');
-        if (qrContainer) {
-          qrContainer.innerHTML = '';
-          qrContainer.style.display = 'block';
-          
-          // Generar nuevo QR
-          new QRCode(qrContainer, {
-            text: qrData,
-            width: 200,
-            height: 200,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-          });
-          
-          // Mostrar botones de QR
-          if (qrButtons) {
-            qrButtons.style.display = 'flex';
-          }
-          
-          showToast('success', 'Código QR generado correctamente');
-        } else {
-          throw new Error('No se encontró el contenedor para el código QR');
-        }
-      } catch (error) {
-        console.error('Error al generar QR:', error);
-        showToast('error', 'Error al generar el código QR: ' + error.message);
-      }
-    }
-
-    // Función para generar ID único
-    function generateUniqueId() {
-      return Date.now().toString(36) + Math.random().toString(36).substring(2, 7).toUpperCase();
-    }
-    
-    // Función para generar código QR
-    function generateQR() {
-      try {
-        // Obtener referencias a los elementos del formulario
-        const apartmentSelect = document.getElementById('apartment_number');
-        const senderInput = document.getElementById('sender');
-        const dateInput = document.getElementById('delivery_date');
-        const qrCodeInput = document.getElementById('qr_code');
-        const qrButtons = document.getElementById('qrButtons');
-        
-        // Verificar que todos los elementos existan
-        if (!apartmentSelect) {
-          throw new Error('No se encontró el elemento apartment_number');
-        }
-        if (!senderInput) {
-          throw new Error('No se encontró el elemento sender');
-        }
-        if (!dateInput) {
-          throw new Error('No se encontró el elemento delivery_date');
-        }
-        
-        // Verificar que los campos requeridos tengan valores
-        if (!apartmentSelect.value) {
-          showToast('error', 'Por favor seleccione un departamento');
-          return;
-        }
-        if (!senderInput.value) {
-          showToast('error', 'Por favor ingrese el nombre del remitente');
-          return;
-        }
-        if (!dateInput.value) {
-          showToast('error', 'Por favor seleccione una fecha de entrega');
-          return;
-        }
-        
-        // Generar un ID único para el paquete
-        const packageId = generateUniqueId();
-        
-        // Crear objeto con datos del paquete
-        const packageData = {
-          id: packageId,
-          apartment: apartmentSelect.options[apartmentSelect.selectedIndex].text,
-          sender: senderInput.value,
-          date: dateInput.value
-        };
-        
-        // Convertir a JSON para el QR
-        const qrData = JSON.stringify(packageData);
-        
-        // Mostrar el código en el campo de texto
-        if (qrCodeInput) {
-          qrCodeInput.value = packageId;
-        }
-        
-        // Limpiar contenedor QR existente
-        const qrContainer = document.getElementById('qrCode');
-        if (qrContainer) {
-          qrContainer.innerHTML = '';
-          qrContainer.style.display = 'block';
-          
-          // Generar nuevo QR
-          new QRCode(qrContainer, {
-            text: qrData,
-            width: 200,
-            height: 200,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-          });
-          
-          // Mostrar botones de QR
-          if (qrButtons) {
-            qrButtons.style.display = 'flex';
-          }
-          
-          showToast('success', 'Código QR generado correctamente');
-        } else {
-          throw new Error('No se encontró el contenedor para el código QR');
-        }
-      } catch (error) {
-        console.error('Error al generar QR:', error);
-        showToast('error', 'Error al generar el código QR: ' + error.message);
-      }
-    }
-
-    // Función para generar ID único
-    function generateUniqueId() {
-      return Date.now().toString(36) + Math.random().toString(36).substring(2, 7).toUpperCase();
-    }
+    // Gestor de errores global - versión mejorada
+    window.addEventListener('error', function(event) {
+      console.error('Error capturado:', event.error || 'Error desconocido');
+      showToast('error', 'Se ha producido un error en la aplicación: ' + (event.error ? event.error.message : 'Error desconocido'));
+    });
     
     // Función para mostrar notificaciones toast
     function showToast(type, message) {
       const toastElement = type === 'success' ? document.getElementById('toastSuccess') : document.getElementById('toastError');
       
-      if (type === 'error' && document.getElementById('errorMessage')) {
-        document.getElementById('errorMessage').textContent = message;
-      } else if (type === 'success' && toastElement.querySelector('.toast-message')) {
-        toastElement.querySelector('.toast-message').textContent = message;
+      if (toastElement) {
+        if (type === 'error' && document.getElementById('errorMessage')) {
+          document.getElementById('errorMessage').textContent = message;
+        } else if (type === 'success' && toastElement.querySelector('.toast-message')) {
+          toastElement.querySelector('.toast-message').textContent = message;
+        }
+        
+        toastElement.classList.add('show');
+        
+        setTimeout(() => {
+          toastElement.classList.remove('show');
+        }, 3000);
+      } else {
+        // Fallback si no existe el toast
+        alert(message);
       }
-      
-      toastElement.classList.add('show');
-      
-      setTimeout(() => {
-        toastElement.classList.remove('show');
-      }, 3000);
+    }
+    
+    // Función de navegación real (no simulada)
+    function navigateTo(page) {
+      console.log('Navegando a:', page);
+      // Redirigir a la página especificada
+      window.location.href = page;
+    }
+    
+    // Función para generar ID único
+    function generateUniqueId() {
+      return Date.now().toString(36) + Math.random().toString(36).substring(2, 7).toUpperCase();
+    }
+    
+    // Función para formatear fecha
+    function formatDate(dateString) {
+      try {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('es-ES', options);
+      } catch (error) {
+        console.error('Error al formatear fecha:', error);
+        return dateString; // Devolver la fecha original si hay error
+      }
     }
     
     // Función para obtener todos los departamentos
     function getAllDepartments() {
-      // Obtener departamentos del localStorage (como en moredepartaments.html)
-      const storedDepartments = JSON.parse(localStorage.getItem('departments')) || [];
-      // Extraer solo los números de departamento
-      const departmentNumbers = storedDepartments.map(dept => dept.deptNumber);
-      
-      // Si no hay departamentos en localStorage, usar los de muestra
-      if (departmentNumbers.length === 0) {
-        return [101, 102, 201, 202, 301, 302]; // Valores por defecto si no hay datos
-      }
-      
-      return departmentNumbers;
-    }
-    
-    function loadDepartments() {
-      const departmentSelect = document.getElementById('apartment_number');
-      
-      // Obtener todos los departamentos
-      const departments = getAllDepartments();
-      
-      // Limpiar opciones existentes excepto la primera
-      while (departmentSelect.options.length > 1) {
-        departmentSelect.remove(1);
-      }
-      
-      // Agregar departamentos existentes
-      departments.forEach(dept => {
-        // Manejar tanto si dept es un objeto como si es un valor simple
-        const deptNumber = typeof dept === 'object' 
-          ? (dept.deptNumber || dept.numero) // Intentar obtener deptNumber o numero
-          : dept;
+      try {
+        // Obtener departamentos del localStorage
+        const storedDepartments = JSON.parse(localStorage.getItem('departments')) || [];
         
-        const option = document.createElement('option');
-        option.value = deptNumber;
-        option.textContent = `Departamento ${deptNumber}`;
-        departmentSelect.appendChild(option);
-      });
-      
-      // Agregar opción para nuevo departamento
-      const newOption = document.createElement('option');
-      newOption.value = "new";
-      newOption.textContent = "Agregar nuevo departamento";
-      departmentSelect.appendChild(newOption);
-    }
-    // Función de navegación
-    function navigateTo(page) {
-      console.log('Navegando a:', page);
-      alert('Navegación a ' + page + '\n\nLa navegación está deshabilitada en esta versión de demostración.');
+        // Si hay datos en formato de objetos, extraer los números
+        if (storedDepartments.length > 0 && typeof storedDepartments[0] === 'object') {
+          return storedDepartments.map(dept => dept.deptNumber || dept.numero);
+        }
+        
+        // Si son solo números o está vacío
+        return storedDepartments.length > 0 ? storedDepartments : [101, 102, 201, 202, 301, 302]; // Valores por defecto
+      } catch (error) {
+        console.error('Error al cargar departamentos:', error);
+        return [101, 102, 201, 202, 301, 302]; // Valores por defecto en caso de error
+      }
     }
     
-    // Sistema de gestión de UI
-    const UIManager = {
+    // Función para cargar departamentos en el select
+    function loadDepartments() {
+      try {
+        const departmentSelect = document.getElementById('apartment_number');
+        if (!departmentSelect) {
+          console.error('No se encontró el elemento select de departamentos');
+          return;
+        }
+        
+        // Obtener todos los departamentos
+        const departments = getAllDepartments();
+        MOCK_DATA.departments = departments; // Guardar en datos locales
+        
+        // Limpiar opciones existentes excepto la primera
+        while (departmentSelect.options.length > 1) {
+          departmentSelect.remove(1);
+        }
+        
+        // Agregar departamentos existentes
+        departments.forEach(dept => {
+          const option = document.createElement('option');
+          option.value = dept;
+          option.textContent = `Departamento ${dept}`;
+          departmentSelect.appendChild(option);
+        });
+        
+        // Agregar opción para nuevo departamento
+        const newOption = document.createElement('option');
+        newOption.value = "new";
+        newOption.textContent = "Agregar nuevo departamento";
+        departmentSelect.appendChild(newOption);
+        
+        // Evento para manejar selección de nuevo departamento
+        departmentSelect.addEventListener('change', function() {
+          if (this.value === 'new') {
+            const newDept = prompt('Ingrese el número del nuevo departamento:');
+            if (newDept && !isNaN(newDept)) {
+              const deptNumber = parseInt(newDept);
+              
+              // Verificar si ya existe
+              if (MOCK_DATA.departments.includes(deptNumber)) {
+                showToast('error', 'Este número de departamento ya existe');
+                this.value = '';
+                return;
+              }
+              
+              // Añadir nuevo departamento
+              MOCK_DATA.departments.push(deptNumber);
+              
+              // Actualizar localStorage
+              try {
+                localStorage.setItem('departments', JSON.stringify(MOCK_DATA.departments));
+              } catch (e) {
+                console.warn('No se pudo guardar en localStorage:', e);
+              }
+              
+              // Crear opción
+              const option = document.createElement('option');
+              option.value = deptNumber;
+              option.textContent = `Departamento ${deptNumber}`;
+              
+              // Insertar antes de la opción 'Agregar nuevo'
+              const newIndex = this.options.length - 1;
+              this.insertBefore(option, this.options[newIndex]);
+              
+              // Seleccionar el nuevo departamento
+              this.value = deptNumber;
+            } else {
+              this.value = ''; // Resetear si no es válido
+              showToast('error', 'Por favor ingrese un número válido para el departamento');
+            }
+          }
+        });
+        
+        console.log('Departamentos cargados correctamente');
+      } catch (error) {
+        console.error('Error al cargar departamentos:', error);
+        showToast('error', 'No se pudieron cargar los departamentos');
+      }
+    }
+    
+    // Sistema unificado de gestión de UI
+    const AppManager = {
       elements: {},
       
       init() {
         try {
+          console.log('Inicializando aplicación...');
           // Obtener elementos del DOM de forma segura
           this.cacheElements();
+          
+          // Cargar departamentos
+          loadDepartments();
           
           // Inicializar fecha con el día actual
           if (this.elements.dateInput) {
             const today = new Date().toISOString().split('T')[0];
             this.elements.dateInput.value = today;
+            console.log('Fecha inicializada:', today);
+          } else {
+            console.warn('No se encontró el campo de fecha para inicializar');
           }
           
           // Establecer los event listeners
@@ -1012,32 +927,54 @@
           console.log('Aplicación inicializada correctamente');
         } catch (error) {
           console.error('Error al inicializar UI:', error);
-          alert('Error al inicializar la interfaz: ' + error.message);
+          showToast('error', 'Error al inicializar la interfaz: ' + error.message);
         }
       },
       
       cacheElements() {
-        const elementIds = [
-          'packageForm', 'apartment_number', 'sender', 'delivery_date', 
-          'status', 'notes', 'qrCode', 'qr_code', 'qrButtons', 
-          'generateQrBtn', 'printQrBtn', 'downloadQrBtn',
-          'toastSuccess', 'toastError', 'errorMessage', 'loadingOverlay',
-          'userProfileDropdown', 'userDropdown'
-        ];
+        // Lista de IDs de elementos y sus nombres descriptivos
+        const elementsMap = {
+          'packageForm': 'packageForm',
+          'apartment_number': 'departmentSelect',
+          'sender': 'senderInput',
+          'delivery_date': 'dateInput',
+          'status': 'statusSelect',
+          'notes': 'notesTextarea',
+          'qrCode': 'qrCodeDiv',
+          'qr_code': 'qrCodeInput',
+          'qrButtons': 'qrButtons',
+          'generateQrBtn': 'generateQrBtn',
+          'printQrBtn': 'printQrBtn',
+          'downloadQrBtn': 'downloadQrBtn',
+          'toastSuccess': 'toastSuccess',
+          'toastError': 'toastError',
+          'errorMessage': 'errorMessage',
+          'loadingOverlay': 'loadingOverlay',
+          'userProfileDropdown': 'userProfileDropdown',
+          'userDropdown': 'userDropdown'
+        };
         
         this.elements = {};
         
-        elementIds.forEach(id => {
+        // Recorrer el mapa de elementos e intentar buscarlos en el DOM
+        Object.entries(elementsMap).forEach(([id, descriptiveName]) => {
           const element = document.getElementById(id);
           if (element) {
-            this.elements[id === 'apartment_number' ? 'departmentSelect' : 
-                          id === 'delivery_date' ? 'dateInput' : 
-                          id === 'status' ? 'statusSelect' : 
-                          id === 'qrCode' ? 'qrCodeDiv' : 
-                          id === 'qr_code' ? 'qrCodeInput' : 
-                          id === 'notes' ? 'notesTextarea' : id] = element;
+            this.elements[descriptiveName] = element;
+          } else {
+            console.warn(`Elemento no encontrado en el DOM: ${id} (${descriptiveName})`);
           }
         });
+        
+        // Verificar elementos críticos
+        const criticalElements = ['departmentSelect', 'senderInput', 'dateInput', 'qrCodeDiv', 'qrCodeInput'];
+        const missingCritical = criticalElements.filter(name => !this.elements[name]);
+        
+        if (missingCritical.length > 0) {
+          console.error('ELEMENTOS CRÍTICOS FALTANTES:', missingCritical.join(', '));
+        }
+        
+        console.log('Elementos cacheados:', Object.keys(this.elements).length);
       },
       
       setupEventListeners() {
@@ -1045,46 +982,23 @@
           // Evento de envío del formulario
           if (this.elements.packageForm) {
             this.elements.packageForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
+            console.log('Event listener para envío de formulario asignado');
           }
           
           // Eventos de QR
           if (this.elements.generateQrBtn) {
             this.elements.generateQrBtn.addEventListener('click', () => this.generateQRCode());
+            console.log('Event listener para generación de QR asignado');
           }
           
           if (this.elements.printQrBtn) {
             this.elements.printQrBtn.addEventListener('click', () => this.printQRCode());
+            console.log('Event listener para impresión de QR asignado');
           }
           
           if (this.elements.downloadQrBtn) {
             this.elements.downloadQrBtn.addEventListener('click', () => this.downloadQRCode());
-          }
-          
-          // Manejar selección de nuevo departamento
-          if (this.elements.departmentSelect) {
-            this.elements.departmentSelect.addEventListener('change', function() {
-              if (this.value === 'new') {
-                const newDept = prompt('Ingrese el número del nuevo departamento:');
-                if (newDept && !isNaN(newDept)) {
-                  // Añadir nuevo departamento
-                  MOCK_DATA.departments.push(parseInt(newDept));
-                  
-                  // Crear opción
-                  const option = document.createElement('option');
-                  option.value = newDept;
-                  option.textContent = `Departamento ${newDept}`;
-                  
-                  // Insertar antes de la opción 'Agregar nuevo'
-                  const newIndex = this.options.length - 1;
-                  this.insertBefore(option, this.options[newIndex]);
-                  
-                  // Seleccionar el nuevo departamento
-                  this.value = newDept;
-                } else {
-                  this.value = ''; // Resetear si no es válido
-                }
-              }
-            });
+            console.log('Event listener para descarga de QR asignado');
           }
           
           // Validación en tiempo real
@@ -1098,6 +1012,7 @@
                 }
               });
             });
+            console.log('Event listeners para validación en tiempo real asignados');
           }
           
           // Configurar el menú desplegable de usuario
@@ -1116,10 +1031,11 @@
                     userDropdown.classList.remove('show');
                 }
             });
+            console.log('Event listeners para menú desplegable asignados');
           }
         } catch (error) {
           console.error('Error al configurar event listeners:', error);
-          alert('Error en configuración de eventos: ' + error.message);
+          showToast('error', 'Error en configuración de eventos: ' + error.message);
         }
       },
       
@@ -1150,6 +1066,11 @@
           requiredInputs.forEach(input => {
             if (!this.validateField(input)) {
               isValid = false;
+              // Hacer scroll al primer campo inválido
+              if (isValid === false) {
+                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                input.focus();
+              }
             }
           });
           
@@ -1162,11 +1083,53 @@
       
       generateQRCode() {
         try {
-          const { departmentSelect, senderInput, dateInput, qrCodeDiv, qrCodeInput, qrButtons } = this.elements;
+          console.log('Iniciando generación de QR...');
+          
+          // Obtener referencias directamente para asegurarnos
+          const departmentSelect = document.getElementById('apartment_number');
+          const senderInput = document.getElementById('sender');
+          const dateInput = document.getElementById('delivery_date');
+          const qrCodeDiv = document.getElementById('qrCode');
+          const qrCodeInput = document.getElementById('qr_code');
+          const qrButtons = document.getElementById('qrButtons');
+          
+          // Actualizar nuestras referencias en caso de que hayan fallado antes
+          this.elements.departmentSelect = departmentSelect;
+          this.elements.senderInput = senderInput;
+          this.elements.dateInput = dateInput;
+          this.elements.qrCodeDiv = qrCodeDiv;
+          this.elements.qrCodeInput = qrCodeInput;
+          this.elements.qrButtons = qrButtons;
+          
+          // Verificar que todos los elementos necesarios existen
+          if (!departmentSelect || !senderInput || !dateInput || !qrCodeDiv || !qrCodeInput || !qrButtons) {
+            const missing = [];
+            if (!departmentSelect) missing.push('departmentSelect (apartment_number)');
+            if (!senderInput) missing.push('senderInput (sender)');
+            if (!dateInput) missing.push('dateInput (delivery_date)');
+            if (!qrCodeDiv) missing.push('qrCodeDiv (qrCode)');
+            if (!qrCodeInput) missing.push('qrCodeInput (qr_code)');
+            if (!qrButtons) missing.push('qrButtons (qrButtons)');
+            
+            throw new Error(`Elementos faltantes: ${missing.join(', ')}`);
+          }
           
           // Validar campos necesarios
-          if (!departmentSelect.value || !senderInput.value.trim() || !dateInput.value) {
-            this.showError('Por favor completa al menos: Departamento, Remitente y Fecha de entrega para generar el QR');
+          if (!departmentSelect.value) {
+            showToast('error', 'Por favor seleccione un departamento');
+            departmentSelect.focus();
+            return;
+          }
+          
+          if (!senderInput.value.trim()) {
+            showToast('error', 'Por favor ingrese el remitente');
+            senderInput.focus();
+            return;
+          }
+          
+          if (!dateInput.value) {
+            showToast('error', 'Por favor seleccione una fecha');
+            dateInput.focus();
             return;
           }
           
@@ -1184,13 +1147,15 @@
             generated: new Date().toISOString()
           });
           
-          // Limpiar QR anterior si existe
-          qrCodeDiv.innerHTML = '';
+          console.log('Generando QR con contenido:', qrContent);
           
           // Verificar que la librería QRCode está disponible
           if (typeof QRCode === 'undefined') {
             throw new Error('La librería QRCode no está disponible. Verifique la conexión a Internet.');
           }
+          
+          // Limpiar QR anterior si existe
+          qrCodeDiv.innerHTML = '';
           
           // Generar nuevo QR
           new QRCode(qrCodeDiv, {
@@ -1205,15 +1170,24 @@
           // Mostrar el QR y los botones
           qrCodeDiv.style.display = 'block';
           qrButtons.style.display = 'flex';
+          
+          showToast('success', 'Código QR generado correctamente');
+          console.log('QR generado exitosamente');
         } catch (error) {
           console.error('Error al generar QR:', error);
-          this.showError('Error al generar el código QR: ' + error.message);
+          showToast('error', 'Error al generar el código QR: ' + error.message);
         }
       },
       
       printQRCode() {
         try {
           const { departmentSelect, senderInput, dateInput, qrCodeDiv, qrCodeInput } = this.elements;
+          
+          // Verificar que hay un QR generado
+          if (!qrCodeDiv || !qrCodeDiv.querySelector('canvas')) {
+            showToast('error', 'Primero debe generar un código QR');
+            return;
+          }
           
           // Crear una ventana de impresión
           const printWindow = window.open('', '_blank');
@@ -1268,7 +1242,7 @@
                 </div>
                 <div class="details">
                   <p><strong>Remitente:</strong> ${senderInput.value.trim()}</p>
-                  <p><strong>Fecha:</strong> ${this.formatDate(dateInput.value)}</p>
+                  <p><strong>Fecha:</strong> ${formatDate(dateInput.value)}</p>
                   <p><strong>Código:</strong> ${qrCodeInput.value}</p>
                 </div>
                 <div class="footer">
@@ -1287,12 +1261,12 @@
             } catch (e) {
               console.error('Error al imprimir:', e);
               printWindow.close();
-              alert('Error al imprimir. Inténtelo de nuevo o use la opción de descarga.');
+              showToast('error', 'Error al imprimir. Inténtelo de nuevo o use la opción de descarga.');
             }
           }, 500);
         } catch (error) {
           console.error('Error al imprimir QR:', error);
-          this.showError('Error al imprimir el código QR: ' + error.message);
+          showToast('error', 'Error al imprimir el código QR: ' + error.message);
         }
       },
       
@@ -1300,10 +1274,16 @@
         try {
           const { departmentSelect, qrCodeDiv } = this.elements;
           
+          // Verificar que hay un QR generado
+          if (!qrCodeDiv || !qrCodeDiv.querySelector('canvas')) {
+            showToast('error', 'Primero debe generar un código QR');
+            return;
+          }
+          
           // Obtener la imagen desde el canvas generado por la librería
           const canvas = qrCodeDiv.querySelector('canvas');
           if (!canvas) {
-            throw new Error('No se encontró el código QR para descargar. Genere primero el QR.');
+            throw new Error('No se encontró el código QR para descargar');
           }
           
           try {
@@ -1337,7 +1317,7 @@
           }
         } catch (error) {
           console.error('Error al descargar QR:', error);
-          this.showError('Error al descargar el código QR: ' + error.message);
+          showToast('error', 'Error al descargar el código QR: ' + error.message);
         }
       },
       
@@ -1345,9 +1325,11 @@
         e.preventDefault();
         
         try {
+          console.log('Procesando envío de formulario...');
+          
           // Validar formulario
           if (!this.validateForm()) {
-            this.showError('Por favor, completa todos los campos requeridos');
+            showToast('error', 'Por favor, completa todos los campos requeridos');
             return;
           }
           
@@ -1361,41 +1343,79 @@
           // Mostrar loading
           this.showLoading(true);
           
-          // Registrar el paquete (versión demo)
-          setTimeout(() => {
-            try {
+          // Simular demora de envío
+          
+          try {
               const packageData = this.getFormData();
-              
-              // Simular guardado en la "base de datos"
-              packageData.id = Date.now();
-              packageData.created_at = new Date().toISOString();
-              MOCK_DATA.packages.push(packageData);
-              
-              console.log('Paquete registrado:', packageData);
-              console.log('Total de paquetes registrados:', MOCK_DATA.packages.length);
-              
-              this.showSuccess('¡Paquete registrado exitosamente!');
-              
-              // Reiniciar formulario después de un tiempo
-              setTimeout(() => {
-                if (confirm('¿Desea registrar otro paquete?')) {
-                  this.resetForm();
-                } else {
-                  alert('En una aplicación real, sería redirigido a la lista de paquetes.');
-                }
-              }, 1500);
-            } catch (error) {
-              console.error('Error al procesar el formulario:', error);
-              this.showError(error.message || 'Ocurrió un error al registrar el paquete');
-            } finally {
-              this.showLoading(false);
+              // Validar datos críticos
+            if (!packageData.apartment_number || !packageData.sender || !packageData.delivery_date) {
+              throw new Error('Faltan datos requeridos en el formulario');
             }
-          }, 1000); // Simular un retraso de red
+            // Guardar en la "base de datos"
+            packageData.id = generateUniqueId();
+            packageData.created_at = new Date().toISOString();
+            MOCK_DATA.packages.push(packageData);
+            console.log('Paquete registrado:', packageData);
+            console.log('Total de paquetes registrados:', MOCK_DATA.packages.length);
+
+            // Guardar en localStorage para persistencia
+            try {
+              const existingPackages = JSON.parse(localStorage.getItem('packages')) || [];
+              existingPackages.push(packageData);
+              localStorage.setItem('packages', JSON.stringify(existingPackages));
+              console.log('Paquete guardado en localStorage. Total:', existingPackages.length);
+            } catch (storageError) {
+              console.error('Error al guardar en localStorage:', storageError);
+              throw new Error('No se pudo guardar el paquete en el almacenamiento local');
+            }
+            
+            showToast('success', '¡Paquete registrado exitosamente!');
+            
+            // Mostrar resumen del registro
+            const resumenRegistro = `
+              Paquete Registrado:
+              - Departamento: ${packageData.apartment_number}
+              - Remitente: ${packageData.sender}
+              - Fecha: ${formatDate(packageData.delivery_date)}
+              - Estado: ${packageData.status}
+              - Código: ${packageData.qr_code || 'No generado'}
+            `;
+            console.log(resumenRegistro);
+            
+            // Redirigir a la lista de paquetes
+            setTimeout(() => {
+              window.location.href = 'listPackages.html';
+            }, 1500);
+          } catch (error) {
+            console.error('Error al procesar el formulario:', error);
+            showToast('error', error.message || 'Ocurrió un error al registrar el paquete');
+          } finally {
+            this.showLoading(false);
+          }
         } catch (error) {
           console.error('Error en manejador de formulario:', error);
-          alert('Error: ' + error.message);
+          showToast('error', 'Error: ' + error.message);
           this.showLoading(false);
         }
+      },
+              
+      
+              
+            
+              
+              
+      
+      getFormData() {
+        const { departmentSelect, senderInput, dateInput, statusSelect, qrCodeInput, notesTextarea } = this.elements;
+        
+        return {
+          apartment_number: departmentSelect ? departmentSelect.value : '',
+          sender: senderInput ? senderInput.value.trim() : '',
+          delivery_date: dateInput ? dateInput.value : '',
+          status: statusSelect ? statusSelect.value || 'pendiente' : 'pendiente',
+          qr_code: qrCodeInput ? qrCodeInput.value.trim() : '',
+          notes: notesTextarea ? notesTextarea.value.trim() : '',
+        };
       },
       
       resetForm() {
@@ -1422,73 +1442,15 @@
             if (this.elements.qrCodeInput) {
               this.elements.qrCodeInput.value = '';
             }
+            
+            // Quitar clases de validación
+            const invalidGroups = this.elements.packageForm.querySelectorAll('.form-group.invalid');
+            invalidGroups.forEach(group => group.classList.remove('invalid'));
+            
+            console.log('Formulario reiniciado correctamente');
           }
         } catch (error) {
           console.error('Error al resetear formulario:', error);
-        }
-      },
-      
-      getFormData() {
-        const { departmentSelect, senderInput, dateInput, statusSelect, qrCodeInput, notesTextarea } = this.elements;
-        
-        return {
-          apartment_number: departmentSelect.value,
-          sender: senderInput.value.trim(),
-          delivery_date: dateInput.value,
-          status: statusSelect ? statusSelect.value || 'pendiente' : 'pendiente',
-          qr_code: qrCodeInput ? qrCodeInput.value.trim() : '',
-          notes: notesTextarea ? notesTextarea.value.trim() : '',
-        };
-      },
-      
-      formatDate(dateString) {
-        try {
-          const options = { year: 'numeric', month: 'long', day: 'numeric' };
-          return new Date(dateString).toLocaleDateString('es-ES', options);
-        } catch (error) {
-          console.error('Error al formatear fecha:', error);
-          return dateString; // Devolver la fecha original si hay error
-        }
-      },
-      
-      showSuccess(message) {
-        try {
-          const { toastSuccess } = this.elements;
-          if (toastSuccess) {
-            const messageElement = toastSuccess.querySelector('.toast-message');
-            if (messageElement) messageElement.textContent = message;
-            toastSuccess.classList.add('show');
-            
-            setTimeout(() => {
-              toastSuccess.classList.remove('show');
-            }, 3000);
-          } else {
-            // Fallback si no existe el toast
-            alert('Éxito: ' + message);
-          }
-        } catch (error) {
-          console.error('Error al mostrar mensaje de éxito:', error);
-          alert('Éxito: ' + message);
-        }
-      },
-      
-      showError(message) {
-        try {
-          const { toastError, errorMessage } = this.elements;
-          if (toastError && errorMessage) {
-            errorMessage.textContent = message;
-            toastError.classList.add('show');
-            
-            setTimeout(() => {
-              toastError.classList.remove('show');
-            }, 3000);
-          } else {
-            // Fallback si no existe el toast
-            alert('Error: ' + message);
-          }
-        } catch (error) {
-          console.error('Error al mostrar mensaje de error:', error);
-          alert('Error: ' + message);
         }
       },
       
@@ -1504,10 +1466,68 @@
       }
     };
 
+    // Función para verificar que todos los elementos críticos existen
+    function checkCriticalElements() {
+      const criticalElements = [
+        { id: 'apartment_number', name: 'Selector de departamento' },
+        { id: 'sender', name: 'Campo de remitente' },
+        { id: 'delivery_date', name: 'Campo de fecha' },
+        { id: 'status', name: 'Selector de estado' },
+        { id: 'qrCode', name: 'Contenedor de QR' },
+        { id: 'qr_code', name: 'Campo de código QR' },
+        { id: 'qrButtons', name: 'Botones de QR' },
+        { id: 'generateQrBtn', name: 'Botón generar QR' },
+        { id: 'packageForm', name: 'Formulario de paquete' }
+      ];
+      
+      const missing = [];
+      criticalElements.forEach(elem => {
+        if (!document.getElementById(elem.id)) {
+          missing.push(`${elem.name} (ID: ${elem.id})`);
+        }
+      });
+      
+      if (missing.length > 0) {
+        console.error('ELEMENTOS CRÍTICOS FALTANTES:', missing.join(', '));
+        alert('Error: Faltan elementos críticos en la página: ' + missing.join(', '));
+        return false;
+      }
+      
+      return true;
+    }
+    
+    // Migrar datos antiguos (si existen) a nuevo formato
+    function migrarDatosAntiguos() {
+      try {
+        // Comprobar si existen datos en el formato antiguo
+        const departmentsString = localStorage.getItem('departments');
+        if (!departmentsString) return;
+        
+        const departments = JSON.parse(departmentsString);
+        
+        // Si los departamentos son objetos, extraer solo los números
+        if (Array.isArray(departments) && departments.length > 0 && typeof departments[0] === 'object') {
+          const departmentNumbers = departments.map(dept => dept.deptNumber || dept.numero);
+          localStorage.setItem('departments', JSON.stringify(departmentNumbers));
+          console.log('Datos de departamentos migrados al nuevo formato:', departmentNumbers);
+        }
+      } catch (error) {
+        console.error('Error al migrar datos antiguos:', error);
+      }
+    }
+    
     // Inicializar la aplicación cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', function() {
-      loadDepartments();
-      UIManager.init();
+      console.log('DOM cargado, verificando elementos críticos...');
+      // Migrar datos si es necesario
+      migrarDatosAntiguos();
+      
+      if (checkCriticalElements()) {
+        console.log('Elementos críticos verificados, inicializando aplicación...');
+        AppManager.init();
+      } else {
+        console.error('No se pudo inicializar la aplicación debido a elementos faltantes');
+      }
     });
   </script>
 </body>
