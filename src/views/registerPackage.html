@@ -1343,8 +1343,6 @@
           // Mostrar loading
           this.showLoading(true);
           
-          // Simular demora de envío
-          
           try {
               const packageData = this.getFormData();
               // Validar datos críticos
@@ -1364,6 +1362,10 @@
               existingPackages.push(packageData);
               localStorage.setItem('packages', JSON.stringify(existingPackages));
               console.log('Paquete guardado en localStorage. Total:', existingPackages.length);
+              
+              // Actualizar contador de paquetes pendientes para el dashboard
+              const pendingCount = existingPackages.filter(pkg => pkg.status === 'pendiente').length;
+              localStorage.setItem('pendingPackagesCount', pendingCount.toString());
             } catch (storageError) {
               console.error('Error al guardar en localStorage:', storageError);
               throw new Error('No se pudo guardar el paquete en el almacenamiento local');
