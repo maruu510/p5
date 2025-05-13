@@ -891,21 +891,7 @@
             window.location.href = 'login.html';
         }
 
-<<<<<<< HEAD
-        // Función para mostrar el indicador de carga
-        function showLoader() {
-            document.getElementById('loadingSpinner').style.display = 'block';
-        }
-
-        // Función para ocultar el indicador de carga
-        function hideLoader() {
-            document.getElementById('loadingSpinner').style.display = 'none';
-        }
-        
-        // Funciones para manejar departamentos y paquetes en localStorage
-=======
         // Función para obtener todos los departamentos
->>>>>>> SCRUM-200
         function getAllDepartments() {
             try {
                 const departmentsString = localStorage.getItem('departments');
@@ -1009,31 +995,6 @@
             document.getElementById('departmentsCount').textContent = departments.length;
         }
 
-<<<<<<< HEAD
-        // Función para cargar los paquetes en la tabla
-        async function loadPackages() {
-            try {
-                showLoader();
-                
-                // Obtener el parámetro de departamento de la URL
-                const urlParams = new URLSearchParams(window.location.search);
-                const departmentParam = urlParams.get('department');
-                
-                // Si hay un departamento específico en la URL, actualizar el filtro
-                if (departmentParam) {
-                    // Actualizar el título para mostrar el departamento seleccionado
-                    const containerHeader = document.querySelector('.container-header h2');
-                    if (containerHeader) {
-                        containerHeader.textContent = `Paquetes del Departamento ${departmentParam}`;
-                    }
-                }
-                
-                const tableBody = document.querySelector('#packagesTable tbody');
-                const departmentFilter = document.getElementById('departmentFilter');
-                const selectedDepartment = departmentFilter.value;
-                
-                // Mostrar spinner de carga
-=======
         // Cargar paquetes en la tabla
         function loadPackages() {
             const tableBody = document.querySelector('#packagesTable tbody');
@@ -1144,142 +1105,24 @@
             } catch (error) {
                 console.error('Error al cargar paquetes:', error);
                 document.getElementById('errorMessage').style.display = 'block';
->>>>>>> SCRUM-200
                 tableBody.innerHTML = `
                     <tr>
                         <td colspan="6">
-                            <div class="loading-spinner"></div>
+                            <div class="empty-state">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p>Ocurrió un error al cargar los paquetes</p>
+                            </div>
                         </td>
                     </tr>
                 `;
-                
-                try {
-                    // Simular retraso para mostrar el spinner (opcional)
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    
-                    let packages = [];
-                    
-                    // Obtener paquetes según el filtro seleccionado
-                    if (selectedDepartment === 'all') {
-                        // Obtener todos los paquetes
-                        const packagesString = localStorage.getItem('paquetesPrueba');
-                        packages = packagesString ? JSON.parse(packagesString) : [];
-                    } else {
-                        // Obtener paquetes del departamento seleccionado
-                        packages = getPackagesByDepartment(selectedDepartment);
-                    }
-                    
-                    console.log('Paquetes cargados:', packages);
-                    
-                    // Verificar si hay paquetes para mostrar
-                    if (!packages || packages.length === 0) {
-                        tableBody.innerHTML = `
-                            <tr>
-                                <td colspan="6">
-                                    <div class="empty-state">
-                                        <i class="fas fa-box-open"></i>
-                                        <p>No hay paquetes registrados para mostrar</p>
-                                        <a href="registerPackage.html" class="btn">
-                                            <i class="fas fa-plus"></i>
-                                            <span>Registrar Nuevo Paquete</span>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        return;
-                    }
-                    
-                    // Construir filas de la tabla con los paquetes
-                    let tableContent = '';
-                    packages.forEach((pkg, index) => {
-                        // Asignar un ID basado en el código QR si no existe
-                        if (!pkg.id) {
-                            // Generar un código QR basado en información del paquete
-                            const qrCode = generateQRCode(pkg.apartment_number, pkg.delivery_date, index);
-                            pkg.id = qrCode;
-                        }
-                        
-                        // Formatear fecha para mostrar
-                        let formattedDate = 'Fecha no disponible';
-                        if (pkg.delivery_date) {
-                            const date = new Date(pkg.delivery_date);
-                            formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-                        }
-                        
-                        // Determinar clase CSS según el estado
-                        const status = pkg.status || 'pendiente';
-                        const statusClass = status === 'retirado' ? 'status-retirado' : 'status-pendiente';
-                        
-                        tableContent += `
-                            <tr>
-                                <td>${pkg.id}</td>
-                                <td>${pkg.apartment_number}</td>
-                                <td>${pkg.sender || 'No especificado'}</td>
-                                <td>${formattedDate}</td>
-                                <td>
-                                    <span class="status-badge ${statusClass}">
-                                        <i class="fas fa-${status === 'retirado' ? 'check-circle' : 'clock'}"></i>
-                                        ${status}
-                                    </span>
-                                </td>
-                                <td>
-                                    ${status === 'pendiente' ? 
-                                        `<button class="btn btn-success" onclick="openModal('${pkg.id}')">
-                                            <i class="fas fa-check"></i>
-                                            <span>Marcar como retirado</span>
-                                        </button>` : 
-                                        `<button class="btn" disabled>
-                                            <i class="fas fa-check"></i>
-                                            <span>Retirado</span>
-                                        </button>`
-                                    }
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    
-                    tableBody.innerHTML = tableContent;
-                    
-                    // Guardar los paquetes actualizados (con IDs)
-                    if (selectedDepartment === 'all') {
-                        savePackages(packages);
-                    } else {
-                        savePackagesToDepartment(selectedDepartment, packages);
-                    }
-                    
-                } catch (error) {
-                    console.error("Error al cargar paquetes:", error);
-                    showNotification("Error al cargar los paquetes. Por favor, intente de nuevo.", "error");
-                } finally {
-                    hideLoader();
-                }
-            } catch (error) {
-                console.error('Error loading packages:', error);
-                const errorMessage = document.getElementById('errorMessage');
-                if (errorMessage) {
-                    errorMessage.style.display = 'flex';
-                    errorMessage.querySelector('span').textContent = 'Error al cargar los paquetes: ' + error.message;
-                }
-                hideLoader();
             }
         }
         
-<<<<<<< HEAD
-        // Función para generar un código QR único basado en información del paquete
-        function generateQRCode(apartmentNumber, deliveryDate, index) {
-            // Obtener fecha en formato YYYYMMDD
-            const date = new Date(deliveryDate || new Date());
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-=======
         // Actualizar los contadores del dashboard
         function updateDashboardCounters() {
             const totalPackages = allPackages.length;
             const pendingPackages = allPackages.filter(pkg => pkg.status === 'pendiente').length;
             const deliveredPackages = allPackages.filter(pkg => pkg.status === 'retirado' || pkg.status === 'entregado').length;
->>>>>>> SCRUM-200
             
             document.getElementById('totalPackages').textContent = totalPackages;
             document.getElementById('pendingPackages').textContent = pendingPackages;
@@ -1483,7 +1326,3 @@
     </script>
 </body>
 </html>
-
-<div id="loadingSpinner" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000;">
-    <div class="loading-spinner"></div>
-</div>
