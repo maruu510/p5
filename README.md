@@ -8,3 +8,11 @@ git push origin feature/loading-component
 ```bash
 deno run --allow-env --allow-net main.ts
 ```
+
+
+subir a main
+git checkout main
+git checkout SCRUM-200 -- src/views/registerPackage.html
+git add src/views/registerPackage.html
+git commit -m "Reemplazar registerPackage.html con la versión de SCRUM-200"
+git push origin main
