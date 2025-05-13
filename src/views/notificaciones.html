@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notificaciones - Gestión de Paquetes</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Estilos básicos */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: #f5f7fb;
+      color: #212529;
+    }
+    
+    .container {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background-color: #fff;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .logo {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #27ae60;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    
+    .logo img {
+      height: 36px;
+      width: auto;
+    }
+    
+    .nav-menu {
+      list-style: none;
+      padding: 20px 0;
+    }
+    
+    .nav-item {
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #6c757d;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 5px;
+    }
+    
+    .nav-item:hover {
+      background-color: rgba(46, 204, 113, 0.1);
+      color: #27ae60;
+    }
+    
+    .nav-item.active {
+      background-color: rgba(46, 204, 113, 0.15);
+      color: #27ae60;
+      border-left: 3px solid #27ae60;
+    }
+    
+    .nav-item i {
+      width: 20px;
+      text-align: center;
+    }
+    
+    /* Contenido principal */
+    .main-content {
+      flex: 1;
+      padding: 20px;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      margin-bottom: 30px;
+    }
+    
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .avatar {
+      width: 40px;
+      height: 40px;
+      background-color: #27ae60;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    
+    .user-info .name {
+      font-weight: 600;
+    }
+    
+    .user-info .role {
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+    
+    /* Cards */
+    .card {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+    
+    .card-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid #e9ecef;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .card-body {
+      padding: 20px;
+    }
+    
+    /* Botones */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 15px;
+      border-radius: 5px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+    }
+    
+    .btn-primary {
+      background-color: #27ae60;
+      color: white;
+    }
+    
+    .btn-secondary {
+      background-color: #3498db;
+      color: white;
+    }
+    
+    .btn-light {
+      background-color: #e9ecef;
+      color: #6c757d;
+    }
+    
+    .btn-danger {
+      background-color: #e74c3c;
+      color: white;
+    }
+    
+    /* Formularios */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #2c3e50;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #e9ecef;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    
+    select.form-input {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      padding-right: 40px;
+    }
+    
+    textarea.form-input {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    /* Tablas */
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .table th, 
+    .table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .table th {
+      font-weight: 600;
+      background-color: #f8f9fa;
+    }
+    
+    /* Badges */
+    .badge {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .badge-success {
+      background-color: rgba(39, 174, 96, 0.2);
+      color: #27ae60;
+    }
+    
+    .badge-warning {
+      background-color: rgba(243, 156, 18, 0.2);
+      color: #f39c12;
+    }
+    
+    .badge-danger {
+      background-color: rgba(231, 76, 60, 0.2);
+      color: #e74c3c;
+    }
+    
+    /* Toast notifications */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .toast-success {
+      border-left: 4px solid #27ae60;
+    }
+    
+    .toast-error {
+      border-left: 4px solid #e74c3c;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+        height: auto;
+      }
+      
+      .nav-menu {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .nav-item {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar / Menú Lateral -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="logo">
+                <img src="./images/ENCOMIENDA.png" alt="Logo Encomiendas">
+                <span>Encomiendas</span>
+            </a>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item" onclick="window.location.href='dashboard.html'">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='registerPackage.html'">
+                <i class="fas fa-plus-square"></i>
+                <span>Registrar Paquete</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='listPackages.html'">
+                <i class="fas fa-list"></i>
+                <span>Lista de Paquetes</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='departaments.html'">
+                <i class="fas fa-building"></i>
+                <span>Departamentos</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='codigoqr.html'">
+                <i class="fas fa-qrcode"></i>
+                <span>Lector QR</span>
+            </li>
+            <li class="nav-item active" onclick="window.location.href='notificacion.html'">
+                <i class="fas fa-bell"></i>
+                <span>Notificaciones</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='configuracion.html'">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='login.html'" style="margin-top: 50px; color: #e74c3c;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <!-- Cabecera -->
+        <div class="header">
+            <h1 class="page-title">Notificaciones</h1>
+            <div class="user-profile" id="userProfileDropdown">
+                <div class="avatar" id="userAvatar">A</div>
+                <div class="user-info">
+                    <span class="name" id="userName">Administrador</span>
+                    <span class="role" id="userRole">Admin</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enviar Notificación -->
+        <div class="card">
+            <div class="card-header">
+                Enviar nueva notificación
+            </div>
+            <div class="card-body">
+                <form id="notificationForm">
+                    <div class="form-group">
+                        <label for="residentSelect">Seleccionar residente</label>
+                        <select id="residentSelect" class="form-input" required>
+                            <option value="" disabled selected>Elegir residente</option>
+                            <option value="1">Juan Pérez (Depto 101)</option>
+                            <option value="2">María González (Depto 202)</option>
+                            <option value="3">Carlos Rodríguez (Depto 301)</option>
+                            <option value="all">Todos los residentes</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="templateSelect">Plantilla de mensaje</label>
+                        <select id="templateSelect" class="form-input" onchange="loadTemplate()">
+                            <option value="" disabled selected>Seleccionar plantilla</option>
+                            <option value="package">Nuevo paquete</option>
+                            <option value="reminder">Recordatorio de paquete</option>
+                            <option value="welcome">Bienvenida</option>
+                            <option value="custom">Mensaje personalizado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notificationTitle">Título</label>
+                        <input type="text" id="notificationTitle" class="form-input" placeholder="Título de la notificación" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notificationMessage">Mensaje</label>
+                        <textarea id="notificationMessage" class="form-input" placeholder="Escribe tu mensaje aquí..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Método de envío</label>
+                        <div style="margin-top: 10px;">
+                            <label style="display: flex; align-items: center; margin-bottom: 10px; font-weight: normal;">
+                                <input type="checkbox" id="sendByEmail" checked> 
+                                <span style="margin-left: 8px;">Enviar por correo electrónico</span>
+                            </label>
+                            <label style="display: flex; align-items: center; font-weight: normal;">
+                                <input type="checkbox" id="sendBySMS"> 
+                                <span style="margin-left: 8px;">Enviar por SMS</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary" onclick="sendNotification()">
+                        <i class="fas fa-paper-plane"></i> Enviar notificación
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Historial de Notificaciones -->
+        <div class="card">
+            <div class="card-header">
+                Historial de notificaciones enviadas
+                <button class="btn btn-light" onclick="refreshNotificationList()">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </button>
+            </div>
+            <div class="card-body">
+                <table class="table" id="notificationsTable">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Destinatario</th>
+                            <th>Asunto</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>17/05/2025</td>
+                            <td>Juan Pérez (101)</td>
+                            <td>Nuevo paquete disponible</td>
+                            <td><span class="badge badge-success">Entregado</span></td>
+                            <td>
+                                <button class="btn btn-light" onclick="viewNotification(1)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-light" onclick="resendNotification(1)">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>16/05/2025</td>
+                            <td>María González (202)</td>
+                            <td>Recordatorio de paquete</td>
+                            <td><span class="badge badge-warning">Pendiente</span></td>
+                            <td>
+                                <button class="btn btn-light" onclick="viewNotification(2)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-light" onclick="resendNotification(2)">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>15/05/2025</td>
+                            <td>Todos</td>
+                            <td>Mantenimiento programado</td>
+                            <td><span class="badge badge-success">Entregado</span></td>
+                            <td>
+                                <button class="btn btn-light" onclick="viewNotification(3)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-light" onclick="resendNotification(3)">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Toast notifications -->
+  <div id="toastSuccess" class="toast toast-success">
+    <div style="font-size: 1.5rem; color: #27ae60;">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <div id="successMessage">Operación realizada con éxito</div>
+  </div>
+
+  <div id="toastError" class="toast toast-error">
+    <div style="font-size: 1.5rem; color: #e74c3c;">
+      <i class="fas fa-exclamation-circle"></i>
+    </div>
+    <div id="errorMessage">Ha ocurrido un error</div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // Función para cargar plantillas de mensajes
+    function loadTemplate() {
+      const template = document.getElementById('templateSelect').value;
+      const titleInput = document.getElementById('notificationTitle');
+      const messageInput = document.getElementById('notificationMessage');
+      
+      switch(template) {
+        case 'package':
+          titleInput.value = 'Nuevo paquete disponible para retirar';
+          messageInput.value = 'Estimado/a residente,\n\nLe informamos que ha llegado un paquete a su nombre. Puede pasar a recogerlo en la administración del edificio en horario de oficina.\n\nSaludos cordiales,\nAdministración del Edificio';
+          break;
+          
+        case 'reminder':
+          titleInput.value = 'Recordatorio: Paquete pendiente por retirar';
+          messageInput.value = 'Estimado/a residente,\n\nLe recordamos que tiene un paquete pendiente por retirar. Por favor, pase por la administración del edificio a la brevedad posible.\n\nSaludos cordiales,\nAdministración del Edificio';
+          break;
+          
+        case 'welcome':
+          titleInput.value = 'Bienvenido/a al Edificio';
+          messageInput.value = 'Estimado/a residente,\n\nLe damos la más cordial bienvenida al edificio. Estamos a su disposición para cualquier consulta o solicitud que pueda tener.\n\nSaludos cordiales,\nAdministración del Edificio';
+          break;
+          
+        case 'custom':
+          titleInput.value = '';
+          messageInput.value = '';
+          break;
+      }
+    }
+    
+    // Función para enviar notificación
+    function sendNotification() {
+      // Obtener valores del formulario
+      const resident = document.getElementById('residentSelect').value;
+      const title = document.getElementById('notificationTitle').value;
+      const message = document.getElementById('notificationMessage').value;
+      const sendEmail = document.getElementById('sendByEmail').checked;
+      const sendSMS = document.getElementById('sendBySMS').checked;
+      
+      // Validar campos
+      if (!resident || !title || !message) {
+        showToast('error', 'Por favor, complete todos los campos obligatorios');
+        return;
+      }
+      
+      if (!sendEmail && !sendSMS) {
+        showToast('error', 'Debe seleccionar al menos un método de envío');
+        return;
+      }
+      
+      // Simular envío exitoso
+      showToast('success', 'Notificación enviada correctamente');
+      
+      // Reiniciar formulario
+      document.getElementById('notificationForm').reset();
+      
+      // Actualizar tabla
+      refreshNotificationList();
+    }
+    
+    // Función para ver notificación
+    function viewNotification(id) {
+      // En una aplicación real, aquí se mostraría un modal con los detalles
+      alert(`Ver detalles de la notificación #${id}`);
+    }
+    
+    // Función para reenviar notificación
+    function resendNotification(id) {
+      showToast('success', `Notificación #${id} reenviada correctamente`);
+    }
+    
+    // Función para actualizar lista de notificaciones
+    function refreshNotificationList() {
+      // En una aplicación real, aquí se cargarían los datos desde el servidor
+      showToast('success', 'Lista de notificaciones actualizada');
+    }
+    
+    // Función para mostrar toast
+    function showToast(type, message) {
+      const toast = document.getElementById(type === 'success' ? 'toastSuccess' : 'toastError');
+      const messageElement = document.getElementById(type === 'success' ? 'successMessage' : 'errorMessage');
+      
+      messageElement.textContent = message;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+    
+    // Inicializar página
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Página de notificaciones cargada correctamente');
+    });
+  </script>
+</body>
+</html>  
