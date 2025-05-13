@@ -6,234 +6,259 @@
     <title>Lector de Códigos QR - Gestión de Paquetes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-        }
-
         :root {
-            --primary: #3498db;
-            --primary-dark: #2980b9;
-            --primary-light: #e3f2fd;
-            --secondary: #2ecc71;
-            --secondary-dark: #27ae60;
-            --accent: #6c5ce7;
-            --accent-dark: #5b4cc7;
-            --text: #2c3e50;
-            --background: #f9fafb;
-            --white: #ffffff;
-            --gray-50: #f8fafc;
+            --primary: #6c5ce7;
+            --primary-dark: #5b4cc7;
+            --primary-light: #e9e7fd;
+            --secondary: #2c3e50;
+            --accent: #e67e22;
+            --accent-dark: #d35400;
+            --accent-light: #f9e7dd;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --gray-50: #f8f9fa;
             --gray-100: #f1f5f9;
             --gray-200: #e2e8f0;
             --gray-300: #cbd5e1;
             --gray-700: #334155;
-            --red-50: #fef2f2;
-            --red-600: #dc2626;
-            --yellow-50: #fef9c3;
-            --yellow-700: #a16207;
-            --green-50: #f0fdf4;
-            --green-700: #15803d;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --danger: #c0392b;
+            --warning: #f39c12;
+            --info: #3498db;
+            --success: #27ae60;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.1);
             --radius-sm: 0.375rem;
             --radius: 0.5rem;
             --radius-md: 0.75rem;
             --radius-lg: 1rem;
         }
-
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         html, body {
             height: 100%;
             width: 100%;
             overflow-x: hidden;
         }
-
+        
         body {
-            background: var(--background);
-            color: var(--text);
+            background-color: #f5f7fb;
+            color: var(--dark);
+            display: flex;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1rem;
-            position: relative;
-            line-height: 1.5;
-            font-size: 16px;
         }
-
-        header {
-            width: 100%;
-            max-width: 1200px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            padding: 1rem;
-            background: var(--white);
-            border-radius: var(--radius-md);
+        
+        /* Sidebar styles */
+        .sidebar {
+            width: 250px;
+            background-color: #fff;
             box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            z-index: 1000;
         }
-
-        .logo-container {
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-light);
             display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        header img {
-            height: 2.5rem;
-            width: auto;
-        }
-
-        header h1 {
-            font-size: 1.5rem;
-            color: var(--text);
-            font-weight: 600;
-        }
-
-        .btn {
-            background-color: var(--primary);
-            color: var(--white);
-            padding: 0.625rem 1rem;
-            border-radius: var(--radius);
-            border: none;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            font-size: 0.875rem;
-            white-space: nowrap;
-        }
-
-        .btn:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .btn-success {
-            background-color: var(--secondary);
-        }
-
-        .btn-success:hover {
-            background-color: var(--secondary-dark);
-        }
-
-        .btn-accent {
-            background-color: var(--accent);
-        }
-
-        .btn-accent:hover {
-            background-color: var(--accent-dark);
-        }
-
-        .btn-gray {
-            background-color: var(--gray-700);
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-outline:hover {
-            background-color: var(--primary-light);
-        }
-
-        .logout-btn {
-            background-color: transparent;
-            color: var(--text);
-            border: 1px solid var(--gray-300);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .logout-btn:hover {
-            background-color: var(--gray-100);
-            color: var(--text);
-            border-color: var(--gray-300);
-        }
-
-        .container {
-            background-color: var(--white);
-            max-width: 1200px;
-            width: 100%;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow);
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .container-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            width: 100%;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .container-header h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .actions-container {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .qr-container {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 1.5rem;
         }
-
+        
+        .logo {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .logo img {
+            height: 36px;
+            width: auto;
+            object-fit: contain;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gray);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 5px;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(170, 110, 239, 0.1);
+            color: var(--primary);
+        }
+        
+        .nav-item.active {
+            background-color: rgba(109, 43, 239, 0.15);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main content styles */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #f5f7fb;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--gray-light);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .btn-accent {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .btn-accent:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .btn-gray {
+            background-color: var(--gray);
+            color: white;
+        }
+        
+        .btn-gray:hover {
+            background-color: var(--dark);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--gray-300);
+            color: var(--gray-700);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--gray-50);
+            border-color: var(--gray-700);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #145a32;
+        }
+        
+        /* QR Scanner specific styles */
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
         .scanner-container {
             width: 100%;
             max-width: 400px;
             aspect-ratio: 1/1;
             position: relative;
             overflow: hidden;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            border: 2px solid var(--accent);
+            border-radius: 10px;
+            box-shadow: var(--shadow-md);
+            border: 2px solid var(--primary);
+            margin: 0 auto;
         }
-
+        
         #qr-video {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-
+        
         .scanner-overlay {
             position: absolute;
             top: 0;
@@ -247,52 +272,52 @@
             background: rgba(0, 0, 0, 0.1);
             pointer-events: none;
         }
-
+        
         .scanner-corner {
             position: absolute;
-            width: 15px;
-            height: 15px;
-            border-color: var(--accent);
+            width: 20px;
+            height: 20px;
+            border-color: var(--primary);
             border-width: 3px;
         }
-
+        
         .corner-top-left {
             top: 15px;
             left: 15px;
             border-left-style: solid;
             border-top-style: solid;
         }
-
+        
         .corner-top-right {
             top: 15px;
             right: 15px;
             border-right-style: solid;
             border-top-style: solid;
         }
-
+        
         .corner-bottom-left {
             bottom: 15px;
             left: 15px;
             border-left-style: solid;
             border-bottom-style: solid;
         }
-
+        
         .corner-bottom-right {
             bottom: 15px;
             right: 15px;
             border-right-style: solid;
             border-bottom-style: solid;
         }
-
+        
         .scanner-line {
             position: absolute;
             height: 2px;
             width: 80%;
-            background: linear-gradient(90deg, transparent 0%, var(--accent) 50%, transparent 100%);
+            background: linear-gradient(90deg, transparent 0%, var(--primary) 50%, transparent 100%);
             top: 50%;
             animation: scan 2s linear infinite;
         }
-
+        
         @keyframes scan {
             0% {
                 transform: translateY(-80px);
@@ -304,200 +329,235 @@
                 transform: translateY(-80px);
             }
         }
-
+        
         .scanner-control {
-            margin-top: 1rem;
-            width: 100%;
-            max-width: 400px;
             display: flex;
             justify-content: center;
-            gap: 0.75rem;
+            gap: 10px;
+            margin-top: 20px;
             flex-wrap: wrap;
         }
-
+        
+        .info-box {
+            background-color: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        
+        .info-box p {
+            color: var(--dark);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .manual-entry {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        #manual-code {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        
+        #manual-code:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+        
         .result-container {
             background-color: var(--gray-50);
             border: 1px solid var(--gray-200);
-            border-radius: var(--radius);
-            padding: 1.25rem;
-            margin-top: 1rem;
+            border-radius: 10px;
+            padding: 20px;
             width: 100%;
-            max-width: 400px;
+            max-width: 600px;
+            margin: 20px auto;
             display: none;
         }
-
+        
         .result-container.active {
             display: block;
         }
-
+        
         .result-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-200);
         }
-
+        
         .result-header h3 {
-            font-size: 1.125rem;
+            font-size: 1.1rem;
             font-weight: 600;
-            color: var(--text);
+            color: var(--dark);
         }
-
+        
         .result-content {
-            font-size: 0.9375rem;
-            line-height: 1.5;
-            word-break: break-all;
+            font-size: 0.95rem;
+            line-height: 1.6;
         }
-
-        .help-text {
-            text-align: center;
-            margin-top: 1rem;
-            color: var(--gray-700);
-            font-size: 0.875rem;
-            padding: 0 1rem;
+        
+        .result-content p {
+            margin-bottom: 8px;
+            padding: 5px 0;
+            border-bottom: 1px solid var(--gray-100);
         }
-
+        
+        .result-content p:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .result-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--gray-200);
+        }
+        
         .notification {
             position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            padding: 1rem 1.5rem;
-            border-radius: var(--radius);
-            background-color: var(--green-50);
-            color: var(--green-700);
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            background-color: #e3f8e8;
+            color: var(--success);
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 10px;
             box-shadow: var(--shadow);
             opacity: 0;
-            transform: translateY(1rem);
+            transform: translateY(10px);
             transition: all 0.3s ease;
-            z-index: 100;
+            z-index: 1000;
             max-width: 90%;
         }
-
+        
         .notification.show {
             opacity: 1;
             transform: translateY(0);
         }
-
-        .error-notification {
-            background-color: var(--red-50);
-            color: var(--red-600);
+        
+        .notification.error {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
         }
-
-        .info-box {
-            background-color: var(--primary-light);
-            border-left: 4px solid var(--primary);
-            padding: 1.25rem;
-            border-radius: var(--radius-sm);
-            margin-bottom: 1.5rem;
-            width: 100%;
-            max-width: 400px;
+        
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .qr-container {
+                max-width: 100%;
+            }
         }
-
-        .info-box h3 {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-            color: var(--primary-dark);
-        }
-
-        .info-box p {
-            font-size: 0.9375rem;
-            color: var(--text);
-        }
-
-        .manual-entry {
-            width: 100%;
-            max-width: 400px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        #manual-code {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--gray-300);
-            border-radius: var(--radius);
-            margin-bottom: 1rem;
-            font-size: 1rem;
-        }
-
-        #manual-code:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 640px) {
-            body {
-                padding: 0.75rem;
-                font-size: 14px;
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
             }
-
-            .container, header {
-                padding: 1rem;
-                border-radius: var(--radius);
+            
+            .sidebar .logo span, 
+            .sidebar .nav-item span {
+                display: none;
             }
-
-            header {
-                margin-bottom: 1rem;
+            
+            .sidebar .nav-item {
+                justify-content: center;
+                padding: 15px 0;
             }
-
-            header img {
-                height: 2rem;
+            
+            .sidebar .nav-item i {
+                margin-right: 0;
             }
-
-            header h1 {
-                font-size: 1.25rem;
+            
+            .sidebar .sidebar-header {
+                padding: 15px 0;
             }
-
-            .container-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .container-header h2 {
-                font-size: 1.125rem;
-            }
-
-            .actions-container {
-                width: 100%;
+            
+            .sidebar .logo {
                 justify-content: center;
             }
-
-            .btn {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.8125rem;
+            
+            .sidebar .logo img {
+                height: 34px;
             }
-
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
             .scanner-container {
                 max-width: 100%;
+            }
+            
+            .scanner-control {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .result-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .result-actions .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 10px;
+            }
+            
+            .card {
+                border-radius: 8px;
+            }
+            
+            .card-header, .card-body {
+                padding: 15px;
+            }
+            
+            .scanner-container {
                 aspect-ratio: 1/1;
             }
-
-            .scanner-control {
-                max-width: 100%;
+            
+            .scanner-corner {
+                width: 15px;
+                height: 15px;
             }
-
-            .result-container, .info-box, .manual-entry {
-                max-width: 100%;
-            }
-
-            .notification {
-                max-width: calc(100% - 2rem);
-                left: 1rem;
-                right: 1rem;
-                bottom: 1rem;
-                font-size: 0.875rem;
-            }
-
+            
             @keyframes scan {
                 0% {
                     transform: translateY(-60px);
@@ -510,166 +570,165 @@
                 }
             }
         }
-
-        /* Adjustments for very small screens */
-        @media (max-width: 375px) {
-            .logo-container {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
-
-            .scanner-corner {
-                width: 12px;
-                height: 12px;
-                border-width: 2px;
-            }
-
-            .corner-top-left {
-                top: 10px;
-                left: 10px;
-            }
-
-            .corner-top-right {
-                top: 10px;
-                right: 10px;
-            }
-
-            .corner-bottom-left {
-                bottom: 10px;
-                left: 10px;
-            }
-
-            .corner-bottom-right {
-                bottom: 10px;
-                right: 10px;
-            }
-        }
     </style>
 </head>
-
 <body>
-    <header>
-        <div class="logo-container">
-            <img src="./images/ENCOMIENDA.png" alt="Logo de Gestión de Paquetes">
-            <h1>Lector de Códigos QR</h1>
+    <!-- Sidebar / Menú Lateral -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="logo">
+                <img src="./images/ENCOMIENDA.png" alt="Logo Encomiendas">
+                <span>Encomiendas</span>
+            </a>
         </div>
-        <button class="btn logout-btn" onclick="logout()" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Cerrar Sesión</span>
-        </button>
-    </header>
-
-    <div class="container">
-        <div class="container-header">
-            <h2>Escanear Código QR</h2>
-            <div class="actions-container">
-                <a href="listPackages.html" class="btn btn-outline" onclick="window.location.href='listPackages.html'; return false;">
-                    <i class="fas fa-arrow-left"></i>
-                    <span>Volver a Paquetes</span>
-                </a>
-                <a href="registerPackage.html" class="btn">
-                    <i class="fas fa-plus"></i>
-                    <span>Registrar Nuevo Paquete</span>
-                </a>
-            </div>
-        </div>
-
-        <div class="info-box" style="max-width: 100%;">
-            <h3><i class="fas fa-info-circle"></i> Instrucciones</h3>
-            <p>Apunte la cámara hacia un código QR para escanear y procesar la información del paquete. Asegúrese de que el código QR esté bien iluminado y centrado en el recuadro. Si no puede acceder a la cámara, use la opción para ingresar el código manualmente.</p>
+        <ul class="nav-menu">
+            <li class="nav-item" onclick="window.location.href='dashboard.html'">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='registerPackage.html'">
+                <i class="fas fa-plus-square"></i>
+                <span>Registrar Paquete</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='listPackages.html'">
+                <i class="fas fa-list"></i>
+                <span>Lista de Paquetes</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='departaments.html'">
+                <i class="fas fa-building"></i>
+                <span>Departamentos</span>
+            </li>
+            <li class="nav-item active" onclick="window.location.href='codigoqr.html'">
+                <i class="fas fa-qrcode"></i>
+                <span>Lector QR</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='configuracion.html'">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </li>
+            <li class="nav-item" onclick="logout()" style="margin-top: 50px; color: #e74c3c;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <div class="header">
+            <h1 class="page-title">Lector de Códigos QR</h1>
         </div>
         
-        <!-- Opción de entrada manual -->
-        <div class="manual-entry">
-            <button id="toggle-manual" class="btn btn-outline">
-                <i class="fas fa-keyboard"></i>
-                <span>Ingresar código manualmente</span>
-            </button>
-            
-            <div id="manual-form" style="display: none; margin-top: 1rem; width: 100%; max-width: 500px;">
-                <div style="background-color: var(--gray-50); border-radius: var(--radius); padding: 1.5rem; border: 1px solid var(--gray-200);">
-                    <h3 style="margin-bottom: 1rem; font-size: 1.125rem;">Ingreso manual de código</h3>
-                    <input type="text" id="manual-code" placeholder="Ingrese el código del paquete" 
-                           style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: var(--radius); margin-bottom: 1rem;">
-                    <div style="display: flex; gap: 1rem;">
-                        <button id="process-manual" class="btn btn-accent" style="flex: 1;">
-                            <i class="fas fa-check"></i>
-                            <span>Procesar</span>
+        <div class="card">
+            <div class="card-header">
+                Escanear Código QR de Paquete
+            </div>
+            <div class="card-body">
+                <div class="info-box">
+                    <h3><i class="fas fa-info-circle"></i> Instrucciones</h3>
+                    <p>Apunte la cámara hacia un código QR para escanear y procesar la información del paquete. Asegúrese de que el código QR esté bien iluminado y centrado en el recuadro. Si no puede acceder a la cámara, use la opción para ingresar el código manualmente.</p>
+                </div>
+                
+                <!-- Opción de entrada manual -->
+                <div class="manual-entry">
+                    <button id="toggle-manual" class="btn btn-outline" style="margin-bottom: 15px;">
+                        <i class="fas fa-keyboard"></i>
+                        <span>Ingresar código manualmente</span>
+                    </button>
+                    
+                    <div id="manual-form" style="display: none; margin-bottom: 20px;">
+                        <div class="card" style="margin-bottom: 0;">
+                            <div class="card-header">Ingreso Manual de Código</div>
+                            <div class="card-body">
+                                <input type="text" id="manual-code" placeholder="Ingrese el código del paquete">
+                                <div style="display: flex; gap: 10px;">
+                                    <button id="process-manual" class="btn btn-primary">
+                                        <i class="fas fa-check"></i>
+                                        <span>Procesar</span>
+                                    </button>
+                                    <button id="cancel-manual" class="btn btn-outline">
+                                        <i class="fas fa-times"></i>
+                                        <span>Cancelar</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="qr-container">
+                    <div class="scanner-container">
+                        <video id="qr-video" playsinline></video>
+                        <div class="scanner-overlay">
+                            <div class="scanner-line"></div>
+                            <div class="scanner-corner corner-top-left"></div>
+                            <div class="scanner-corner corner-top-right"></div>
+                            <div class="scanner-corner corner-bottom-left"></div>
+                            <div class="scanner-corner corner-bottom-right"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="scanner-control">
+                        <button id="start-button" class="btn btn-primary">
+                            <i class="fas fa-play"></i>
+                            <span>Iniciar Escáner</span>
                         </button>
-                        <button id="cancel-manual" class="btn btn-outline" style="flex: 1;">
+                        <button id="stop-button" class="btn btn-outline" style="display: none;">
+                            <i class="fas fa-stop"></i>
+                            <span>Detener</span>
+                        </button>
+                        <button id="switch-camera" class="btn btn-outline">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Cambiar Cámara</span>
+                        </button>
+                    </div>
+                    
+                    <p style="text-align: center; margin-top: 10px; color: var(--gray); font-size: 0.9rem;">
+                        Si tiene problemas, asegúrese de permitir el acceso a la cámara y que el código QR esté bien iluminado.
+                    </p>
+                </div>
+                
+                <!-- Contenedor de resultados -->
+                <div id="result-container" class="result-container">
+                    <div class="result-header">
+                        <h3><i class="fas fa-check-circle"></i> Resultado del Escaneo</h3>
+                        <button id="close-result" class="btn btn-outline" style="padding: 5px 10px;">
                             <i class="fas fa-times"></i>
-                            <span>Cancelar</span>
+                        </button>
+                    </div>
+                    <div id="result-content" class="result-content">
+                        <!-- El resultado del escaneo se mostrará aquí -->
+                    </div>
+                    <div class="result-actions">
+                        <button id="process-btn" class="btn btn-success">
+                            <i class="fas fa-check"></i>
+                            <span>Procesar Paquete</span>
+                        </button>
+                        <button id="scan-again" class="btn btn-outline">
+                            <i class="fas fa-redo"></i>
+                            <span>Escanear Otro</span>
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="qr-container">
-            <div class="scanner-container">
-                <video id="qr-video" playsinline></video>
-                <div class="scanner-overlay">
-                    <div class="scanner-line"></div>
-                    <div class="scanner-corner corner-top-left"></div>
-                    <div class="scanner-corner corner-top-right"></div>
-                    <div class="scanner-corner corner-bottom-left"></div>
-                    <div class="scanner-corner corner-bottom-right"></div>
-                </div>
-            </div>
-
-            <div class="scanner-control">
-                <button id="start-button" class="btn btn-accent">
-                    <i class="fas fa-play"></i>
-                    <span>Iniciar Escáner</span>
-                </button>
-                <button id="stop-button" class="btn btn-outline" style="display: none;">
-                    <i class="fas fa-stop"></i>
-                    <span>Detener</span>
-                </button>
-                <button id="switch-camera" class="btn btn-outline">
-                    <i class="fas fa-sync-alt"></i>
-                    <span>Cambiar Cámara</span>
-                </button>
-            </div>
-
-            <p class="help-text">Si tiene problemas, asegúrese de permitir el acceso a la cámara y que el código QR esté bien iluminado.</p>
-
-            <div id="result-container" class="result-container">
-                <div class="result-header">
-                    <h3>Resultado del Escaneo</h3>
-                    <button id="close-result" class="btn btn-outline" style="padding: 0.25rem 0.5rem;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div id="result-content" class="result-content">
-                    <!-- El resultado del escaneo se mostrará aquí -->
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
-                    <button id="process-btn" class="btn btn-success">
-                        <i class="fas fa-check"></i>
-                        <span>Procesar Paquete</span>
-                    </button>
-                    <button id="scan-again" class="btn btn-outline">
-                        <i class="fas fa-redo"></i>
-                        <span>Escanear Otro</span>
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
-
+    
+    <!-- Notificación -->
     <div id="notification" class="notification">
         <i class="fas fa-check-circle"></i>
         <span id="notification-message">Paquete procesado correctamente</span>
     </div>
-
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Comprobar si hay token de autenticación
-            const token = localStorage.getItem('authToken');
-            if (!token) {
+            // Verificar autenticación
+            const authToken = localStorage.getItem('authToken');
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const userType = localStorage.getItem('userType');
+            
+            if (!authToken || !isLoggedIn) {
                 window.location.href = 'login.html';
                 return;
             }
@@ -707,7 +766,7 @@
             // Función para mostrar notificaciones
             function showNotification(message, isError = false) {
                 notificationMessage.textContent = message;
-                notification.classList.toggle('error-notification', isError);
+                notification.classList.toggle('error', isError);
                 notification.classList.add('show');
                 
                 setTimeout(() => {
@@ -719,7 +778,7 @@
             async function requestCameraPermission() {
                 try {
                     // Mostrar un mensaje explicando por qué necesitamos acceso a la cámara
-                    showNotification('Se solicitará acceso a la cámara para escanear códigos QR', false);
+                    showNotification('Se solicitará acceso a la cámara para escanear códigos QR');
                     
                     // Intentar obtener acceso a la cámara con configuración básica
                     await navigator.mediaDevices.getUserMedia({ video: true });
@@ -778,23 +837,18 @@
                     video.srcObject = stream;
                     video.setAttribute('playsinline', true); // Importante para iOS
                     
-                    // Reproducir el video en pantalla completa en dispositivos móviles cuando sea posible
-                    if (video.webkitEnterFullscreen) {
-                        video.webkitEnterFullscreen();
-                    }
-                    
-                    video.play();
+                    await video.play();
                     scanning = true;
                     requestAnimationFrame(tick);
                     
                     startButton.style.display = 'none';
-                    stopButton.style.display = 'flex';
+                    stopButton.style.display = 'inline-flex';
                     
                     // Habilitar el botón de cambio de cámara solo si hay más de una cámara
                     switchCameraButton.disabled = cameraList.length <= 1;
                     
                     // Mostrar mensaje de éxito
-                    showNotification('Cámara activada. Apunte al código QR', false);
+                    showNotification('Cámara activada. Apunte al código QR');
                     
                 } catch (error) {
                     console.error('Error al acceder a la cámara:', error);
@@ -814,7 +868,7 @@
                     video.srcObject = null;
                 }
                 
-                startButton.style.display = 'flex';
+                startButton.style.display = 'inline-flex';
                 stopButton.style.display = 'none';
             }
 
@@ -878,7 +932,23 @@
                         `;
                     } catch (e) {
                         // No es un JSON válido, mostrar como texto plano
-                        resultContent.innerHTML = `<p><strong>Contenido:</strong> ${data}</p>`;
+                        // Intentar detectar si es un código de paquete basado en el formato
+                        if (data.startsWith('PKG-')) {
+                            // Parece ser un código de paquete
+                            const parts = data.split('-');
+                            if (parts.length >= 3) {
+                                resultContent.innerHTML = `
+                                    <p><strong>Código de Paquete:</strong> ${data}</p>
+                                    <p><strong>Departamento:</strong> ${parts[1] || 'No disponible'}</p>
+                                    <p><strong>Fecha (código):</strong> ${parts[2] || 'No disponible'}</p>
+                                `;
+                            } else {
+                                resultContent.innerHTML = `<p><strong>Código de Paquete:</strong> ${data}</p>`;
+                            }
+                        } else {
+                            // Mostrar como texto plano genérico
+                            resultContent.innerHTML = `<p><strong>Contenido:</strong> ${data}</p>`;
+                        }
                     }
                     
                     // Mostrar el contenedor de resultados
@@ -890,22 +960,34 @@
                 }
             }
 
-            // Función para cerrar el sesión
+            // Función para cerrar sesión
             function logout() {
                 localStorage.removeItem('authToken');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userType');
+                localStorage.removeItem('isLoggedIn');
                 window.location.href = 'login.html';
             }
             
+            // Hacer la función de logout global para que funcione con el botón del sidebar
+            window.logout = logout;
+            
             // Manejador del botón de procesar paquete
             processButton.addEventListener('click', function() {
+                // Obtener el contenido del QR
+                const qrContent = resultContent.innerText;
+                
                 // Aquí iría la lógica para procesar el paquete en la base de datos
-                // Por ahora, solo simularemos una actualización exitosa
+                // Por ejemplo, actualizar el estado a 'entregado' o similar
+                
+                // Simular un procesamiento exitoso
                 showNotification('Paquete procesado correctamente');
                 
                 setTimeout(() => {
                     resultContainer.classList.remove('active');
+                    // Opcional: iniciar el escáner nuevamente para escanear otro código
                     startCamera();
-                }, 1000);
+                }, 1500);
             });
 
             // Función para mostrar/ocultar el formulario manual de ingreso
@@ -969,12 +1051,12 @@
                 }
             });
 
-            // Cerrar sesión
-            document.getElementById('logoutBtn').addEventListener('click', logout);
-            
-            // Verificar permiso de cámara al cargar la página
-            // En dispositivos móviles, esperamos a que el usuario haga clic en iniciar
-            // para solicitar el permiso, para evitar popup no solicitados
+            // Iniciar automáticamente si estamos en un dispositivo con mejor soporte de cámara
+            // En dispositivos móviles, es mejor esperar a que el usuario pulse el botón
+            if (!navigator.userAgent.match(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i)) {
+                // Es un dispositivo de escritorio, intentamos iniciar automáticamente
+                startCamera();
+            }
         });
     </script>
 </body>

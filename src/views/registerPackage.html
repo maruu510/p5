@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
+<<<<<<< HEAD
       --primary: #3498db;
       --primary-dark: #2980b9;
       --primary-light: #e3f2fd;
@@ -40,10 +41,25 @@
       --radius: 0.5rem;
       --radius-md: 0.75rem;
       --radius-lg: 1rem;
+=======
+        --primary: #27ae60;
+        --primary-dark: #145a32;
+        --primary-light: #2ecc71;
+        --secondary: #2c3e50;
+        --accent: #3498db;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --gray: #6c757d;
+        --gray-light: #e9ecef;
+        --danger: #e74c3c;
+        --warning: #f39c12;
+        --info: #145a32;
+        --success: #27ae60;
+>>>>>>> SCRUM-200
     }
-
-    /* Reset básico */
+    
     * {
+<<<<<<< HEAD
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -56,9 +72,16 @@
       height: 100%;
       width: 100%;
       overflow-x: hidden;
+=======
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+>>>>>>> SCRUM-200
     }
-
+    
     body {
+<<<<<<< HEAD
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
       background-attachment: fixed;
       min-height: 100vh;
@@ -270,9 +293,236 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
+=======
+        background-color: #f5f7fb;
+        color: var(--dark);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
-
+    
+    .container {
+        display: flex;
+        min-height: 100vh;
+        width: 100%;
+    }
+    
+    .sidebar {
+        width: 250px;
+        background-color: #fff;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        z-index: 1000;
+    }
+    
+    .sidebar-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--gray-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+>>>>>>> SCRUM-200
+    }
+    
+    .logo {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    
+    .logo img {
+        height: 36px;
+        width: auto;
+        object-fit: contain;
+    }
+    
+    .nav-menu {
+        list-style: none;
+        padding: 20px 0;
+    }
+    
+    .nav-item {
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--gray);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 5px;
+    }
+    
+    .nav-item:hover {
+        background-color: rgba(46, 204, 113, 0.1);
+        color: var(--primary);
+    }
+    
+    .nav-item.active {
+        background-color: rgba(46, 204, 113, 0.15);
+        color: var(--primary);
+        border-left: 3px solid var(--primary);
+    }
+    
+    .nav-item i {
+        width: 20px;
+        text-align: center;
+    }
+    
+    .main-content {
+        flex: 1;
+        padding: 20px;
+        background-color: #f5f7fb;
+        transition: all 0.3s ease;
+    }
+    
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        margin-bottom: 30px;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+    
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+        cursor: pointer;
+    }
+    
+    .notification {
+        position: relative;
+        margin-right: 20px;
+        cursor: pointer;
+    }
+    
+    .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: var(--danger);
+        color: white;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: bold;
+    }
+    
+    .avatar {
+        width: 40px;
+        height: 40px;
+        background-color: var(--primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+    
+    .user-info span {
+        display: block;
+    }
+    
+    .user-info .name {
+        font-weight: 600;
+    }
+    
+    .user-info .role {
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+    
+    .card {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--gray-light);
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        text-decoration: none;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+    }
+    
+    .btn-secondary {
+        background-color: var(--info);
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #145a32;
+    }
+    
+    .btn-light {
+        background-color: var(--gray-light);
+        color: var(--gray);
+    }
+    
+    .btn-light:hover {
+        background-color: #dee2e6;
+    }
+    
+    .btn-danger {
+        background-color: var(--danger);
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background-color: #c0392b;
+    }
+    
     .form-group {
+<<<<<<< HEAD
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
@@ -280,9 +530,13 @@
 
     .form-group.span-2 {
       grid-column: span 2;
+=======
+        margin-bottom: 20px;
+>>>>>>> SCRUM-200
     }
-
+    
     .form-group label {
+<<<<<<< HEAD
       font-weight: 500;
       color: var(--text);
       font-size: 0.9375rem;
@@ -293,9 +547,16 @@
 
     .form-group label i {
       color: var(--primary);
+=======
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--secondary);
+>>>>>>> SCRUM-200
     }
-
+    
     .form-input {
+<<<<<<< HEAD
       padding: 0.875rem 1rem;
       border-radius: var(--radius);
       border: 1px solid var(--gray-300);
@@ -303,15 +564,38 @@
       transition: all 0.2s ease;
       width: 100%;
       background-color: var(--white);
+=======
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid var(--gray-light);
+        border-radius: 5px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+>>>>>>> SCRUM-200
     }
-
+    
     .form-input:focus {
+<<<<<<< HEAD
       border-color: var(--primary);
       outline: none;
       box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+=======
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
+>>>>>>> SCRUM-200
     }
-
+    
+    select.form-input {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        padding-right: 40px;
+    }
+    
     .form-input::placeholder {
+<<<<<<< HEAD
       color: var(--gray-400);
     }
 
@@ -321,14 +605,23 @@
       background-repeat: no-repeat;
       background-position: right 1rem center;
       padding-right: 2.5rem;
+=======
+        color: #adb5bd;
+>>>>>>> SCRUM-200
     }
-
+    
     textarea.form-input {
+<<<<<<< HEAD
       min-height: 100px;
       resize: vertical;
+=======
+        min-height: 100px;
+        resize: vertical;
+>>>>>>> SCRUM-200
     }
-
+    
     .form-error {
+<<<<<<< HEAD
       color: var(--danger);
       font-size: 0.8125rem;
       margin-top: 0.25rem;
@@ -336,14 +629,25 @@
       display: flex;
       align-items: center;
       gap: 0.25rem;
+=======
+        display: none;
+        color: var(--danger);
+        font-size: 0.85rem;
+        margin-top: 5px;
+>>>>>>> SCRUM-200
     }
-
+    
     .invalid .form-input {
+<<<<<<< HEAD
       border-color: var(--danger);
       background-color: var(--danger-light);
+=======
+        border-color: var(--danger);
+>>>>>>> SCRUM-200
     }
-
+    
     .invalid .form-error {
+<<<<<<< HEAD
       display: flex;
     }
 
@@ -383,27 +687,55 @@
 
     .qr-header i {
       font-size: 1.5rem;
+=======
+        display: block;
     }
-
+    
+    .qr-container {
+        background-color: var(--light);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid var(--gray-light);
+>>>>>>> SCRUM-200
+    }
+    
     #qrCode {
+<<<<<<< HEAD
       background-color: white;
       padding: 1rem;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       display: none;
       z-index: 1;
+=======
+        background-color: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin: 15px auto;
+        display: none;
+        max-width: 200px;
+>>>>>>> SCRUM-200
     }
-
+    
     .qr-buttons {
+<<<<<<< HEAD
       display: flex;
       gap: 1rem;
       width: 100%;
       max-width: 400px;
       display: none;
       z-index: 1;
+=======
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+>>>>>>> SCRUM-200
     }
-
+    
     .qr-info {
+<<<<<<< HEAD
       background-color: white;
       border-left: 4px solid var(--accent);
       padding: 1rem 1.25rem;
@@ -482,31 +814,80 @@
       transition: all 0.3s ease;
       z-index: 1000;
       max-width: 350px;
+=======
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: rgba(52, 152, 219, 0.1);
+        color: var(--gray);
+        font-size: 0.9rem;
     }
-
+    
+    .qr-info i {
+        color: var(--info);
+    }
+    
+    .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: white;
+        border-radius: 5px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 1000;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.3s ease;
+>>>>>>> SCRUM-200
+    }
+    
     .toast.show {
-      opacity: 1;
-      transform: translateY(0);
+        transform: translateY(0);
+        opacity: 1;
     }
-
+    
     .toast-success {
+<<<<<<< HEAD
       border-left: 4px solid var(--secondary);
+=======
+        border-left: 4px solid var(--success);
+>>>>>>> SCRUM-200
     }
-
+    
     .toast-error {
+<<<<<<< HEAD
       border-left: 4px solid var(--danger);
+=======
+        border-left: 4px solid var(--danger);
+>>>>>>> SCRUM-200
     }
-
+    
     .toast-icon {
+<<<<<<< HEAD
       font-size: 1.5rem;
       flex-shrink: 0;
+=======
+        font-size: 1.5rem;
+>>>>>>> SCRUM-200
     }
-
+    
     .toast-success .toast-icon {
+<<<<<<< HEAD
       color: var(--secondary);
+=======
+        color: var(--success);
+>>>>>>> SCRUM-200
     }
-
+    
     .toast-error .toast-icon {
+<<<<<<< HEAD
       color: var(--danger);
     }
 
@@ -532,21 +913,41 @@
       opacity: 0;
       visibility: hidden;
       transition: all 0.3s ease;
+=======
+        color: var(--danger);
     }
-
+    
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+>>>>>>> SCRUM-200
+    }
+    
     .loading-overlay.active {
-      opacity: 1;
-      visibility: visible;
+        opacity: 1;
+        visibility: visible;
     }
-
+    
     .spinner {
-      width: 50px;
-      height: 50px;
-      border: 5px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top-color: white;
-      animation: spin 1s linear infinite;
+        border: 5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 5px solid white;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
     }
+<<<<<<< HEAD
 
     .loading-text {
       color: white;
@@ -554,9 +955,14 @@
       font-weight: 500;
     }
 
+=======
+    
+>>>>>>> SCRUM-200
     @keyframes spin {
-      to { transform: rotate(360deg); }
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
+<<<<<<< HEAD
 
     /* Responsive */
     @media (max-width: 768px) {
@@ -609,10 +1015,126 @@
         align-items: center;
         gap: 1rem;
       }
+=======
+    
+    .link-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+    
+    .link {
+        color: var(--info);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .link:hover {
+        color: #2980b9;
+        text-decoration: underline;
+    }
+    
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        width: 200px;
+        padding: 10px 0;
+        margin-top: 10px;
+        display: none;
+        z-index: 100;
+    }
+    
+    .dropdown-menu.show {
+        display: block;
+    }
+    
+    .dropdown-item {
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        color: var(--dark);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .dropdown-item:hover {
+        background-color: var(--light);
+    }
+    
+    .dropdown-item.logout {
+        color: var(--danger);
+        border-top: 1px solid var(--gray-light);
+        margin-top: 5px;
+        padding-top: 10px;
+    }
+    
+    @media (max-width: 992px) {
+        .main-content {
+            padding: 15px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 70px;
+        }
+        
+        .sidebar .logo span, 
+        .sidebar .nav-item span {
+            display: none;
+        }
+        
+        .sidebar .nav-item {
+            justify-content: center;
+            padding: 15px 0;
+        }
+        
+        .sidebar .nav-item i {
+            margin-right: 0;
+        }
+        
+        .sidebar .sidebar-header {
+            padding: 15px 0;
+        }
+        
+        .sidebar .logo {
+            justify-content: center;
+        }
+        
+        .header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .user-profile {
+            align-self: flex-end;
+            margin-top: 15px;
+        }
+        
+        .qr-buttons {
+            flex-direction: column;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .main-content {
+            padding: 10px;
+        }
+>>>>>>> SCRUM-200
     }
   </style>
 </head>
 <body>
+<<<<<<< HEAD
   <header>
     <div class="header-left">
       <img src="./images/ENCOMIENDA.png" alt="Logo Encomiendas" />
@@ -760,8 +1282,158 @@
         <i class="fas fa-building"></i>
         <span>Administrar departamentos</span>
       </a>
+=======
+  <div class="container">
+    <!-- Sidebar / Menú Lateral -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="logo">
+                <img src="./images/ENCOMIENDA.png" alt="Logo Encomiendas">
+                <span>Encomiendas</span>
+            </a>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item" onclick="navigateTo('dashboard.html')">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </li>
+            <li class="nav-item active">
+                <i class="fas fa-plus-square"></i>
+                <span>Registrar Paquete</span>
+            </li>
+            <li class="nav-item" onclick="navigateTo('listPackages.html')">
+                <i class="fas fa-list"></i>
+                <span>Lista de Paquetes</span>
+            </li>
+            <li class="nav-item" onclick="navigateTo('departaments.html')">
+                <i class="fas fa-building"></i>
+                <span>Departamentos</span>
+            </li>
+            <li class="nav-item" onclick="navigateTo('codigoqr.html')">
+                <i class="fas fa-qrcode"></i>
+                <span>Lector QR</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='configuracion.html'">
+              <i class="fas fa-cog"></i>
+              <span>Configuración</span>
+          </li>
+            <li class="nav-item" onclick="navigateTo('login.html')" style="margin-top: 50px; color: #e74c3c;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </li>
+        </ul>
+>>>>>>> SCRUM-200
     </div>
-  </div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <!-- Cabecera -->
+        <div class="header">
+            <h1 class="page-title">Registrar Paquete</h1>
+            <div class="user-profile" id="userProfileDropdown">
+                <div class="notification">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationCount">3</span>
+                </div>
+                <div class="avatar" id="userAvatar">A</div>
+                <div class="user-info">
+                    <span class="name" id="userName">Administrador</span>
+                    <span class="role" id="userRole">Admin</span>
+                </div>
+                <i class="fas fa-chevron-down"></i>
+                
+                <!-- Menú desplegable de usuario -->
+                <div class="dropdown-menu" id="userDropdown">
+                    <div class="dropdown-item">
+                        <i class="fas fa-user"></i>
+                        <span>Mi Perfil</span>
+                    </div>
+                    <div class="dropdown-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Configuración</span>
+                    </div>
+                    <div class="dropdown-item logout" onclick="navigateTo('login.html')">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario de Registro de Paquete -->
+        <div class="card">
+            <div class="card-header">
+                Formulario de Registro de Paquete
+            </div>
+            <div class="card-body">
+                <form id="packageForm" novalidate>
+                    <div class="form-group">
+                        <label for="apartment_number"><i class="fas fa-building"></i> Departamento</label>
+                        <select id="apartment_number" class="form-input" required>
+                            <option value="" disabled selected>Seleccione un departamento</option>
+                            
+                        </select>
+                        <div class="form-error">Por favor seleccione un departamento</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sender"><i class="fas fa-user"></i> Remitente</label>
+                        <input type="text" id="sender" class="form-input" placeholder="Nombre de quien envía" required>
+                        <span class="form-error">Ingresa el nombre del remitente</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="delivery_date"><i class="fas fa-calendar-alt"></i> Fecha de entrega</label>
+                        <input type="date" id="delivery_date" class="form-input" required>
+                        <span class="form-error">Selecciona una fecha válida</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status"><i class="fas fa-tag"></i> Estado</label>
+                        <select id="status" class="form-input" required>
+                            <option value="">-- Selecciona Estado --</option>
+                            <option value="pendiente">Pendiente</option>
+                            <option value="entregado">Entregado</option>
+                            <option value="retirado">Retirado</option>
+                        </select>
+                        <span class="form-error">Selecciona un estado</span>
+                    </div>
+
+                    <div class="qr-container">
+                        <button type="button" id="generateQrBtn" class="btn btn-secondary">
+                            <i class="fas fa-qrcode"></i> Generar Código QR
+                        </button>
+                        <div id="qrCode"></div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <input type="text" id="qr_code" class="form-input" placeholder="Código QR (generado automáticamente)" readonly>
+                        </div>
+                        <div class="qr-buttons" id="qrButtons" style="display: none;">
+                            <button type="button" class="btn btn-primary" id="printQrBtn">
+                                <i class="fas fa-print"></i> Imprimir QR
+                            </button>
+                            <button type="button" class="btn btn-light" id="downloadQrBtn">
+                                <i class="fas fa-download"></i> Descargar QR
+                            </button>
+                        </div>
+                        <div class="qr-info">
+                            <i class="fas fa-info-circle"></i> 
+                            <span>El código QR contiene la información del paquete y facilita su seguimiento</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes"><i class="fas fa-sticky-note"></i> Notas (opcional)</label>
+                        <textarea id="notes" class="form-input" rows="3" placeholder="Agrega observaciones o detalles adicionales"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Registrar Paquete
+                    </button>
+                </form>
+            </div>
+        </div>
+
+      
 
   <!-- Toast notifications -->
   <div id="toastSuccess" class="toast toast-success">
@@ -786,6 +1458,7 @@
 
   <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<<<<<<< HEAD
       <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script>
       // Inicializar EmailJS
@@ -793,11 +1466,34 @@
         emailjs.init("xTuQ7H8-7XODjLZfz"); // Reemplaza esto con tu User ID de EmailJS
       })();
     // Gestión de errores global
+=======
+  <!-- Script para verificar que la biblioteca QR se ha cargado correctamente -->
+  <script>
+    // Verificar que la biblioteca QR Code está disponible
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof QRCode === 'undefined') {
+        console.error('Error: La biblioteca QRCode no se ha cargado correctamente');
+        alert('Error: No se pudo cargar la biblioteca de códigos QR. Verifique su conexión a Internet y recargue la página.');
+      } else {
+        console.log('Biblioteca QRCode cargada correctamente');
+      }
+    });
+  </script>
+  <script>
+    // Variables globales para simular almacenamiento
+    const MOCK_DATA = {
+      departments: [],
+      packages: []
+    };
+    
+    // Gestor de errores global - versión mejorada
+>>>>>>> SCRUM-200
     window.addEventListener('error', function(event) {
-      console.error('Error capturado:', event.error);
-      alert('Se ha producido un error en la aplicación. Por favor, recarga la página.');
+      console.error('Error capturado:', event.error || 'Error desconocido');
+      showToast('error', 'Se ha producido un error en la aplicación: ' + (event.error ? event.error.message : 'Error desconocido'));
     });
     
+<<<<<<< HEAD
     // Constantes de configuración
     const CONFIG = {
       API_URL: '/api',
@@ -845,12 +1541,91 @@ sendEmailNotification(templateParams);
         // Obtener departamentos del almacenamiento local
         const departamentos = getAllDepartments();
         const selectDepartamentos = document.getElementById('apartment_number');
+=======
+    // Función para mostrar notificaciones toast
+    function showToast(type, message) {
+      const toastElement = type === 'success' ? document.getElementById('toastSuccess') : document.getElementById('toastError');
+      
+      if (toastElement) {
+        if (type === 'error' && document.getElementById('errorMessage')) {
+          document.getElementById('errorMessage').textContent = message;
+        } else if (type === 'success' && toastElement.querySelector('.toast-message')) {
+          toastElement.querySelector('.toast-message').textContent = message;
+        }
+        
+        toastElement.classList.add('show');
+        
+        setTimeout(() => {
+          toastElement.classList.remove('show');
+        }, 3000);
+      } else {
+        // Fallback si no existe el toast
+        alert(message);
+      }
+    }
+    
+    // Función de navegación real (no simulada)
+    function navigateTo(page) {
+      console.log('Navegando a:', page);
+      // Redirigir a la página especificada
+      window.location.href = page;
+    }
+    
+    // Función para generar ID único
+    function generateUniqueId() {
+      return Date.now().toString(36) + Math.random().toString(36).substring(2, 7).toUpperCase();
+    }
+    
+    // Función para formatear fecha
+    function formatDate(dateString) {
+      try {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('es-ES', options);
+      } catch (error) {
+        console.error('Error al formatear fecha:', error);
+        return dateString; // Devolver la fecha original si hay error
+      }
+    }
+    
+    // Función para obtener todos los departamentos
+    function getAllDepartments() {
+      try {
+        // Obtener departamentos del localStorage
+        const storedDepartments = JSON.parse(localStorage.getItem('departments')) || [];
+        
+        // Si hay datos en formato de objetos, extraer los números
+        if (storedDepartments.length > 0 && typeof storedDepartments[0] === 'object') {
+          return storedDepartments.map(dept => dept.deptNumber || dept.numero);
+        }
+        
+        // Si son solo números o está vacío
+        return storedDepartments.length > 0 ? storedDepartments : [101, 102, 201, 202, 301, 302]; // Valores por defecto
+      } catch (error) {
+        console.error('Error al cargar departamentos:', error);
+        return [101, 102, 201, 202, 301, 302]; // Valores por defecto en caso de error
+      }
+    }
+    
+    // Función para cargar departamentos en el select
+    function loadDepartments() {
+      try {
+        const departmentSelect = document.getElementById('apartment_number');
+        if (!departmentSelect) {
+          console.error('No se encontró el elemento select de departamentos');
+          return;
+        }
+        
+        // Obtener todos los departamentos
+        const departments = getAllDepartments();
+        MOCK_DATA.departments = departments; // Guardar en datos locales
+>>>>>>> SCRUM-200
         
         // Limpiar opciones existentes excepto la primera
         while (selectDepartamentos.options.length > 1) {
           selectDepartamentos.remove(1);
         }
         
+<<<<<<< HEAD
         // Agregar departamentos al select
         departamentos.forEach(depto => {
           const option = document.createElement('option');
@@ -887,3 +1662,703 @@ sendEmailNotification(templateParams);
     }
       return true;
     
+=======
+        // Agregar departamentos existentes
+        departments.forEach(dept => {
+          const option = document.createElement('option');
+          option.value = dept;
+          option.textContent = `Departamento ${dept}`;
+          departmentSelect.appendChild(option);
+        });
+        
+        // Agregar opción para nuevo departamento
+        const newOption = document.createElement('option');
+        newOption.value = "new";
+        newOption.textContent = "Agregar nuevo departamento";
+        departmentSelect.appendChild(newOption);
+        
+        // Evento para manejar selección de nuevo departamento
+        departmentSelect.addEventListener('change', function() {
+          if (this.value === 'new') {
+            const newDept = prompt('Ingrese el número del nuevo departamento:');
+            if (newDept && !isNaN(newDept)) {
+              const deptNumber = parseInt(newDept);
+              
+              // Verificar si ya existe
+              if (MOCK_DATA.departments.includes(deptNumber)) {
+                showToast('error', 'Este número de departamento ya existe');
+                this.value = '';
+                return;
+              }
+              
+              // Añadir nuevo departamento
+              MOCK_DATA.departments.push(deptNumber);
+              
+              // Actualizar localStorage
+              try {
+                localStorage.setItem('departments', JSON.stringify(MOCK_DATA.departments));
+              } catch (e) {
+                console.warn('No se pudo guardar en localStorage:', e);
+              }
+              
+              // Crear opción
+              const option = document.createElement('option');
+              option.value = deptNumber;
+              option.textContent = `Departamento ${deptNumber}`;
+              
+              // Insertar antes de la opción 'Agregar nuevo'
+              const newIndex = this.options.length - 1;
+              this.insertBefore(option, this.options[newIndex]);
+              
+              // Seleccionar el nuevo departamento
+              this.value = deptNumber;
+            } else {
+              this.value = ''; // Resetear si no es válido
+              showToast('error', 'Por favor ingrese un número válido para el departamento');
+            }
+          }
+        });
+        
+        console.log('Departamentos cargados correctamente');
+      } catch (error) {
+        console.error('Error al cargar departamentos:', error);
+        showToast('error', 'No se pudieron cargar los departamentos');
+      }
+    }
+    
+    // Sistema unificado de gestión de UI
+    const AppManager = {
+      elements: {},
+      
+      init() {
+        try {
+          console.log('Inicializando aplicación...');
+          // Obtener elementos del DOM de forma segura
+          this.cacheElements();
+          
+          // Cargar departamentos
+          loadDepartments();
+          
+          // Inicializar fecha con el día actual
+          if (this.elements.dateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            this.elements.dateInput.value = today;
+            console.log('Fecha inicializada:', today);
+          } else {
+            console.warn('No se encontró el campo de fecha para inicializar');
+          }
+          
+          // Establecer los event listeners
+          this.setupEventListeners();
+          
+          console.log('Aplicación inicializada correctamente');
+        } catch (error) {
+          console.error('Error al inicializar UI:', error);
+          showToast('error', 'Error al inicializar la interfaz: ' + error.message);
+        }
+      },
+      
+      cacheElements() {
+        // Lista de IDs de elementos y sus nombres descriptivos
+        const elementsMap = {
+          'packageForm': 'packageForm',
+          'apartment_number': 'departmentSelect',
+          'sender': 'senderInput',
+          'delivery_date': 'dateInput',
+          'status': 'statusSelect',
+          'notes': 'notesTextarea',
+          'qrCode': 'qrCodeDiv',
+          'qr_code': 'qrCodeInput',
+          'qrButtons': 'qrButtons',
+          'generateQrBtn': 'generateQrBtn',
+          'printQrBtn': 'printQrBtn',
+          'downloadQrBtn': 'downloadQrBtn',
+          'toastSuccess': 'toastSuccess',
+          'toastError': 'toastError',
+          'errorMessage': 'errorMessage',
+          'loadingOverlay': 'loadingOverlay',
+          'userProfileDropdown': 'userProfileDropdown',
+          'userDropdown': 'userDropdown'
+        };
+        
+        this.elements = {};
+        
+        // Recorrer el mapa de elementos e intentar buscarlos en el DOM
+        Object.entries(elementsMap).forEach(([id, descriptiveName]) => {
+          const element = document.getElementById(id);
+          if (element) {
+            this.elements[descriptiveName] = element;
+          } else {
+            console.warn(`Elemento no encontrado en el DOM: ${id} (${descriptiveName})`);
+          }
+        });
+        
+        // Verificar elementos críticos
+        const criticalElements = ['departmentSelect', 'senderInput', 'dateInput', 'qrCodeDiv', 'qrCodeInput'];
+        const missingCritical = criticalElements.filter(name => !this.elements[name]);
+        
+        if (missingCritical.length > 0) {
+          console.error('ELEMENTOS CRÍTICOS FALTANTES:', missingCritical.join(', '));
+        }
+        
+        console.log('Elementos cacheados:', Object.keys(this.elements).length);
+      },
+      
+      setupEventListeners() {
+        try {
+          // Evento de envío del formulario
+          if (this.elements.packageForm) {
+            this.elements.packageForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
+            console.log('Event listener para envío de formulario asignado');
+          }
+          
+          // Eventos de QR
+          if (this.elements.generateQrBtn) {
+            this.elements.generateQrBtn.addEventListener('click', () => this.generateQRCode());
+            console.log('Event listener para generación de QR asignado');
+          }
+          
+          if (this.elements.printQrBtn) {
+            this.elements.printQrBtn.addEventListener('click', () => this.printQRCode());
+            console.log('Event listener para impresión de QR asignado');
+          }
+          
+          if (this.elements.downloadQrBtn) {
+            this.elements.downloadQrBtn.addEventListener('click', () => this.downloadQRCode());
+            console.log('Event listener para descarga de QR asignado');
+          }
+          
+          // Validación en tiempo real
+          if (this.elements.packageForm) {
+            const inputs = this.elements.packageForm.querySelectorAll('.form-input');
+            inputs.forEach(input => {
+              input.addEventListener('blur', (e) => this.validateField(e.target));
+              input.addEventListener('input', (e) => {
+                if (e.target.closest('.form-group').classList.contains('invalid')) {
+                  this.validateField(e.target);
+                }
+              });
+            });
+            console.log('Event listeners para validación en tiempo real asignados');
+          }
+          
+          // Configurar el menú desplegable de usuario
+          const userProfileDropdown = this.elements.userProfileDropdown;
+          const userDropdown = this.elements.userDropdown;
+          
+          if (userProfileDropdown && userDropdown) {
+            userProfileDropdown.addEventListener('click', function(e) {
+                userDropdown.classList.toggle('show');
+                e.stopPropagation();
+            });
+            
+            // Cerrar el menú desplegable al hacer clic fuera de él
+            document.addEventListener('click', function(e) {
+                if (!userProfileDropdown.contains(e.target)) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+            console.log('Event listeners para menú desplegable asignados');
+          }
+        } catch (error) {
+          console.error('Error al configurar event listeners:', error);
+          showToast('error', 'Error en configuración de eventos: ' + error.message);
+        }
+      },
+      
+      validateField(field) {
+        try {
+          const parent = field.closest('.form-group');
+          if (!parent) return true;
+          
+          if (field.hasAttribute('required') && !field.value.trim()) {
+            parent.classList.add('invalid');
+            return false;
+          } else {
+            parent.classList.remove('invalid');
+            return true;
+          }
+        } catch (error) {
+          console.warn('Error en validación de campo:', error);
+          return true; // Asumir válido en caso de error
+        }
+      },
+      
+      validateForm() {
+        try {
+          if (!this.elements.packageForm) return true;
+          let isValid = true;
+          
+          const requiredInputs = this.elements.packageForm.querySelectorAll('.form-input[required]');
+          requiredInputs.forEach(input => {
+            if (!this.validateField(input)) {
+              isValid = false;
+              // Hacer scroll al primer campo inválido
+              if (isValid === false) {
+                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                input.focus();
+              }
+            }
+          });
+          
+          return isValid;
+        } catch (error) {
+          console.warn('Error en validación de formulario:', error);
+          return true; // Permitir envío en caso de error
+        }
+      },
+      
+      generateQRCode() {
+        try {
+          console.log('Iniciando generación de QR...');
+          
+          // Obtener referencias directamente para asegurarnos
+          const departmentSelect = document.getElementById('apartment_number');
+          const senderInput = document.getElementById('sender');
+          const dateInput = document.getElementById('delivery_date');
+          const qrCodeDiv = document.getElementById('qrCode');
+          const qrCodeInput = document.getElementById('qr_code');
+          const qrButtons = document.getElementById('qrButtons');
+          
+          // Actualizar nuestras referencias en caso de que hayan fallado antes
+          this.elements.departmentSelect = departmentSelect;
+          this.elements.senderInput = senderInput;
+          this.elements.dateInput = dateInput;
+          this.elements.qrCodeDiv = qrCodeDiv;
+          this.elements.qrCodeInput = qrCodeInput;
+          this.elements.qrButtons = qrButtons;
+          
+          // Verificar que todos los elementos necesarios existen
+          if (!departmentSelect || !senderInput || !dateInput || !qrCodeDiv || !qrCodeInput || !qrButtons) {
+            const missing = [];
+            if (!departmentSelect) missing.push('departmentSelect (apartment_number)');
+            if (!senderInput) missing.push('senderInput (sender)');
+            if (!dateInput) missing.push('dateInput (delivery_date)');
+            if (!qrCodeDiv) missing.push('qrCodeDiv (qrCode)');
+            if (!qrCodeInput) missing.push('qrCodeInput (qr_code)');
+            if (!qrButtons) missing.push('qrButtons (qrButtons)');
+            
+            throw new Error(`Elementos faltantes: ${missing.join(', ')}`);
+          }
+          
+          // Validar campos necesarios
+          if (!departmentSelect.value) {
+            showToast('error', 'Por favor seleccione un departamento');
+            departmentSelect.focus();
+            return;
+          }
+          
+          if (!senderInput.value.trim()) {
+            showToast('error', 'Por favor ingrese el remitente');
+            senderInput.focus();
+            return;
+          }
+          
+          if (!dateInput.value) {
+            showToast('error', 'Por favor seleccione una fecha');
+            dateInput.focus();
+            return;
+          }
+          
+          // Generar un código único para el paquete
+          const timestamp = new Date().getTime();
+          const uniqueCode = `PKG-${departmentSelect.value}-${timestamp}`;
+          qrCodeInput.value = uniqueCode;
+          
+          // Crear contenido para el QR (datos estructurados)
+          const qrContent = JSON.stringify({
+            id: uniqueCode,
+            apt: departmentSelect.value,
+            sender: senderInput.value.trim(),
+            date: dateInput.value,
+            generated: new Date().toISOString()
+          });
+          
+          console.log('Generando QR con contenido:', qrContent);
+          
+          // Verificar que la librería QRCode está disponible
+          if (typeof QRCode === 'undefined') {
+            throw new Error('La librería QRCode no está disponible. Verifique la conexión a Internet.');
+          }
+          
+          // Limpiar QR anterior si existe
+          qrCodeDiv.innerHTML = '';
+          
+          // Generar nuevo QR
+          new QRCode(qrCodeDiv, {
+            text: qrContent,
+            width: 180,
+            height: 180,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+          });
+          
+          // Mostrar el QR y los botones
+          qrCodeDiv.style.display = 'block';
+          qrButtons.style.display = 'flex';
+          
+          showToast('success', 'Código QR generado correctamente');
+          console.log('QR generado exitosamente');
+        } catch (error) {
+          console.error('Error al generar QR:', error);
+          showToast('error', 'Error al generar el código QR: ' + error.message);
+        }
+      },
+      
+      printQRCode() {
+        try {
+          const { departmentSelect, senderInput, dateInput, qrCodeDiv, qrCodeInput } = this.elements;
+          
+          // Verificar que hay un QR generado
+          if (!qrCodeDiv || !qrCodeDiv.querySelector('canvas')) {
+            showToast('error', 'Primero debe generar un código QR');
+            return;
+          }
+          
+          // Crear una ventana de impresión
+          const printWindow = window.open('', '_blank');
+          if (!printWindow) {
+            throw new Error('No se pudo abrir la ventana de impresión. Verifique que no estén bloqueadas las ventanas emergentes.');
+          }
+          
+          printWindow.document.write(`
+            <html>
+              <head>
+                <title>QR Paquete - Depto ${departmentSelect.value}</title>
+                <style>
+                  body { 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    text-align: center; 
+                    margin: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    height: 90vh;
+                  }
+                  .qr-print { 
+                    margin: 20px auto;
+                    padding: 15px;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                  }
+                  .details { 
+                    margin: 15px 0; 
+                    line-height: 1.5;
+                    max-width: 350px;
+                    text-align: left;
+                    padding: 15px;
+                    border: 1px solid #eee;
+                    border-radius: 8px;
+                    background-color: #f9f9f9;
+                  }
+                  h2 { color: #27ae60; margin-bottom: 20px; }
+                  .footer { 
+                    margin-top: 20px; 
+                    font-size: 0.8rem; 
+                    color: #888;
+                  }
+                </style>
+              </head>
+              <body>
+                <h2>Paquete para Departamento ${departmentSelect.value}</h2>
+                <div class="qr-print">
+                  ${qrCodeDiv.innerHTML}
+                </div>
+                <div class="details">
+                  <p><strong>Remitente:</strong> ${senderInput.value.trim()}</p>
+                  <p><strong>Fecha:</strong> ${formatDate(dateInput.value)}</p>
+                  <p><strong>Código:</strong> ${qrCodeInput.value}</p>
+                </div>
+                <div class="footer">
+                  Generado el ${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}
+                </div>
+              </body>
+            </html>
+          `);
+          printWindow.document.close();
+          
+          // Esperar a que cargue el contenido antes de imprimir
+          setTimeout(() => {
+            try {
+              printWindow.print();
+              printWindow.close();
+            } catch (e) {
+              console.error('Error al imprimir:', e);
+              printWindow.close();
+              showToast('error', 'Error al imprimir. Inténtelo de nuevo o use la opción de descarga.');
+            }
+          }, 500);
+        } catch (error) {
+          console.error('Error al imprimir QR:', error);
+          showToast('error', 'Error al imprimir el código QR: ' + error.message);
+        }
+      },
+      
+      downloadQRCode() {
+        try {
+          const { departmentSelect, qrCodeDiv } = this.elements;
+          
+          // Verificar que hay un QR generado
+          if (!qrCodeDiv || !qrCodeDiv.querySelector('canvas')) {
+            showToast('error', 'Primero debe generar un código QR');
+            return;
+          }
+          
+          // Obtener la imagen desde el canvas generado por la librería
+          const canvas = qrCodeDiv.querySelector('canvas');
+          if (!canvas) {
+            throw new Error('No se encontró el código QR para descargar');
+          }
+          
+          try {
+            // Convertir canvas a imagen descargable
+            const imgData = canvas.toDataURL('image/png');
+            const downloadLink = document.createElement('a');
+            
+            downloadLink.href = imgData;
+            downloadLink.download = `QR-Paquete-Depto-${departmentSelect.value}.png`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+          } catch (e) {
+            // Alternativa si hay error de seguridad
+            const newWindow = window.open('', '_blank');
+            if (newWindow) {
+              newWindow.document.write(`
+                <html>
+                  <head><title>QR Code</title></head>
+                  <body style="text-align: center; padding: 20px;">
+                    <h3>Código QR para Departamento ${departmentSelect.value}</h3>
+                    <div>${qrCodeDiv.innerHTML}</div>
+                    <p>Haga clic derecho en la imagen y seleccione "Guardar imagen como..." para descargarla</p>
+                  </body>
+                </html>
+              `);
+              newWindow.document.close();
+            } else {
+              throw new Error('No se pudo abrir una nueva ventana. Verifique que no estén bloqueadas.');
+            }
+          }
+        } catch (error) {
+          console.error('Error al descargar QR:', error);
+          showToast('error', 'Error al descargar el código QR: ' + error.message);
+        }
+      },
+      
+      handleFormSubmit(e) {
+        e.preventDefault();
+        
+        try {
+          console.log('Procesando envío de formulario...');
+          
+          // Validar formulario
+          if (!this.validateForm()) {
+            showToast('error', 'Por favor, completa todos los campos requeridos');
+            return;
+          }
+          
+          // Si no hay código QR generado, preguntar si desea continuar
+          if (this.elements.qrCodeInput && !this.elements.qrCodeInput.value.trim()) {
+            if (!confirm('No has generado un código QR para este paquete. ¿Deseas continuar sin código QR?')) {
+              return;
+            }
+          }
+          
+          // Mostrar loading
+          this.showLoading(true);
+          
+          try {
+              const packageData = this.getFormData();
+              // Validar datos críticos
+            if (!packageData.apartment_number || !packageData.sender || !packageData.delivery_date) {
+              throw new Error('Faltan datos requeridos en el formulario');
+            }
+            // Guardar en la "base de datos"
+            packageData.id = generateUniqueId();
+            packageData.created_at = new Date().toISOString();
+            MOCK_DATA.packages.push(packageData);
+            console.log('Paquete registrado:', packageData);
+            console.log('Total de paquetes registrados:', MOCK_DATA.packages.length);
+
+            // Guardar en localStorage para persistencia
+            try {
+              const existingPackages = JSON.parse(localStorage.getItem('packages')) || [];
+              existingPackages.push(packageData);
+              localStorage.setItem('packages', JSON.stringify(existingPackages));
+              console.log('Paquete guardado en localStorage. Total:', existingPackages.length);
+              
+              // Actualizar contador de paquetes pendientes para el dashboard
+              const pendingCount = existingPackages.filter(pkg => pkg.status === 'pendiente').length;
+              localStorage.setItem('pendingPackagesCount', pendingCount.toString());
+            } catch (storageError) {
+              console.error('Error al guardar en localStorage:', storageError);
+              throw new Error('No se pudo guardar el paquete en el almacenamiento local');
+            }
+            
+            showToast('success', '¡Paquete registrado exitosamente!');
+            
+            // Mostrar resumen del registro
+            const resumenRegistro = `
+              Paquete Registrado:
+              - Departamento: ${packageData.apartment_number}
+              - Remitente: ${packageData.sender}
+              - Fecha: ${formatDate(packageData.delivery_date)}
+              - Estado: ${packageData.status}
+              - Código: ${packageData.qr_code || 'No generado'}
+            `;
+            console.log(resumenRegistro);
+            
+            // Redirigir a la lista de paquetes
+            setTimeout(() => {
+              window.location.href = 'listPackages.html';
+            }, 1500);
+          } catch (error) {
+            console.error('Error al procesar el formulario:', error);
+            showToast('error', error.message || 'Ocurrió un error al registrar el paquete');
+          } finally {
+            this.showLoading(false);
+          }
+        } catch (error) {
+          console.error('Error en manejador de formulario:', error);
+          showToast('error', 'Error: ' + error.message);
+          this.showLoading(false);
+        }
+      },
+              
+      
+              
+            
+              
+              
+      
+      getFormData() {
+        const { departmentSelect, senderInput, dateInput, statusSelect, qrCodeInput, notesTextarea } = this.elements;
+        
+        return {
+          apartment_number: departmentSelect ? departmentSelect.value : '',
+          sender: senderInput ? senderInput.value.trim() : '',
+          delivery_date: dateInput ? dateInput.value : '',
+          status: statusSelect ? statusSelect.value || 'pendiente' : 'pendiente',
+          qr_code: qrCodeInput ? qrCodeInput.value.trim() : '',
+          notes: notesTextarea ? notesTextarea.value.trim() : '',
+        };
+      },
+      
+      resetForm() {
+        try {
+          if (this.elements.packageForm) {
+            this.elements.packageForm.reset();
+            
+            // Restablecer fecha
+            if (this.elements.dateInput) {
+              const today = new Date().toISOString().split('T')[0];
+              this.elements.dateInput.value = today;
+            }
+            
+            // Ocultar QR
+            if (this.elements.qrCodeDiv) {
+              this.elements.qrCodeDiv.style.display = 'none';
+              this.elements.qrCodeDiv.innerHTML = '';
+            }
+            
+            if (this.elements.qrButtons) {
+              this.elements.qrButtons.style.display = 'none';
+            }
+            
+            if (this.elements.qrCodeInput) {
+              this.elements.qrCodeInput.value = '';
+            }
+            
+            // Quitar clases de validación
+            const invalidGroups = this.elements.packageForm.querySelectorAll('.form-group.invalid');
+            invalidGroups.forEach(group => group.classList.remove('invalid'));
+            
+            console.log('Formulario reiniciado correctamente');
+          }
+        } catch (error) {
+          console.error('Error al resetear formulario:', error);
+        }
+      },
+      
+      showLoading(show) {
+        try {
+          const loadingOverlay = this.elements.loadingOverlay;
+          if (loadingOverlay) {
+            loadingOverlay.classList.toggle('active', show);
+          }
+        } catch (error) {
+          console.error('Error al mostrar/ocultar overlay:', error);
+        }
+      }
+    };
+
+    // Función para verificar que todos los elementos críticos existen
+    function checkCriticalElements() {
+      const criticalElements = [
+        { id: 'apartment_number', name: 'Selector de departamento' },
+        { id: 'sender', name: 'Campo de remitente' },
+        { id: 'delivery_date', name: 'Campo de fecha' },
+        { id: 'status', name: 'Selector de estado' },
+        { id: 'qrCode', name: 'Contenedor de QR' },
+        { id: 'qr_code', name: 'Campo de código QR' },
+        { id: 'qrButtons', name: 'Botones de QR' },
+        { id: 'generateQrBtn', name: 'Botón generar QR' },
+        { id: 'packageForm', name: 'Formulario de paquete' }
+      ];
+      
+      const missing = [];
+      criticalElements.forEach(elem => {
+        if (!document.getElementById(elem.id)) {
+          missing.push(`${elem.name} (ID: ${elem.id})`);
+        }
+      });
+      
+      if (missing.length > 0) {
+        console.error('ELEMENTOS CRÍTICOS FALTANTES:', missing.join(', '));
+        alert('Error: Faltan elementos críticos en la página: ' + missing.join(', '));
+        return false;
+      }
+      
+      return true;
+    }
+    
+    // Migrar datos antiguos (si existen) a nuevo formato
+    function migrarDatosAntiguos() {
+      try {
+        // Comprobar si existen datos en el formato antiguo
+        const departmentsString = localStorage.getItem('departments');
+        if (!departmentsString) return;
+        
+        const departments = JSON.parse(departmentsString);
+        
+        // Si los departamentos son objetos, extraer solo los números
+        if (Array.isArray(departments) && departments.length > 0 && typeof departments[0] === 'object') {
+          const departmentNumbers = departments.map(dept => dept.deptNumber || dept.numero);
+          localStorage.setItem('departments', JSON.stringify(departmentNumbers));
+          console.log('Datos de departamentos migrados al nuevo formato:', departmentNumbers);
+        }
+      } catch (error) {
+        console.error('Error al migrar datos antiguos:', error);
+      }
+    }
+    
+    // Inicializar la aplicación cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM cargado, verificando elementos críticos...');
+      // Migrar datos si es necesario
+      migrarDatosAntiguos();
+      
+      if (checkCriticalElements()) {
+        console.log('Elementos críticos verificados, inicializando aplicación...');
+        AppManager.init();
+      } else {
+        console.error('No se pudo inicializar la aplicación debido a elementos faltantes');
+      }
+    });
+  </script>
+</body>
+</html>
+>>>>>>> SCRUM-200

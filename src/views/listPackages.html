@@ -3,474 +3,887 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Paquetes - Gestión de Paquetes</title>
+    <title>Lista de Paquetes - Sistema de Gestión de Paquetes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-        }
-
         :root {
             --primary: #3498db;
             --primary-dark: #2980b9;
-            --primary-light: #e3f2fd;
-            --secondary: #2ecc71;
-            --secondary-dark: #27ae60;
-            --text: #2c3e50;
-            --background: #f9fafb;
-            --white: #ffffff;
-            --gray-50: #f8fafc;
-            --gray-100: #f1f5f9;
-            --gray-200: #e2e8f0;
-            --gray-300: #cbd5e1;
-            --gray-700: #334155;
-            --red-50: #fef2f2;
-            --red-600: #dc2626;
-            --yellow-50: #fef9c3;
-            --yellow-700: #a16207;
-            --green-50: #f0fdf4;
-            --green-700: #15803d;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --radius-sm: 0.375rem;
-            --radius: 0.5rem;
-            --radius-md: 0.75rem;
-            --radius-lg: 1rem;
+            --primary-light: #ebf5fb;
+            --secondary: #2c3e50;
+            --accent: #3498db;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --success: #27ae60;
         }
-
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         body {
-            background: var(--background);
-            color: var(--text);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1.5rem;
-            position: relative;
-            line-height: 1.5;
+            background-color: #eef7fb;
+            color: var(--dark);
         }
-
-        .overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-light);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 50;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
         }
-
-        .overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal {
-            background: var(--white);
-            padding: 2rem;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            max-width: 30rem;
-            width: 90%;
-            transform: translateY(-20px);
-            transition: transform 0.3s ease;
-        }
-
-        .overlay.active .modal {
-            transform: translateY(0);
-        }
-
-        .modal h3 {
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-            color: var(--text);
-        }
-
-        header {
-            width: 100%;
-            max-width: 70rem;
+        
+        .logo {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary);
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            padding: 1.25rem 1.5rem;
-            background: var(--white);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow);
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        header img {
-            height: 3.5rem;
-            width: auto;
-        }
-
-        header h1 {
-            font-size: 1.75rem;
-            color: var(--text);
-            font-weight: 600;
-        }
-
-        .btn {
-            background-color: var(--primary);
-            color: var(--white);
-            padding: 0.625rem 1.25rem;
-            border-radius: var(--radius);
-            border: none;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+            gap: 8px;
             text-decoration: none;
         }
-
-        .btn:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-sm);
+        
+        .logo img {
+            height: 36px;
+            width: auto;
+            object-fit: contain;
         }
-
-        .btn:active {
-            transform: translateY(0);
+        
+        .nav-menu {
+            list-style: none;
+            padding: 20px 0;
         }
-
-        .btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .btn-success {
-            background-color: var(--secondary);
-        }
-
-        .btn-success:hover {
-            background-color: var(--secondary-dark);
-        }
-
-        .btn-gray {
-            background-color: var(--gray-700);
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-outline:hover {
-            background-color: var(--primary-light);
-        }
-
-        .logout-btn {
-            background-color: transparent;
-            color: var(--text);
-            border: 1px solid var(--gray-300);
+        
+        .nav-item {
+            padding: 12px 20px;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 10px;
+            color: var(--gray);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 5px;
         }
-
-        .logout-btn:hover {
-            background-color: var(--gray-100);
-            color: var(--text);
-            border-color: var(--gray-300);
+        
+        .nav-item:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--primary);
         }
-
-        .container {
-            background-color: var(--white);
-            max-width: 70rem;
-            width: 100%;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow);
-            padding: 2rem;
+        
+        .nav-item.active {
+            background-color: rgba(52, 152, 219, 0.15);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
         }
-
-        .container-header {
+        
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #eef7fb;
+            transition: all 0.3s ease;
+        }
+        
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
+            padding: 15px 0;
+            margin-bottom: 30px;
         }
-
-        .container-header h2 {
+        
+        .page-title {
             font-size: 1.5rem;
             font-weight: 600;
-            color: var(--text);
+            color: var(--dark);
         }
-
-        .actions-container {
+        
+        .user-profile {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .form-select {
-            padding: 0.625rem 1rem;
-            border-radius: var(--radius);
-            border: 1px solid var(--gray-300);
-            background-color: var(--white);
-            color: var(--text);
-            font-size: 0.875rem;
+            gap: 10px;
+            position: relative;
             cursor: pointer;
-            transition: border-color 0.2s ease;
-            min-width: 15rem;
         }
-
+        
+        .notification {
+            position: relative;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .user-info span {
+            display: block;
+        }
+        
+        .user-info .name {
+            font-weight: 600;
+        }
+        
+        .user-info .role {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--gray-light);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .stat-card:nth-child(1) .stat-icon {
+            background-color: rgba(34, 218, 64, 0.15);
+            color: var(--success);
+        }
+        
+        .stat-card:nth-child(2) .stat-icon {
+            background-color: rgba(52, 152, 219, 0.15);
+            color: var(--info);
+        }
+        
+        .stat-card:nth-child(3) .stat-icon {
+            background-color: rgba(243, 156, 18, 0.15);
+            color: var(--warning);
+        }
+        
+        .stat-card:nth-child(4) .stat-icon {
+            background-color: rgba(205, 46, 46, 0.15);
+            color: var(--danger);
+        }
+        
+        .stat-info h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .stat-info p {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin: 0;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #1a252f;
+        }
+        
+        .btn-info {
+            background-color: var(--info);
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #d48a0c;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-light {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 1px solid #dee2e6;
+        }
+        
+        .btn-light:hover {
+            background-color: #e2e6ea;
+        }
+        
+        .disabled {
+            opacity: 0.65;
+            pointer-events: none;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .section-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .form-select {
+            padding: 10px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            background-color: white;
+            font-size: 0.9rem;
+            color: var(--dark);
+            cursor: pointer;
+        }
+        
         .form-select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+            box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.25);
         }
-
-        .loading-spinner {
-            border: 3px solid var(--gray-200);
-            border-top: 3px solid var(--primary);
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th, .table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .table th {
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        
+        .table tbody tr:hover {
+            background-color: var(--light);
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background-color: rgba(243, 156, 18, 0.15);
+            color: var(--warning);
+        }
+        
+        .status-delivered {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: var(--success);
+        }
+        
+        .table-action {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            color: var(--dark);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .table-action:hover {
+            background-color: var(--info);
+            border-color: var(--info);
+            color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--gray-light);
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
             border-radius: 50%;
-            width: 1.5rem;
-            height: 1.5rem;
+            border-top: 3px solid var(--primary);
+            width: 30px;
+            height: 30px;
             animation: spin 1s linear infinite;
-            margin: 0 auto;
         }
-
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        .table-container {
-            overflow-x: auto;
-            border-radius: var(--radius);
-            border: 1px solid var(--gray-200);
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            padding: 10px 0;
+            margin-top: 10px;
+            display: none;
+            z-index: 100;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9375rem;
-            min-width: 40rem;
-            background-color: var(--white);
+        
+        .dropdown-menu.show {
+            display: block;
         }
-
-        thead {
-            background-color: var(--gray-50);
-        }
-
-        th {
-            font-weight: 600;
-            text-align: left;
-            color: var(--gray-700);
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-        }
-
-        th, td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--gray-200);
-        }
-
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        tbody tr {
-            transition: background-color 0.15s ease;
-        }
-
-        tbody tr:hover {
-            background-color: var(--gray-50);
-        }
-
-        .status-badge {
-            padding: 0.375rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            text-transform: capitalize;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.375rem;
-        }
-
-        .status-pendiente {
-            background-color: var(--yellow-50);
-            color: var(--yellow-700);
-        }
-
-        .status-retirado {
-            background-color: var(--green-50);
-            color: var(--green-700);
-        }
-
-        .error-message {
-            background-color: var(--red-50);
-            color: var(--red-600);
-            padding: 1rem 1.5rem;
-            border-radius: var(--radius);
-            margin-bottom: 1.5rem;
+        
+        .dropdown-item {
+            padding: 10px 15px;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--dark);
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
-
-        .empty-state {
-            padding: 4rem 2rem;
-            text-align: center;
-            color: var(--gray-700);
+        
+        .dropdown-item:hover {
+            background-color: var(--light);
         }
-
-        .empty-state i {
-            font-size: 3rem;
-            color: var(--gray-300);
-            margin-bottom: 1rem;
+        
+        .dropdown-item.logout {
+            color: var(--danger);
+            border-top: 1px solid var(--gray-light);
+            margin-top: 5px;
+            padding-top: 10px;
         }
-
-        .empty-state p {
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            outline: 0;
+            background-color: rgba(0, 0, 0, 0.5);
         }
-
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-dialog {
+            position: relative;
+            width: auto;
+            margin: 10px;
+            pointer-events: none;
+            max-width: 500px;
+        }
+        
+        .modal-content {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            pointer-events: auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            outline: 0;
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .modal-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--dark);
+            margin: 0;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        @media (max-width: 992px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
         @media (max-width: 768px) {
-            body {
-                padding: 1rem;
+            .sidebar {
+                width: 70px;
+                padding-right: 0;
             }
-
-            header {
+            
+            .sidebar .logo span, 
+            .sidebar .nav-item span {
+                display: none;
+            }
+            
+            .sidebar .nav-item {
+                justify-content: center;
+                padding: 15px 0;
+            }
+            
+            .sidebar .nav-item i {
+                margin-right: 0;
+            }
+            
+            .sidebar .sidebar-header {
+                padding: 15px 0;
+            }
+            
+            .sidebar .logo {
+                justify-content: center;
+            }
+            
+            .sidebar .logo img {
+                height: 34px;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .header {
                 flex-direction: column;
                 align-items: flex-start;
-                padding: 1.25rem;
+                gap: 15px;
             }
-
-            .container {
-                padding: 1.5rem;
+            
+            .user-profile {
+                align-self: flex-end;
             }
-
-            .container-header {
+            
+            .section-header {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 15px;
             }
-
-            .actions-container {
+            
+            .section-actions {
                 width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .filter-section {
                 flex-direction: column;
                 align-items: stretch;
             }
-
-            .form-select, .btn {
-                width: 100%;
+        }
+        
+        @media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
-
 <body>
-    <header>
-        <div class="logo-container">
-            <img src="./images/ENCOMIENDA.png" alt="Logo de Gestión de Paquetes">
-            <h1>Lista de Paquetes</h1>
-        </div>
-        <button class="btn logout-btn" onclick="logout()" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Cerrar Sesión</span>
-        </button>
-    </header>
-
     <div class="container">
-        <div class="container-header">
-            <h2>Paquetes Registrados</h2>
-            <div class="actions-container">
-                <select id="departmentFilter" class="form-select">
-                    <option value="all">Todos los departamentos</option>
-                    <!-- Los departamentos se cargarán dinámicamente -->
-                </select>
-                <a href="registerPackage.html" class="btn">
-                    <i class="fas fa-plus"></i>
-                    <span>Registrar Nuevo Paquete</span>
+        <!-- Sidebar / Menú Lateral -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="logo">
+                    <img src="./images/ENCOMIENDA.png" alt="Logo Encomiendas">
+                    <span>Encomiendas</span>
                 </a>
-                <a href="departaments.html" class="btn btn-outline">
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item" onclick="window.location.href='dashboard.html'">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" onclick="window.location.href='registerPackage.html'">
+                    <i class="fas fa-plus-square"></i>
+                    <span>Registrar Paquete</span>
+                </li>
+                <li class="nav-item active" onclick="window.location.href='listPackages.html'">
+                    <i class="fas fa-list"></i>
+                    <span>Lista de Paquetes</span>
+                </li>
+                <li class="nav-item" onclick="window.location.href='departaments.html'">
                     <i class="fas fa-building"></i>
-                    <span>Administrar Departamentos</span>
-                </a>
-                <a href="codigoqr.html" class="btn btn-outline" style="background-color: #6c5ce7; color: white; border: none;">
+                    <span>Departamentos</span>
+                </li>
+                <li class="nav-item" onclick="window.location.href='codigoqr.html'">
                     <i class="fas fa-qrcode"></i>
                     <span>Lector QR</span>
-                </a>
-                <a href="javascript:history.back()" class="btn btn-outline" style="border-color: var(--gray-300); color: var(--gray-700);">
-                    <i class="fas fa-arrow-left"></i>
-                    <span>Volver</span>
-                </a>
+                    <li class="nav-item" onclick="window.location.href='configuracion.html'">
+                        <i class="fas fa-cog"></i>
+                        <span>Configuración</span>
+                    </li>
+                </li>
+                <li class="nav-item" onclick="logout()" style="margin-top: 50px; color: #e74c3c;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Cerrar Sesión</span>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Contenido Principal -->
+        <div class="main-content">
+            <!-- Cabecera -->
+            <div class="header">
+                <h1 class="page-title">Lista de Paquetes</h1>
+                <div class="user-profile" id="userProfileDropdown">
+                    <div class="notification">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationCount">0</span>
+                    </div>
+                    <div class="avatar" id="userAvatar">A</div>
+                    <div class="user-info">
+                        <span class="name" id="userName">Administrador</span>
+                        <span class="role" id="userRole">Admin</span>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                    
+                    <!-- Menú desplegable de usuario -->
+                    <div class="dropdown-menu" id="userDropdown">
+                        <div class="dropdown-item">
+                            <i class="fas fa-user"></i>
+                            <span>Mi Perfil</span>
+                        </div>
+                        <div class="dropdown-item">
+                            <i class="fas fa-cog"></i>
+                            <span>Configuración</span>
+                        </div>
+                        <div class="dropdown-item logout" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Cerrar Sesión</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Estadísticas -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalPackages">0</h3>
+                        <p>Total de Paquetes</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="departmentsCount">0</h3>
+                        <p>Departamentos</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="pendingPackages">0</h3>
+                        <p>Paquetes Pendientes</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="deliveredPackages">0</h3>
+                        <p>Paquetes Entregados</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sección Principal de Lista de Paquetes -->
+            <div class="section-header">
+                <h2 class="section-title">Paquetes Registrados</h2>
+                <div class="section-actions">
+                    <a href="registerPackage.html" class="btn" style="background-color: #2c3e50; color: white;">
+                        <i class="fas fa-plus"></i>
+                        Registrar Nuevo
+                    </a>
+                    <a href="codigoqr.html" class="btn" style="background-color: #6c5ce7; color: white;">
+                        <i class="fas fa-qrcode"></i>
+                        Lector QR
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Filtro de Departamentos -->
+            <div class="filter-section">
+                <div class="form-group">
+                    <label for="departmentFilter" class="form-label">Filtrar por Departamento</label>
+                    <select id="departmentFilter" class="form-select">
+                        <option value="all">Todos los departamentos</option>
+                        <!-- Se cargarán dinámicamente -->
+                    </select>
+                </div>
+                
+                <div>
+                    <a href="departaments.html" class="btn" style="background-color: #f39c12; color: white;">
+                        <i class="fas fa-building"></i>
+                        Administrar Departamentos
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Tabla de Paquetes -->
+            <div class="card">
+                <div class="card-header">
+                    <span id="packageListTitle">Lista de Paquetes</span>
+                </div>
+                <div class="card-body">
+                    <div id="errorMessage" style="display: none; margin-bottom: 15px; padding: 10px; background-color: #f8d7da; color: #721c24; border-radius: 5px;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Ha ocurrido un error al cargar los paquetes
+                    </div>
+                
+                    <table class="table" id="packagesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Departamento</th>
+                                <th>Remitente</th>
+                                <th>Fecha Entrega</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6">
+                                    <div class="loading">
+                                        <div class="spinner"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-
-        <div id="errorMessage" class="error-message" style="display: none;">
-            <i class="fas fa-exclamation-circle"></i>
-            <span>Ha ocurrido un error al cargar los paquetes</span>
-        </div>
-
-        <div class="table-container">
-            <table id="packagesTable" aria-label="Lista de paquetes registrados">
-                <thead>
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Departamento</th>
-                        <th scope="col">Remitente</th>
-                        <th scope="col">Fecha Entrega</th>
-                        <th scope="col">Estado</th>
-                        <th scope="col">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="6">
-                            <div class="loading-spinner"></div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
     </div>
-
-    <div id="confirmModal" class="overlay">
-        <div class="modal">
-            <h3>Confirmar actualización</h3>
-            <p style="margin: 1rem 0;">¿Está seguro que desea marcar este paquete como retirado?</p>
-            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
-                <button class="btn btn-gray" onclick="closeModal()">
-                    <i class="fas fa-times"></i>
-                    <span>Cancelar</span>
-                </button>
-                <button class="btn btn-success" id="confirmButton">
-                    <i class="fas fa-check"></i>
-                    <span>Confirmar</span>
-                </button>
+    
+    <!-- Modal de Confirmación -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Acción</h5>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro que desea marcar este paquete como retirado?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" onclick="closeModal()">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn" style="background-color: #2980b9; color: white;" id="confirmButton">
+                        <i class="fas fa-check"></i>
+                        Confirmar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-
-    <script src="../js/departments.js"></script>
+    
     <script>
         let currentPackageId = null;
+        let allPackages = [];
 
         // Función para cerrar sesión
         function logout() {
@@ -478,6 +891,7 @@
             window.location.href = 'login.html';
         }
 
+<<<<<<< HEAD
         // Función para mostrar el indicador de carga
         function showLoader() {
             document.getElementById('loadingSpinner').style.display = 'block';
@@ -489,153 +903,101 @@
         }
         
         // Funciones para manejar departamentos y paquetes en localStorage
+=======
+        // Función para obtener todos los departamentos
+>>>>>>> SCRUM-200
         function getAllDepartments() {
-            const departmentsString = localStorage.getItem('departments');
-            return departmentsString ? JSON.parse(departmentsString) : [];
+            try {
+                const departmentsString = localStorage.getItem('departments');
+                if (!departmentsString) return [];
+                
+                const departments = JSON.parse(departmentsString);
+                return departments || [];
+            } catch (error) {
+                console.error('Error al obtener departamentos:', error);
+                return [];
+            }
         }
 
+        // Función para guardar departamentos
         function saveDepartments(departments) {
             localStorage.setItem('departments', JSON.stringify(departments));
         }
 
-        // Modificar la función savePackages para guardar también por departamento
-        function savePackages(packages) {
-            // Guardar en formato global
-            localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
-            
-            // También guardar paquetes por departamento
-            // Primero agrupar por departamento
-            const packagesByDept = {};
-            packages.forEach(function(pkg) {
-                if (!pkg || !pkg.apartment_number) return;
-                
-                const deptNumber = pkg.apartment_number;
-                if (!packagesByDept[deptNumber]) {
-                    packagesByDept[deptNumber] = [];
-                }
-                packagesByDept[deptNumber].push(pkg);
-            });
-            
-            // Luego guardar cada grupo en su propia clave
-            for (const dept in packagesByDept) {
-                const key = `packages_${dept}`;
-                localStorage.setItem(key, JSON.stringify(packagesByDept[dept]));
-                console.log(`Guardados ${packagesByDept[dept].length} paquetes para departamento ${dept}`);
-            }
-            
-            return true;
-        }
-
+        // Función para obtener paquetes por departamento
         function getPackagesByDepartment(deptNumber) {
-            const key = `packages_${deptNumber}`;
-            const packagesString = localStorage.getItem(key);
-            return packagesString ? JSON.parse(packagesString) : [];
+            try {
+                const key = `packages_${deptNumber}`;
+                const packagesString = localStorage.getItem(key);
+                if (!packagesString) return [];
+                
+                return JSON.parse(packagesString) || [];
+            } catch (error) {
+                console.error(`Error al obtener paquetes del departamento ${deptNumber}:`, error);
+                return [];
+            }
         }
 
+        // Función para guardar paquetes por departamento
         function savePackagesToDepartment(deptNumber, packages) {
             const key = `packages_${deptNumber}`;
             localStorage.setItem(key, JSON.stringify(packages));
         }
 
-        // Agregar datos de prueba si no existen
+        // Función para agregar datos de prueba
         function addTestData() {
             const departments = getAllDepartments();
             
             // Si no hay departamentos, agregar algunos de prueba
             if (departments.length === 0) {
-                const newDepartments = ['101', '102', '103'];
+                // Crear departamentos de prueba
+                const newDepartments = ['101', '102', '103', '201', '202', '301'];
                 saveDepartments(newDepartments);
                 
                 // Agregar paquetes de prueba para cada departamento
-                newDepartments.forEach(dept => {
+                let allPackages = [];
+                
+                newDepartments.forEach((dept, index) => {
                     const packages = [
                         {
-                            id: Math.floor(Math.random() * 1000),
+                            id: `PKG-${dept}-${Date.now()}-${index}`,
                             apartment_number: dept,
-                            sender: 'Remitente de prueba',
+                            sender: `Remitente Prueba ${index + 1}`,
                             delivery_date: new Date().toISOString(),
-                            status: 'pendiente'
+                            status: index % 2 === 0 ? 'pendiente' : 'retirado',
+                            notes: `Paquete de prueba para departamento ${dept}`
                         }
                     ];
+                    
                     savePackagesToDepartment(dept, packages);
+                    allPackages = allPackages.concat(packages);
                 });
                 
-                console.log('Datos de prueba agregados correctamente');
+                // Guardar todos los paquetes en formato global
+                localStorage.setItem('paquetesPrueba', JSON.stringify(allPackages));
             }
         }
 
-        // Ejecutar al cargar la página
-        document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('authToken');
-            if (!token) {
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            // Obtener el parámetro de departamento de la URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const departmentParam = urlParams.get('department');
-            
-            // Agregar datos de prueba si es necesario
-            addTestData();
-            
-            // Primero cargar los departamentos
-            loadDepartments();
-            
-            // Luego, establecer el departamento seleccionado y cargar los paquetes
-            if (departmentParam) {
-                // Verificar si el departamento existe en la lista de departamentos
-                const departments = getAllDepartments();
-                const departmentExists = departments.some(dept => {
-                    const deptNumber = typeof dept === 'object' ? dept.number : dept;
-                    return deptNumber == departmentParam;
-                });
-                
-                if (departmentExists) {
-                    // Establecer el valor del filtro después de un breve retraso para asegurar que las opciones estén cargadas
-                    setTimeout(() => {
-                        const departmentFilter = document.getElementById('departmentFilter');
-                        if (departmentFilter) {
-                            // Buscar la opción que coincida con el departamento
-                            for (let i = 0; i < departmentFilter.options.length; i++) {
-                                if (departmentFilter.options[i].value == departmentParam) {
-                                    departmentFilter.selectedIndex = i;
-                                    break;
-                                }
-                            }
-                            
-                            // Actualizar el título para mostrar el departamento seleccionado
-                            const containerHeader = document.querySelector('.container-header h2');
-                            if (containerHeader) {
-                                containerHeader.textContent = `Paquetes del Departamento ${departmentParam}`;
-                            }
-                            
-                            // Cargar los paquetes del departamento seleccionado
-                            loadPackages();
-                        }
-                    }, 200);
-                } else {
-                    console.warn(`El departamento ${departmentParam} no existe`);
-                    // Cargar todos los paquetes si el departamento no existe
-                    loadPackages();
-                }
-            } else {
-                // Cargar todos los paquetes si no hay departamento especificado
-                loadPackages();
-            }
-        });
-
-        // Función para cargar los departamentos en el filtro
-        async function loadDepartments() {
+        // Cargar departamentos en el selector
+        function loadDepartments() {
+                                const departmentFilter = document.getElementById('departmentFilter');
             const departments = getAllDepartments();
-            const departmentFilter = document.getElementById('departmentFilter');
             
-            // Limpiar opciones existentes
+            // Limpiar opciones excepto la primera
             departmentFilter.innerHTML = '<option value="all">Todos los departamentos</option>';
             
+            // Agregar departamentos al selector
             departments.forEach(dept => {
-                // Determinar si el departamento es un objeto o un valor simple
-                const deptNumber = typeof dept === 'object' ? dept.number : dept;
+                // Manejar diferentes formatos de departamento
+                let deptNumber;
+                
+                if (typeof dept === 'object') {
+                    // Si es un objeto, intenta obtener deptNumber o numero
+                    deptNumber = dept.deptNumber || dept.numero;
+                } else {
+                    // Si no es un objeto, usar el valor directamente
+                    deptNumber = dept;
+                }
                 
                 const option = document.createElement('option');
                 option.value = deptNumber;
@@ -643,10 +1005,11 @@
                 departmentFilter.appendChild(option);
             });
             
-            // Agregar event listener para el cambio de filtro
-            departmentFilter.addEventListener('change', loadPackages);
+            // Actualizar contador de departamentos
+            document.getElementById('departmentsCount').textContent = departments.length;
         }
 
+<<<<<<< HEAD
         // Función para cargar los paquetes en la tabla
         async function loadPackages() {
             try {
@@ -670,6 +1033,118 @@
                 const selectedDepartment = departmentFilter.value;
                 
                 // Mostrar spinner de carga
+=======
+        // Cargar paquetes en la tabla
+        function loadPackages() {
+            const tableBody = document.querySelector('#packagesTable tbody');
+            const departmentFilter = document.getElementById('departmentFilter');
+            const selectedDepartment = departmentFilter.value;
+            
+            // Mostrar cargando
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            
+            // Obtener paquetes según el filtro seleccionado
+            let packages = [];
+            
+            try {
+                if (selectedDepartment === 'all') {
+                    // Obtener todos los paquetes
+                    const packagesString = localStorage.getItem('paquetesPrueba');
+                    packages = packagesString ? JSON.parse(packagesString) : [];
+                } else {
+                    // Obtener paquetes del departamento seleccionado
+                    packages = getPackagesByDepartment(selectedDepartment);
+                }
+                
+                // Guardar referencia a todos los paquetes para el dashboard
+                allPackages = packages;
+                
+                // Actualizar los contadores del dashboard
+                updateDashboardCounters();
+                
+                // Verificar si hay paquetes
+                if (!packages || packages.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <i class="fas fa-box-open"></i>
+                                    <p>No hay paquetes registrados para mostrar</p>
+                                    <a href="registerPackage.html" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i>
+                                        Registrar Nuevo
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                // Construir filas de la tabla
+                let tableContent = '';
+                packages.forEach((pkg, index) => {
+                    // Asignar ID si no existe
+                    if (!pkg.id) {
+                        pkg.id = `PKG-${pkg.apartment_number}-${Date.now()}-${index}`;
+                    }
+                    
+                    // Formatear fecha
+                    let formattedDate = 'Fecha no disponible';
+                    if (pkg.delivery_date) {
+                        const date = new Date(pkg.delivery_date);
+                        formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+                    }
+                    
+                    // Determinar estado
+                    const status = pkg.status || 'pendiente';
+                    const statusClass = status === 'pendiente' ? 'status-pending' : 'status-delivered';
+                    const statusText = status === 'pendiente' ? 'Pendiente' : 'Entregado';
+                    
+                    tableContent += `
+                        <tr>
+                            <td>${pkg.id}</td>
+                            <td>${pkg.apartment_number}</td>
+                            <td>${pkg.sender || 'No especificado'}</td>
+                            <td>${formattedDate}</td>
+                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                            <td>
+                                ${status === 'pendiente' ? 
+                                    `<button class="btn" style="background-color: #2980b9; color: white;" onclick="openModal('${pkg.id}')">
+                                        <i class="fas fa-check"></i>
+                                        Marcar como retirado
+                                    </button>` : 
+                                    `<button class="btn btn-light disabled">
+                                        <i class="fas fa-check"></i>
+                                        Retirado
+                                    </button>`
+                                }
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableBody.innerHTML = tableContent;
+                
+                // Actualizar paquetes
+                if (selectedDepartment === 'all') {
+                    localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
+                } else {
+                    savePackagesToDepartment(selectedDepartment, packages);
+                }
+                
+            } catch (error) {
+                console.error('Error al cargar paquetes:', error);
+                document.getElementById('errorMessage').style.display = 'block';
+>>>>>>> SCRUM-200
                 tableBody.innerHTML = `
                     <tr>
                         <td colspan="6">
@@ -790,6 +1265,7 @@
             }
         }
         
+<<<<<<< HEAD
         // Función para generar un código QR único basado en información del paquete
         function generateQRCode(apartmentNumber, deliveryDate, index) {
             // Obtener fecha en formato YYYYMMDD
@@ -797,97 +1273,213 @@
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
+=======
+        // Actualizar los contadores del dashboard
+        function updateDashboardCounters() {
+            const totalPackages = allPackages.length;
+            const pendingPackages = allPackages.filter(pkg => pkg.status === 'pendiente').length;
+            const deliveredPackages = allPackages.filter(pkg => pkg.status === 'retirado' || pkg.status === 'entregado').length;
+>>>>>>> SCRUM-200
             
-            // Generar un código único con formato: PKG-DEPT-YYYYMMDD-RANDOM
-            const randomPart = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-            const qrCode = `PKG-${apartmentNumber}-${year}${month}${day}-${randomPart}`;
+            document.getElementById('totalPackages').textContent = totalPackages;
+            document.getElementById('pendingPackages').textContent = pendingPackages;
+            document.getElementById('deliveredPackages').textContent = deliveredPackages;
             
-            return qrCode;
+            // Actualizar contador de notificaciones (paquetes pendientes)
+            document.getElementById('notificationCount').textContent = pendingPackages;
         }
 
-        // Función para abrir el modal de confirmación
+        // Abrir modal de confirmación
         function openModal(packageId) {
             currentPackageId = packageId;
-            document.getElementById('confirmModal').classList.add('active');
+            document.getElementById('confirmModal').classList.add('show');
         }
 
-        // Función para cerrar el modal
+        // Cerrar modal
         function closeModal() {
-            document.getElementById('confirmModal').classList.remove('active');
+            document.getElementById('confirmModal').classList.remove('show');
         }
 
-        // Cerrar modal con Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
-        });
-
-        // Cerrar modal si se hace clic fuera de él
-        document.getElementById('confirmModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('confirmModal')) {
-                closeModal();
-            }
-        });
-
-        // Agregar evento al filtro de departamentos
-        document.getElementById('departmentFilter').addEventListener('change', function() {
-            loadPackages();
-        });
-    
-        // Configurar el botón de confirmación en el modal
-        document.getElementById('confirmButton').addEventListener('click', function() {
-            if (currentPackageId) {
-                updatePackageStatus(currentPackageId, 'retirado');
-                closeModal();
-            }
-        });
-    
-        // Función para actualizar el estado de un paquete
+        // Actualizar estado de un paquete
         function updatePackageStatus(packageId, newStatus) {
-            // Obtener todos los paquetes
-            const packagesString = localStorage.getItem('paquetesPrueba');
-            let allPackages = packagesString ? JSON.parse(packagesString) : [];
-            
-            // Buscar el paquete por ID
-            const packageIndex = allPackages.findIndex(pkg => pkg.id === packageId);
-            
-            if (packageIndex !== -1) {
-                // Actualizar el estado del paquete
-                allPackages[packageIndex].status = newStatus;
-                
-                // Guardar los cambios
-                savePackages(allPackages);
-                
-                // Recargar la tabla
-                loadPackages();
-            } else {
-                // Si no se encuentra en el almacenamiento global, buscar en los departamentos
-                const departments = getAllDepartments();
-                let found = false;
-                
-                for (const dept of departments) {
-                    const deptNumber = typeof dept === 'object' ? dept.number : dept;
-                    const deptPackages = getPackagesByDepartment(deptNumber);
+            // Actualizar en lista global
+            try {
+                const packagesString = localStorage.getItem('paquetesPrueba');
+                if (packagesString) {
+                    const packages = JSON.parse(packagesString);
+                    const packageIndex = packages.findIndex(pkg => pkg.id === packageId);
                     
-                    const packageIndex = deptPackages.findIndex(pkg => pkg.id === packageId);
                     if (packageIndex !== -1) {
-                        // Actualizar el estado del paquete
-                        deptPackages[packageIndex].status = newStatus;
-                        
-                        // Guardar los cambios
-                        savePackagesToDepartment(deptNumber, deptPackages);
-                        found = true;
-                        break;
+                        packages[packageIndex].status = newStatus;
+                        localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
+                    }
+                }
+            } catch (error) {
+                console.error('Error al actualizar paquete en lista global:', error);
+            }
+            
+            // Actualizar en departamento específico
+            const departments = getAllDepartments();
+            
+            for (const dept of departments) {
+                let deptNumber;
+                
+                if (typeof dept === 'object') {
+                    deptNumber = dept.deptNumber || dept.numero;
+                } else {
+                    deptNumber = dept;
+                }
+                
+                const deptPackages = getPackagesByDepartment(deptNumber);
+                const packageIndex = deptPackages.findIndex(pkg => pkg.id === packageId);
+                
+                if (packageIndex !== -1) {
+                    deptPackages[packageIndex].status = newStatus;
+                    savePackagesToDepartment(deptNumber, deptPackages);
+                    break;
+                }
+            }
+            
+            // Recargar tabla
+            loadPackages();
+        }
+        
+        // Configurar perfil de usuario
+        function setupUserProfile() {
+            // Obtener el nombre de usuario desde localStorage (guardado en el login)
+            const storedUserName = localStorage.getItem('userName');
+            const userName = storedUserName || 'Administrador';
+            const userRole = 'Administrador';
+            
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('userRole').textContent = userRole;
+            
+            // Establecer iniciales para el avatar
+            const nameParts = userName.split(' ');
+            let initials = nameParts[0].charAt(0);
+            if (nameParts.length > 1) {
+                initials += nameParts[1].charAt(0);
+            } else {
+                initials = userName.charAt(0);
+            }
+            document.getElementById('userAvatar').textContent = initials.toUpperCase();
+        }
+        
+        // Manejador de eventos para el menú desplegable de usuario
+        function setupUserDropdown() {
+            const userProfileDropdown = document.getElementById('userProfileDropdown');
+            const userDropdown = document.getElementById('userDropdown');
+            
+            userProfileDropdown.addEventListener('click', function(e) {
+                userDropdown.classList.toggle('show');
+                e.stopPropagation();
+            });
+            
+            // Cerrar el menú desplegable al hacer clic fuera de él
+            document.addEventListener('click', function(e) {
+                if (!userProfileDropdown.contains(e.target)) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar autenticación
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Configurar perfil de usuario
+            setupUserProfile();
+            
+            // Configurar menú desplegable
+            setupUserDropdown();
+            
+            // Agregar datos de prueba si es necesario
+            addTestData();
+            
+            // Cargar departamentos y paquetes
+            loadDepartments();
+            loadPackages();
+            
+            // Filtro de departamentos
+            document.getElementById('departmentFilter').addEventListener('change', function() {
+                const selectedValue = this.value;
+                
+                // Actualizar título según departamento seleccionado
+                const packageListTitle = document.getElementById('packageListTitle');
+                if (packageListTitle) {
+                    if (selectedValue === 'all') {
+                        packageListTitle.textContent = 'Lista de Paquetes';
+                    } else {
+                        packageListTitle.textContent = `Paquetes del Departamento ${selectedValue}`;
                     }
                 }
                 
-                // Recargar la tabla
+                // Cargar paquetes según filtro
                 loadPackages();
+            });
+            
+            // Configurar botón de confirmación
+            document.getElementById('confirmButton').addEventListener('click', function() {
+                if (currentPackageId) {
+                    updatePackageStatus(currentPackageId, 'retirado');
+                    closeModal();
+                }
+            });
+            
+            // Cerrar modal con Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
+            
+            // Cerrar modal al hacer clic fuera
+            document.getElementById('confirmModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('confirmModal')) {
+                    closeModal();
+                }
+            });
+            
+            // Cargar departamento específico desde URL si existe
+            const urlParams = new URLSearchParams(window.location.search);
+            const departmentParam = urlParams.get('department');
+            
+            if (departmentParam) {
+                const departments = getAllDepartments();
+                const departmentExists = departments.some(dept => {
+                    if (typeof dept === 'object') {
+                        return (dept.deptNumber || dept.numero) == departmentParam;
+                    }
+                    return dept == departmentParam;
+                });
                 
-                if (!found) {
-                    console.error(`No se encontró el paquete con ID ${packageId}`);
+                if (departmentExists) {
+                    setTimeout(() => {
+                        const departmentFilter = document.getElementById('departmentFilter');
+                        
+                        // Buscar la opción que coincida con el departamento
+                        for (let i = 0; i < departmentFilter.options.length; i++) {
+                            if (departmentFilter.options[i].value == departmentParam) {
+                                departmentFilter.selectedIndex = i;
+                                break;
+                            }
+                        }
+                        
+                        // Actualizar título
+                        const packageListTitle = document.getElementById('packageListTitle');
+                        if (packageListTitle) {
+                            packageListTitle.textContent = `Paquetes del Departamento ${departmentParam}`;
+                        }
+                        
+                        // Cargar paquetes
+                        loadPackages();
+                    }, 100);
                 }
             }
-        }
+        });
     </script>
 </body>
 </html>
