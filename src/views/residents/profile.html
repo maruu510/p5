@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Perfil - Gestión de Paquetes</title>
+    <link rel="stylesheet" href="../styles/resident-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-box"></i>
+                PackageManager
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item" onclick="window.location.href='dashboardresidents.html'">
+                    <i class="fas fa-home"></i>
+                    <span>Inicio</span>
+                </li>
+                <li class="nav-item" onclick="window.location.href='packages_residents.html'">
+                    <i class="fas fa-box"></i>
+                    <span>Mis Paquetes</span>
+                </li>
+                <li class="nav-item active">
+                    <i class="fas fa-user"></i>
+                    <span>Mi Perfil</span>
+                </li>
+                <li class="nav-item" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Cerrar Sesión</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <h1>Mi Perfil</h1>
+            
+            <div class="profile-container">
+                <div class="card">
+                    <div class="card-header">
+                        Información Personal
+                    </div>
+                    <div class="card-body">
+                        <form id="profileForm">
+                            <div class="form-group">
+                                <label>Nombre Completo</label>
+                                <input type="text" id="fullName" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Departamento</label>
+                                <input type="text" id="department" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="email">
+                            </div>
+                            <div class="form-group">
+                                <label>Teléfono</label>
+                                <input type="tel" id="phone">
+                            </div>
+                            <button type="submit" class="btn-primary">Actualizar Datos</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!localStorage.getItem('authToken') || localStorage.getItem('userRole') !== 'residente') {
+                window.location.href = '/login.html';
+            } else {
+                loadProfileData();
+            }
+        });
+
+        async function loadProfileData() {
+            try {
+                const response = await fetch('/api/resident/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('fullName').value = data.fullName;
+                    document.getElementById('department').value = data.department;
+                    document.getElementById('email').value = data.email;
+                    document.getElementById('phone').value = data.phone;
+                }
+            } catch (error) {
+                console.error('Error al cargar perfil:', error);
+            }
+        }
+
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch('/api/resident/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value,
+                        phone: document.getElementById('phone').value
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('Perfil actualizado correctamente');
+                }
+            } catch (error) {
+                console.error('Error al actualizar perfil:', error);
+                alert('Error al actualizar el perfil');
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userRole');
+            window.location.href = '/login.html';
+        }
+    </script>
+</body>
+</html>

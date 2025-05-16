@@ -1,3 +1,4 @@
+//departamentRoutes.ts
 import { Router } from "../../deps.ts";
 import { getDepartments } from "../controllers/departmentController.ts";
 

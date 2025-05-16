@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Residente - Gestión de Paquetes</title>
+    <link rel="stylesheet" href="../styles/resident-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-box"></i>
+                PackageManager
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Inicio</span>
+                </li>
+                <li class="nav-item" onclick="window.location.href='packages_residents.html'">
+                    <i class="fas fa-box"></i>
+                    <span>Mis Paquetes</span>
+                </li>
+                <li class="nav-item" onclick="window.location.href='profile.html'">
+                    <i class="fas fa-user"></i>
+                    <span>Mi Perfil</span>
+                </li>
+                <li class="nav-item" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Cerrar Sesión</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <h1>Bienvenido, <span id="userName">Residente</span></h1>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Paquetes Pendientes</h3>
+                    <p id="pendingCount">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Paquetes Entregados</h3>
+                    <p id="deliveredCount">0</p>
+                </div>
+            </div>
+
+            <div class="packages-list">
+                <h2>Últimos Paquetes</h2>
+                <table id="packagesTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Remitente</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>QR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Se llenará dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!localStorage.getItem('authToken') || localStorage.getItem('userRole') !== 'residente') {
+                window.location.href = '/login.html';
+            } else {
+                loadResidentData();
+            }
+        });
+
+        async function loadResidentData() {
+            try {
+                const response = await fetch('/api/packages/resident', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    updateUI(data);
+                }
+            } catch (error) {
+                console.error('Error al cargar datos:', error);
+            }
+        }
+
+        function updateUI(data) {
+            document.getElementById('pendingCount').textContent = data.pending;
+            document.getElementById('deliveredCount').textContent = data.delivered;
+            document.getElementById('userName').textContent = data.name;
+            
+            const tbody = document.querySelector('#packagesTable tbody');
+            tbody.innerHTML = '';
+            
+            data.packages.forEach(pkg => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${pkg.id}</td>
+                    <td>${pkg.sender}</td>
+                    <td>${new Date(pkg.delivery_date).toLocaleDateString()}</td>
+                    <td><span class="status ${pkg.status}">${pkg.status}</span></td>
+                    <td>
+                        <img src="${pkg.qr_code}" alt="QR Code" width="50" 
+                             onclick="showQRModal('${pkg.qr_code}', '${pkg.id}')">
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function showQRModal(qrCode, packageId) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3>QR Code para paquete ${packageId}</h3>
+                    <div class="qr-code">
+                        <img src="${qrCode}" alt="QR Code">
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()">Cerrar</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userRole');
+            window.location.href = '/login.html';
+        }
+    </script>
+</body>
+</html>

@@ -38,3 +38,13 @@ export async function verifyJwt(token: string): Promise<boolean> {
     return false;
   }
 }
+
+// Add the decodeJwt function export
+export async function decodeJwt(token: string): Promise<any> {
+  try {
+    const payload = await jwt.verify(token, JWT_SECRET);
+    return payload;
+  } catch (error) {
+    throw new Error("Invalid token");
+  }
+}

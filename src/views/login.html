@@ -452,7 +452,7 @@
     <!-- Barra superior -->
     <div class="top-bar">
         <div class="top-bar-left">
-            <img src="./images/ENCOMIENDA.png" alt="Logo">
+            <img src="../images/ENCOMIENDA.png" alt="Logo">
             <span>Sistema de Gestión de Paquetes</span>
         </div>
         <div class="top-bar-right">
@@ -469,7 +469,7 @@
     <!-- Contenedor de login -->
     <div class="login-container">
         <div class="login-logo">
-            <img src="./images/ENCOMIENDA.png" alt="Logo Sistema de Encomiendas">
+            <img src="../images/ENCOMIENDA.png" alt="Logo Sistema de Encomiendas">
         </div>
         <h1 class="login-title">Bienvenido al Sistema</h1>
         <p class="login-subtitle">Inicia sesión para continuar</p>
@@ -516,6 +516,9 @@
             </button>
             <div class="error-message" id="loginError">Usuario o contraseña incorrectos</div>
         </form>
+        <div class="signup-link" style="text-align: center; margin-top: 20px;">
+            ¿No tienes una cuenta? <a href="signup.html">Regístrate aquí</a>
+        </div>
     </div>
     
     <footer>
@@ -531,331 +534,52 @@
     <div class="loader-container" id="loader">
         <div class="loader"></div>
     </div>
-<<<<<<< HEAD
-    <p id="copyright">© 2025 Sistema de Gestión de Paquetes</p>
-  </footer>
-  <div class="loader-container" id="loader">
-    <div class="loader"></div>
-  </div>
-  <script>
-    // Referencias a elementos del DOM
-    const loginForm = document.getElementById('login-form');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const togglePassword = document.getElementById('toggle-password');
-    const passwordIcon = document.getElementById('password-icon');
-    const rememberMe = document.getElementById('remember-me');
-    const errorMessage = document.getElementById('error-message');
-    const successMessage = document.getElementById('success-message');
-    const loader = document.getElementById('loader');
-    const languageSelect = document.getElementById('language');
-    const userTypeSelect = document.getElementById('user-type');
-    // Traducciones
-    const translations = {
-      es: {
-        welcomeTitle: 'Bienvenido al Sistema de Gestión de Paquetes',
-        loginTitle: 'Iniciar Sesión',
-        languageLabel: 'Idioma:',
-        userTypeLabel: 'Tipo de usuario:',
-        usernameLabel: 'Nombre de usuario',
-        passwordLabel: 'Contraseña',
-        rememberLabel: 'Recordar usuario',
-        loginButton: 'Iniciar Sesión',
-        forgotPassword: '¿Olvidaste tu contraseña?',
-        registerText: '¿No tienes cuenta? <a href="signup.html">Regístrate aquí</a>',
-        supportLink: 'Soporte',
-        privacyLink: 'Privacidad',
-        termsLink: 'Términos',
-        copyright: '© 2025 Sistema de Gestión de Paquetes',
-        errorEmpty: 'Por favor, complete todos los campos',
-        errorInvalid: 'Usuario o contraseña incorrectos',
-        successLogin: 'Inicio de sesión exitoso. Redireccionando...'
-      },
-      en: {
-        welcomeTitle: 'Welcome to the Package Management System',
-        loginTitle: 'Login',
-        languageLabel: 'Language:',
-        userTypeLabel: 'User type:',
-        usernameLabel: 'Username',
-        passwordLabel: 'Password',
-        rememberLabel: 'Remember me',
-        loginButton: 'Login',
-        forgotPassword: 'Forgot your password?',
-        registerText: 'Don\'t have an account? <a href="signup.html">Register here</a>',
-        supportLink: 'Support',
-        privacyLink: 'Privacy',
-        termsLink: 'Terms',
-        copyright: '© 2025 Package Management System',
-        errorEmpty: 'Please fill in all fields',
-        errorInvalid: 'Invalid username or password',
-        successLogin: 'Login successful. Redirecting...'
-      }
-    };
-
-    // Mostrar/ocultar contraseña
-    togglePassword.addEventListener('click', () => {
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        passwordIcon.innerHTML = `
-          <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
-          <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
-        `;
-      } else {
-        passwordInput.type = 'password';
-        passwordIcon.innerHTML = `
-          <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
-          <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z"/>
-          <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z"/>
-        `;
-      }
-    });
-
-    // Cambiar idioma
-    function changeLanguage(lang) {
-      const translation = translations[lang];
-      document.getElementById('welcome-title').textContent = translation.welcomeTitle;
-      document.getElementById('login-title').textContent = translation.loginTitle;
-      document.getElementById('language-label').textContent = translation.languageLabel;
-      document.getElementById('user-type-label').textContent = translation.userTypeLabel;
-      document.getElementById('username-label').textContent = translation.usernameLabel;
-      document.getElementById('password-label').textContent = translation.passwordLabel;
-      document.getElementById('remember-label').textContent = translation.rememberLabel;
-      document.getElementById('login-button').textContent = translation.loginButton;
-      document.getElementById('forgot-password').textContent = translation.forgotPassword;
-      document.getElementById('register-text').innerHTML = translation.registerText;
-      document.getElementById('support-link').textContent = translation.supportLink;
-      document.getElementById('privacy-link').textContent = translation.privacyLink;
-      document.getElementById('terms-link').textContent = translation.termsLink;
-      document.getElementById('copyright').textContent = translation.copyright;
-    }
-
-    // Mostrar mensajes
-    function showError(msg) {
-      errorMessage.textContent = msg;
-      errorMessage.classList.add('show');
-      successMessage.classList.remove('show');
-    }
-    function showSuccess(msg) {
-      successMessage.textContent = msg;
-      successMessage.classList.add('show');
-      errorMessage.classList.remove('show');
-    }
-    function hideMessages() {
-      errorMessage.classList.remove('show');
-      successMessage.classList.remove('show');
-    }
-    function showLoader() { loader.classList.add('show'); }
-    function hideLoader() { loader.classList.remove('show'); }
-
-    // Login con usuario fijo admin
-    function validarLogin(username, password, userType) {
-      // Permitir usuarios fijos admin
-      if (
-        (username === 'admin' && password === 'admin123' && userType === 'admin') ||
-        (username === 'superadmin' && password === 'super123' && userType === 'admin')
-      ) {
-        localStorage.setItem('authToken', 'token-' + Date.now());
-        localStorage.setItem('currentUser', JSON.stringify({
-          id: username === 'admin' ? 0 : 1,
-          username: username,
-          role: 'admin'
-        }));
-        return true;
-      }
-      // Usuarios del localStorage
-      const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
-      const usuario = usuarios.find(user => user.username === username && user.role === userType);
-      if (usuario && usuario.password === btoa(password)) {
-        localStorage.setItem('authToken', 'token-' + Date.now());
-        localStorage.setItem('currentUser', JSON.stringify({
-          id: usuario.id,
-          username: usuario.username,
-          role: usuario.role
-        }));
-        return true;
-      }
-      return false;
-    }
-
-    // Guardar idioma seleccionado
-    languageSelect.addEventListener('change', (e) => {
-      const lang = e.target.value;
-      localStorage.setItem('language', lang);
-      changeLanguage(lang);
-    });
-
-    // Recordar usuario
-    window.addEventListener('DOMContentLoaded', () => {
-      // Idioma guardado
-      const savedLang = localStorage.getItem('language') || 'es';
-      languageSelect.value = savedLang;
-      changeLanguage(savedLang);
-
-      // Recordar usuario
-      const remembered = localStorage.getItem('rememberedUser');
-      if (remembered) {
-        usernameInput.value = remembered;
-        rememberMe.checked = true;
-      }
-    });
-
-    rememberMe.addEventListener('change', () => {
-      if (rememberMe.checked) {
-        localStorage.setItem('rememberedUser', usernameInput.value);
-      } else {
-        localStorage.removeItem('rememberedUser');
-      }
-    });
-
-    // Login
-    loginForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      hideMessages();
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value;
-      const userType = userTypeSelect.value;
-
-      const lang = languageSelect.value;
-      const translation = translations[lang];
-
-      if (!username || !password) {
-        showError(translation.errorEmpty);
-        return;
-      }
-
-      showLoader();
-      setTimeout(() => {
-        hideLoader();
-        // Agregar mensaje de depuración
-        console.log("Intentando login con:", username, password, userType);
-        
-        if (validarLogin(username, password, userType)) {
-          showSuccess(translation.successLogin);
-          // Recordar usuario si está marcado
-          if (rememberMe.checked) {
-            localStorage.setItem('rememberedUser', username);
-          } else {
-            localStorage.removeItem('rememberedUser');
-          }
-          
-          // Agregar mensaje de depuración
-          console.log("Login exitoso, redirigiendo a:", userType === 'admin' ? 'listPackages.html' : 'resident.html');
-          
-          setTimeout(() => {
-            // Redirigir según tipo de usuario
-            if (userType === 'admin') {
-              window.location.href = 'listPackages.html';
-            } else {
-              window.location.href = 'resident.html';
-            }
-          }, 1200);
-        } else {
-          // Agregar mensaje de depuración
-          console.log("Login fallido");
-          showError(translation.errorInvalid);
-        }
-      }, 900);
-    });
-  </script>
-=======
     
     <script>
+        // Agregar al inicio del script existente
         document.addEventListener('DOMContentLoaded', function() {
-            // Animación de formas de fondo
-            const shapes = document.querySelectorAll('.shape');
-            shapes.forEach((shape, index) => {
-                shape.style.animation = `float ${3 + index * 0.5}s ease-in-out infinite`;
-                shape.style.animationDelay = `${index * 0.2}s`;
-            });
-            
-            // Limpiar datos de sesión anteriores
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userName');
-            localStorage.removeItem('userType');
-            localStorage.removeItem('isLoggedIn');
-            
-            // Selector de tipo de usuario
             const userTypeOptions = document.querySelectorAll('.user-type-option');
-            let userType = 'admin'; // Valor por defecto
             
             userTypeOptions.forEach(option => {
                 option.addEventListener('click', function() {
+                    // Remover clase active de todas las opciones
                     userTypeOptions.forEach(opt => opt.classList.remove('active'));
+                    // Agregar clase active a la opción seleccionada
                     this.classList.add('active');
-                    userType = this.getAttribute('data-type');
                 });
             });
-            
-            // Formulario de login
-            const loginForm = document.getElementById('loginForm');
-            const usernameInput = document.getElementById('username');
-            const passwordInput = document.getElementById('password');
-            const usernameError = document.getElementById('usernameError');
-            const passwordError = document.getElementById('passwordError');
-            const loginError = document.getElementById('loginError');
-            const loader = document.getElementById('loader');
-            
-            loginForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Resetear errores
-                usernameError.classList.remove('show');
-                passwordError.classList.remove('show');
-                loginError.classList.remove('show');
-                
-                // Validar campos
-                let isValid = true;
-                
-                if (!usernameInput.value.trim()) {
-                    usernameError.classList.add('show');
-                    isValid = false;
-                }
-                
-                if (passwordInput.value.length < 6) {
-                    passwordError.classList.add('show');
-                    isValid = false;
-                }
-                
-                if (!isValid) return;
-                
-                // Mostrar loader
-                loader.classList.add('show');
-                
-                // Simular autenticación
-                setTimeout(() => {
-                    loader.classList.remove('show');
-                    
-                    // Credenciales de prueba
-                    const validCredentials = {
-                        admin: { username: 'admin', password: 'admin123' },
-                        resident: { username: 'residente', password: 'residente123' }
-                    };
-                    
-                    const currentCredentials = validCredentials[userType];
-                    
-                    if (usernameInput.value === currentCredentials.username && 
-                        passwordInput.value === currentCredentials.password) {
-                        // Login exitoso - Guardar información de sesión
-                        localStorage.setItem('authToken', 'simulated-jwt-token');
-                        localStorage.setItem('userName', usernameInput.value);
-                        localStorage.setItem('userType', userType);
-                        localStorage.setItem('isLoggedIn', 'true');
-                        
-                        // Redirigir según tipo de usuario
-                        if (userType === 'admin') {
-                            window.location.href = 'dashboard.html';
-                        } else {
-                            window.location.href = 'resident.html';
-                        }
-                    } else {
-                        // Login fallido
-                        loginError.classList.add('show');
-                        passwordInput.value = '';
-                    }
-                }, 1200);
+        });
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
             });
+
+            const result = await response.json();
+            if (response.ok) {
+                localStorage.setItem('authToken', result.token);
+                localStorage.setItem('userRole', result.role);
+                
+                // Redirección según rol ya implementada
+                if (username === 'admin@gmail.com' && result.role === 'admin') {
+                    window.location.href = '/dashboard.html';
+                } else if (result.role === 'residente') {
+                    window.location.href = '/residents/dashboardresidents.html';
+                }
+            } else {
+                if (username === 'admin@gmail.com') {
+                    alert('Credenciales de administrador incorrectas');
+                } else {
+                    alert('Credenciales incorrectas. Si eres residente, verifica tus datos.');
+                }
+            }
         });
     </script>
->>>>>>> SCRUM-200
 </body>
 </html>

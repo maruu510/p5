@@ -1,3 +1,4 @@
+//departament.js
 // Funciones para gestionar departamentos
 
 // Obtener todos los departamentos

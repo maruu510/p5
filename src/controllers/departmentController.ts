@@ -1,3 +1,4 @@
+//departamentController.ts
 import { RouterContext } from "../../deps.ts";
 import { getAllDepartments } from "../database/models/departament.ts";
 

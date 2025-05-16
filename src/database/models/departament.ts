@@ -1,3 +1,4 @@
+//departament.ts
 import { Pool } from "../../../deps.ts";
 
 export async function getAllDepartments() {

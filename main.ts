@@ -1,3 +1,4 @@
+// main.ts
 import { Application, Router, send } from "./deps.ts";
 import { createPackagesTable } from "./src/database/models/package.ts";
 import { createUsersTable } from "./src/auth/models/user.ts";
@@ -7,12 +8,6 @@ import { oakCors } from "./deps.ts";
 import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
 import "https://deno.land/std@0.204.0/dotenv/load.ts";
 import departmentRoutes from "./src/routes/departmentRoutes.ts";
-// ...otros imports y setup...
-
-
-
-
-
 
 // Verificar variables de entorno
 console.log("Variables de entorno:", {
@@ -45,22 +40,29 @@ app.use(async (ctx, next) => {
 });
 
 // Middleware para servir archivos estáticos
-app.use(async (ctx, next) => {  // This is the async function causing the warning
+app.use(async (ctx, next) => {
   const path = ctx.request.url.pathname;
-  if (path.startsWith("/styles") || path.startsWith("/images") || path.endsWith(".html")) {
-    await send(ctx, path, {      // This function uses await
-      root: join(Deno.cwd(), "src", "views"),
-    });
+  if (path.startsWith("/residentes") || 
+      path.startsWith("/styles") || 
+      path.startsWith("/public/qr_codes") || 
+      path.endsWith(".html") ||
+      path === "/") {
+    try {
+      await send(ctx, path, {
+        root: join(Deno.cwd(), "src/views"),
+        index: "login.html"
+      });
+    } catch {
+      await next();
+    }
   } else {
-    await next();               // This function uses await
+    await next();
   }
 });
 
 // Router para redirigir la raíz "/" hacia "login.html"
 const router = new Router();
-// ... existing code ...
-
-router.get("/", (ctx) => {  // Removed async keyword
+router.get("/", (ctx) => {
   ctx.response.redirect("/login.html");
 });
 
