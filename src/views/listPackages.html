@@ -1138,10 +1138,30 @@
         }
 
         // Abrir modal de confirmación
-        function openModal(packageId) {
-            currentPackageId = packageId;
-            document.getElementById('confirmModal').classList.add('show');
-        }
+        function processManualCode() {
+    const manualCode = manualCodeInput.value.trim();
+    
+    if (!manualCode) {
+        showNotification('Por favor ingrese un código válido', true);
+        return;
+    }
+    // Obtener packageId de la URL si existe
+    const urlParams = getUrlParameters();
+    const packageIdFromUrl = urlParams.package;
+    
+    // Si hay un ID de paquete en la URL, verificar que el código ingresado coincida
+    if (packageIdFromUrl && manualCode !== packageIdFromUrl) {
+        showNotification('El código ingresado no coincide con el ID del paquete seleccionado', true);
+        return;
+    }
+    
+    // Procesar el código ingresado manualmente
+    processQRCode(manualCode);
+    
+    // Limpiar y ocultar el formulario
+    manualCodeInput.value = '';
+    toggleManualEntry(false);
+}
 
         // Cerrar modal
         function closeModal() {
@@ -1324,6 +1344,7 @@
                         
                         // Cargar paquetes
                         loadPackages();
+                        checkUrlForPackage();
                     }, 100);
                 }
             }

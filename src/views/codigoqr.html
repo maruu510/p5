@@ -602,11 +602,10 @@
                 <i class="fas fa-qrcode"></i>
                 <span>Lector QR</span>
             </li>
-        </li>
-        <li class="nav-item" onclick="window.location.href='notificaciones.html'">
-            <i class="fa-solid fa-envelope-open-text"></i>
-            <span>Notificaciones</span>
-        </li>
+            <li class="nav-item" onclick="window.location.href='notificaciones.html'">
+                <i class="fa-solid fa-envelope-open-text"></i>
+                <span>Notificaciones</span>
+            </li>
             <li class="nav-item" onclick="window.location.href='configuracion.html'">
                 <i class="fas fa-cog"></i>
                 <span>Configuración</span>
@@ -737,6 +736,23 @@
                 window.location.href = 'login.html';
                 return;
             }
+            checkUrlForPackage();
+            function checkUrlForPackage() {
+    const urlParams = getUrlParameters();
+    const packageIdFromUrl = urlParams.package;
+    
+    if (packageIdFromUrl) {
+        // Mostrar mensaje informativo
+        showNotification('Escanee el código QR del paquete para verificar y marcarlo como retirado');
+        
+        // Opcional: Iniciar la cámara automáticamente
+        setTimeout(() => {
+            if (!scanning) {
+                startCamera();
+            }
+        }, 1000);
+    }
+}
 
             // Elementos del DOM
             const video = document.getElementById('qr-video');
@@ -863,6 +879,47 @@
                     toggleManualEntry(true);
                 }
             }
+            // Función para procesar parámetros de URL
+            function getUrlParameters() {
+                const params = new URLSearchParams(window.location.search);
+                const paramObject = {};
+                
+                for (const [key, value] of params) {
+                    paramObject[key] = value;
+                }
+                
+                return paramObject;
+            }
+            // Función para verificar si un packageId coincide con un código QR
+            function verifyPackageMatch(qrData, packageId) {
+                // Si QR es un JSON, extraer el ID
+                try {
+                    const jsonData = JSON.parse(qrData);
+                    return jsonData.id === packageId;
+                } catch (e) {
+                    // Si no es JSON, verificar si el código QR es igual al ID del paquete
+                    return qrData === packageId;
+                }
+            }
+            // Función para actualizar el estado de un paquete
+            function updatePackageStatus(packageId, newStatus = 'retirado') {
+                let isUpdated = false;
+                try {
+                    const packagesString = localStorage.getItem('paquetesPrueba');
+                    if (packagesString) {
+                        const packages = JSON.parse(packagesString);
+                        const packageIndex = packages.findIndex(pkg => pkg.id === packageId);
+            
+                        if (packageIndex !== -1) {
+                            packages[packageIndex].status = newStatus;
+                            localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
+                            isUpdated = true;
+                        }
+                    }
+                } catch (error) {
+            console.error('Error al actualizar paquete en lista global:', error);
+            return false;
+                }
 
             // Función para detener la cámara
             function stopCamera() {
@@ -885,6 +942,65 @@
                 stopCamera();
                 startCamera();
             }
+             // Obtener todos los departamentos
+                function getAllDepartments() {
+                    try {
+                        const departmentsString = localStorage.getItem('departments');
+                        if (!departmentsString) return [];
+                        
+                        const departments = JSON.parse(departmentsString);
+                        return departments || [];
+                    } catch (error) {
+                        console.error('Error al obtener departamentos:', error);
+                        return [];
+                    }
+                }
+                            // Obtener paquetes por departamento
+                function getPackagesByDepartment(deptNumber) {
+                    try {
+                        const key = `packages_${deptNumber}`;
+                        const packagesString = localStorage.getItem(key);
+                        if (!packagesString) return [];
+                        
+                        return JSON.parse(packagesString) || [];
+                    } catch (error) {
+                        console.error(`Error al obtener paquetes del departamento ${deptNumber}:`, error);
+                        return [];
+                    }
+                }
+                
+                // Guardar paquetes por departamento
+                function savePackagesToDepartment(deptNumber, packages) {
+                    const key = `packages_${deptNumber}`;
+                    localStorage.setItem(key, JSON.stringify(packages));
+                }
+                
+                // Actualizar en departamento específico
+                const departments = getAllDepartments();
+                
+                for (const dept of departments) {
+                    let deptNumber;
+                    
+                    if (typeof dept === 'object') {
+                        deptNumber = dept.deptNumber || dept.numero;
+                    } else {
+                        deptNumber = dept;
+                    }
+                    
+                    const deptPackages = getPackagesByDepartment(deptNumber);
+                    const packageIndex = deptPackages.findIndex(pkg => pkg.id === packageId);
+                    
+                    if (packageIndex !== -1) {
+                        deptPackages[packageIndex].status = newStatus;
+                        savePackagesToDepartment(deptNumber, deptPackages);
+                        isUpdated = true;
+                        break;
+                    }
+                }
+                
+                return isUpdated;
+            }
+
 
             // Función para procesamiento de frames y detección de QR
             function tick() {
@@ -921,49 +1037,91 @@
             // Función para procesar el código QR
             function processQRCode(data) {
                 console.log('QR Code escaneado:', data);
-                
+    
                 try {
+                    // Verificar si hay un packageId en la URL
+                    const urlParams = getUrlParameters();
+                    const packageIdFromUrl = urlParams.package;
+                    
                     // Intentar parsear como JSON, pero si falla mostrar como texto
                     let content;
-                    try {
-                        content = JSON.parse(data);
-                        // Formatear el JSON para mejor visualización
-                        resultContent.innerHTML = `
-                            <p><strong>ID Paquete:</strong> ${content.id || 'No disponible'}</p>
-                            <p><strong>Departamento:</strong> ${content.apartment_number || 'No disponible'}</p>
-                            <p><strong>Remitente:</strong> ${content.sender || 'No disponible'}</p>
-                            <p><strong>Fecha:</strong> ${content.delivery_date ? new Date(content.delivery_date).toLocaleDateString('es-ES') : 'No disponible'}</p>
-                            <p><strong>Estado:</strong> ${content.status || 'Pendiente'}</p>
-                        `;
-                    } catch (e) {
-                        // No es un JSON válido, mostrar como texto plano
-                        // Intentar detectar si es un código de paquete basado en el formato
-                        if (data.startsWith('PKG-')) {
-                            // Parece ser un código de paquete
-                            const parts = data.split('-');
-                            if (parts.length >= 3) {
-                                resultContent.innerHTML = `
-                                    <p><strong>Código de Paquete:</strong> ${data}</p>
-                                    <p><strong>Departamento:</strong> ${parts[1] || 'No disponible'}</p>
-                                    <p><strong>Fecha (código):</strong> ${parts[2] || 'No disponible'}</p>
-                                `;
-                            } else {
-                                resultContent.innerHTML = `<p><strong>Código de Paquete:</strong> ${data}</p>`;
-                            }
-                        } else {
-                            // Mostrar como texto plano genérico
-                            resultContent.innerHTML = `<p><strong>Contenido:</strong> ${data}</p>`;
-                        }
+                    let contentHtml = '';
+                    let isPackageVerified = false;
+                    
+                try {
+                    content = JSON.parse(data);
+                    // Formatear el JSON para mejor visualización
+                    contentHtml = `
+                        <p><strong>ID Paquete:</strong> ${content.id || 'No disponible'}</p>
+                        <p><strong>Departamento:</strong> ${content.apartment_number || 'No disponible'}</p>
+                        <p><strong>Remitente:</strong> ${content.sender || 'No disponible'}</p>
+                        <p><strong>Fecha:</strong> ${content.delivery_date ? new Date(content.delivery_date).toLocaleDateString('es-ES') : 'No disponible'}</p>
+                        <p><strong>Estado:</strong> ${content.status || 'Pendiente'}</p>
+                    `;
+                    
+                    // Verificar si coincide con el paquete de la URL
+                    if (packageIdFromUrl && content.id === packageIdFromUrl) {
+                        isPackageVerified = true;
+                        contentHtml += `<p class="verified-msg" style="color: #27ae60; font-weight: bold; margin-top: 10px; padding: 8px; background: rgba(46, 204, 113, 0.15); border-radius: 5px;">✓ Código QR verificado con el paquete seleccionado</p>`;
+                    } else if (packageIdFromUrl) {
+                        contentHtml += `<p class="warning-msg" style="color: #e74c3c; font-weight: bold; margin-top: 10px; padding: 8px; background: rgba(231, 76, 60, 0.15); border-radius: 5px;">⚠ El código QR no coincide con el paquete seleccionado</p>`;
                     }
                     
-                    // Mostrar el contenedor de resultados
-                    resultContainer.classList.add('active');
-                    
-                } catch (error) {
-                    console.error('Error al procesar el código QR:', error);
-                    showNotification('Error al procesar el código QR: ' + error.message, true);
+                } catch (e) {
+                    // No es un JSON válido, mostrar como texto plano
+                    // Intentar detectar si es un código de paquete basado en el formato
+                    if (data.startsWith('PKG-')) {
+                        // Parece ser un código de paquete
+                        const parts = data.split('-');
+                        if (parts.length >= 3) {
+                            contentHtml = `
+                                <p><strong>Código de Paquete:</strong> ${data}</p>
+                                <p><strong>Departamento:</strong> ${parts[1] || 'No disponible'}</p>
+                                <p><strong>Fecha (código):</strong> ${parts[2] || 'No disponible'}</p>
+                            `;
+                        } else {
+                            contentHtml = `<p><strong>Código de Paquete:</strong> ${data}</p>`;
+                        }
+                
+                // Verificar si coincide con el paquete de la URL
+                if (packageIdFromUrl && data === packageIdFromUrl) {
+                    isPackageVerified = true;
+                    contentHtml += `<p class="verified-msg" style="color: #27ae60; font-weight: bold; margin-top: 10px; padding: 8px; background: rgba(46, 204, 113, 0.15); border-radius: 5px;">✓ Código QR verificado con el paquete seleccionado</p>`;
+                } else if (packageIdFromUrl) {
+                    contentHtml += `<p class="warning-msg" style="color: #e74c3c; font-weight: bold; margin-top: 10px; padding: 8px; background: rgba(231, 76, 60, 0.15); border-radius: 5px;">⚠ El código QR no coincide con el paquete seleccionado</p>`;
+                }
+                
+            } else {
+                // Mostrar como texto plano genérico
+                contentHtml = `<p><strong>Contenido:</strong> ${data}</p>`;
+                
+                // Verificar si coincide con el paquete de la URL literalmente
+                if (packageIdFromUrl && data === packageIdFromUrl) {
+                    isPackageVerified = true;
+                    contentHtml += `<p class="verified-msg" style="color: #27ae60; font-weight: bold; margin-top: 10px; padding: 8px; background: rgba(46, 204, 113, 0.15); border-radius: 5px;">✓ Código QR verificado con el paquete seleccionado</p>`;
+                } else if (packageIdFromUrl) {
+                    contentHtml += `<p class="warning-msg" style="color: #e74c3c; font-weight: bold; margin-top: 10px; padding: 8px; background: rgba(231, 76, 60, 0.15); border-radius: 5px;">⚠ El código QR no coincide con el paquete seleccionado</p>`;
                 }
             }
+        }
+        
+                resultContent.innerHTML = contentHtml;
+        
+                // Guardar en data attributes para uso posterior
+                resultContainer.dataset.scannedQrData = data;
+                resultContainer.dataset.isVerified = isPackageVerified.toString();
+                if (packageIdFromUrl) {
+                    resultContainer.dataset.packageId = packageIdFromUrl;
+                }
+                
+                // Mostrar el contenedor de resultados
+                resultContainer.classList.add('active');
+                
+            } catch (error) {
+                console.error('Error al procesar el código QR:', error);
+                showNotification('Error al procesar el código QR: ' + error.message, true);
+            }
+        } 
 
             // Función para cerrar sesión
             function logout() {
@@ -979,8 +1137,71 @@
             
             // Manejador del botón de procesar paquete
             processButton.addEventListener('click', function() {
-                // Obtener el contenido del QR
-                const qrContent = resultContent.innerText;
+    // Obtener la información almacenada sobre el QR escaneado
+                const scannedQrData = resultContainer.dataset.scannedQrData;
+                const isVerified = resultContainer.dataset.isVerified === 'true';
+                const packageIdFromUrl = resultContainer.dataset.packageId;
+
+    // Si hay un packageId en la URL, debemos verificar que coincida con el QR
+    if (packageIdFromUrl) {
+        if (!isVerified) {
+            showNotification('El código QR escaneado no coincide con el paquete seleccionado', true);
+            return;
+        }
+        
+        // Actualizar el estado del paquete
+        const updated = updatePackageStatus(packageIdFromUrl);
+        
+        if (updated) {
+            showNotification('Paquete procesado y marcado como retirado correctamente');
+            
+            // Redireccionar a la lista de paquetes después de un breve retraso
+            setTimeout(() => {
+                window.location.href = 'listPackages.html';
+            }, 2000);
+        } else {
+            showNotification('Error al actualizar el estado del paquete', true);
+        }
+    } else {
+        // Si no hay un packageId en la URL, procesar directamente el QR
+        let packageId = null;
+        
+        // Intentar obtener el ID del paquete del código QR
+        try {
+            // Intentar parsear como JSON
+            const jsonData = JSON.parse(scannedQrData);
+            if (jsonData.id) {
+                packageId = jsonData.id;
+            }
+        } catch (e) {
+            // Si no es JSON, verificar si es un código de paquete directamente
+            if (scannedQrData.startsWith('PKG-')) {
+                packageId = scannedQrData;
+            }
+        }
+        
+        if (packageId) {
+            // Actualizar el estado del paquete
+            const updated = updatePackageStatus(packageId);
+            
+            if (updated) {
+                showNotification('Paquete procesado y marcado como retirado correctamente');
+                
+                // Cerrar el resultado después de un breve retraso
+                setTimeout(() => {
+                    resultContainer.classList.remove('active');
+                    // Opcional: iniciar el escáner nuevamente para escanear otro código
+                    startCamera();
+                }, 2000);
+            } else {
+                showNotification('Error al actualizar el estado del paquete. El código QR podría no corresponder a un paquete registrado.', true);
+            }
+        } else {
+            showNotification('No se pudo identificar un paquete válido en el código QR', true);
+        }
+    }
+});
+
                 
                 // Aquí iría la lógica para procesar el paquete en la base de datos
                 // Por ejemplo, actualizar el estado a 'entregado' o similar
