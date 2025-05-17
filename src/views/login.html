@@ -531,7 +531,6 @@
     <div class="loader-container" id="loader">
         <div class="loader"></div>
     </div>
-<<<<<<< HEAD
     <p id="copyright">© 2025 Sistema de Gestión de Paquetes</p>
   </footer>
   <div class="loader-container" id="loader">
@@ -757,105 +756,5 @@
       }, 900);
     });
   </script>
-=======
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Animación de formas de fondo
-            const shapes = document.querySelectorAll('.shape');
-            shapes.forEach((shape, index) => {
-                shape.style.animation = `float ${3 + index * 0.5}s ease-in-out infinite`;
-                shape.style.animationDelay = `${index * 0.2}s`;
-            });
-            
-            // Limpiar datos de sesión anteriores
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userName');
-            localStorage.removeItem('userType');
-            localStorage.removeItem('isLoggedIn');
-            
-            // Selector de tipo de usuario
-            const userTypeOptions = document.querySelectorAll('.user-type-option');
-            let userType = 'admin'; // Valor por defecto
-            
-            userTypeOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    userTypeOptions.forEach(opt => opt.classList.remove('active'));
-                    this.classList.add('active');
-                    userType = this.getAttribute('data-type');
-                });
-            });
-            
-            // Formulario de login
-            const loginForm = document.getElementById('loginForm');
-            const usernameInput = document.getElementById('username');
-            const passwordInput = document.getElementById('password');
-            const usernameError = document.getElementById('usernameError');
-            const passwordError = document.getElementById('passwordError');
-            const loginError = document.getElementById('loginError');
-            const loader = document.getElementById('loader');
-            
-            loginForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Resetear errores
-                usernameError.classList.remove('show');
-                passwordError.classList.remove('show');
-                loginError.classList.remove('show');
-                
-                // Validar campos
-                let isValid = true;
-                
-                if (!usernameInput.value.trim()) {
-                    usernameError.classList.add('show');
-                    isValid = false;
-                }
-                
-                if (passwordInput.value.length < 6) {
-                    passwordError.classList.add('show');
-                    isValid = false;
-                }
-                
-                if (!isValid) return;
-                
-                // Mostrar loader
-                loader.classList.add('show');
-                
-                // Simular autenticación
-                setTimeout(() => {
-                    loader.classList.remove('show');
-                    
-                    // Credenciales de prueba
-                    const validCredentials = {
-                        admin: { username: 'admin', password: 'admin123' },
-                        resident: { username: 'residente', password: 'residente123' }
-                    };
-                    
-                    const currentCredentials = validCredentials[userType];
-                    
-                    if (usernameInput.value === currentCredentials.username && 
-                        passwordInput.value === currentCredentials.password) {
-                        // Login exitoso - Guardar información de sesión
-                        localStorage.setItem('authToken', 'simulated-jwt-token');
-                        localStorage.setItem('userName', usernameInput.value);
-                        localStorage.setItem('userType', userType);
-                        localStorage.setItem('isLoggedIn', 'true');
-                        
-                        // Redirigir según tipo de usuario
-                        if (userType === 'admin') {
-                            window.location.href = 'dashboard.html';
-                        } else {
-                            window.location.href = 'resident.html';
-                        }
-                    } else {
-                        // Login fallido
-                        loginError.classList.add('show');
-                        passwordInput.value = '';
-                    }
-                }, 1200);
-            });
-        });
-    </script>
->>>>>>> SCRUM-200
 </body>
 </html>

@@ -508,6 +508,166 @@
             padding-top: 10px;
         }
         
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            outline: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-dialog {
+            position: relative;
+            width: auto;
+            margin: 10px;
+            pointer-events: none;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .modal-content {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            pointer-events: auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            outline: 0;
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .modal-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--dark);
+            margin: 0;
+        }
+        
+        .close-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: var(--gray);
+            padding: 5px;
+        }
+        
+        .close-btn:hover {
+            color: var(--danger);
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .package-detail-item {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .package-detail-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: var(--gray);
+            margin-bottom: 5px;
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+        
+        .detail-value {
+            font-size: 1rem;
+            color: var(--dark);
+        }
+        
+        .package-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background-color: rgba(243, 156, 18, 0.15);
+            color: var(--warning);
+        }
+        
+        .status-delivered {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: var(--success);
+        }
+        
+        .qr-code-container {
+            text-align: center;
+            margin: 15px 0;
+            padding: 15px;
+            background-color: var(--gray-light);
+            border-radius: 8px;
+        }
+        
+        .qr-placeholder {
+            width: 150px;
+            height: 150px;
+            background-color: white;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ddd;
+        }
+        
+        @media (max-width: 768px) {
+            .modal-dialog {
+                margin: 10px;
+                max-width: calc(100% - 20px);
+            }
+            
+            .modal-footer {
+                flex-direction: column;
+            }
+            
+            .modal-footer .btn {
+                width: 100%;
+            }
+        }
+
+            
         .grid-layout {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -675,7 +835,36 @@
                     </a>
                 </div>
             </div>
-            
+            <!-- Modal de Detalles del Paquete -->
+<div class="modal" id="packageDetailModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalles del Paquete</h5>
+                <button type="button" class="close-btn" onclick="closePackageModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="packageDetailContent">
+                <!-- El contenido se cargará dinámicamente -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" onclick="closePackageModal()">
+                    <i class="fas fa-times"></i>
+                    Cerrar
+                </button>
+                <button type="button" class="btn btn-primary" id="viewInListBtn">
+                    <i class="fas fa-list"></i>
+                    Ver en Lista
+                </button>
+                <button type="button" class="btn btn-success" id="scanQrBtn" style="display: none;">
+                    <i class="fas fa-qrcode"></i>
+                    Escanear QR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
             <!-- Estadísticas -->
             <div class="stats-grid">
                 <div class="stat-card">
@@ -878,6 +1067,7 @@
         }
         
         // Función para cargar paquetes recientes
+       // Función para cargar paquetes recientes
         function loadRecentPackages() {
             const packages = getAllPackages();
             const tableBody = document.getElementById('recentPackagesTable');
@@ -929,7 +1119,7 @@
                         <td>${formattedDate}</td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td>
-                            <button class="table-action" onclick="window.location.href='listPackages.html?id=${pkg.id}'">
+                            <button class="table-action" onclick="showPackageDetails('${pkg.id}')">
                                 <i class="fas fa-eye"></i> Ver
                             </button>
                         </td>
@@ -1072,6 +1262,140 @@
                     userDropdown.classList.remove('show');
                 }
             });
+        }
+                // Función para mostrar el modal con detalles del paquete
+        function showPackageDetails(packageId) {
+            // Buscar el paquete en los datos almacenados
+            const packages = getAllPackages();
+            const packageData = packages.find(pkg => pkg.id === packageId);
+            
+            if (!packageData) {
+                alert('No se encontró información del paquete');
+                return;
+            }
+            
+            // Obtener referencias al modal y sus elementos
+            const modal = document.getElementById('packageDetailModal');
+            const content = document.getElementById('packageDetailContent');
+            const viewInListBtn = document.getElementById('viewInListBtn');
+            const scanQrBtn = document.getElementById('scanQrBtn');
+            
+            // Formatear fecha
+            let formattedDate = 'No disponible';
+            if (packageData.delivery_date) {
+                const date = new Date(packageData.delivery_date);
+                formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+            }
+            
+            // Determinar estado y clase CSS
+            const status = packageData.status || 'pendiente';
+            const statusClass = status === 'pendiente' ? 'status-pending' : 'status-delivered';
+            const statusText = status === 'pendiente' ? 'Pendiente' : 'Entregado';
+            
+            // Construir el HTML con los detalles
+            let detailsHTML = `
+                <div class="package-detail-item">
+                    <span class="detail-label">ID de Paquete</span>
+                    <div class="detail-value">${packageData.id || 'No disponible'}</div>
+                </div>
+                
+                <div class="package-detail-item">
+                    <span class="detail-label">Departamento</span>
+                    <div class="detail-value">${packageData.apartment_number || 'No disponible'}</div>
+                </div>
+                
+                <div class="package-detail-item">
+                    <span class="detail-label">Remitente</span>
+                    <div class="detail-value">${packageData.sender || 'No especificado'}</div>
+                </div>
+                
+                <div class="package-detail-item">
+                    <span class="detail-label">Fecha de Entrega</span>
+                    <div class="detail-value">${formattedDate}</div>
+                </div>
+                
+                <div class="package-detail-item">
+                    <span class="detail-label">Estado</span>
+                    <div class="detail-value">
+                        <span class="package-status ${statusClass}">${statusText}</span>
+                    </div>
+                </div>
+            `;
+            
+            // Verificar si hay notas
+            if (packageData.notes) {
+                detailsHTML += `
+                    <div class="package-detail-item">
+                        <span class="detail-label">Notas</span>
+                        <div class="detail-value">${packageData.notes}</div>
+                    </div>
+                `;
+            }
+            
+            // Añadir sección de código QR
+            detailsHTML += `
+                <div class="qr-code-container">
+                    <span class="detail-label">Código QR del Paquete</span>
+                    <div class="qr-placeholder">
+                        <i class="fas fa-qrcode" style="font-size: 50px; color: #ccc;"></i>
+                    </div>
+                    <p style="margin-top: 10px; font-size: 0.8rem; color: var(--gray);">
+                        Este código debe escanearse para marcar el paquete como entregado
+                    </p>
+                </div>
+            `;
+            
+            // Insertar el HTML en el modal
+            content.innerHTML = detailsHTML;
+            
+            // Configurar el botón para ir a la lista
+            viewInListBtn.onclick = function() {
+                window.location.href = `listPackages.html?package=${packageData.id}`;
+            };
+            
+            // Mostrar u ocultar el botón de escanear QR según el estado
+            if (status === 'pendiente') {
+                scanQrBtn.style.display = 'inline-flex';
+                scanQrBtn.onclick = function() {
+                    window.location.href = `codigoqr.html?package=${packageData.id}`;
+                };
+            } else {
+                scanQrBtn.style.display = 'none';
+            }
+            
+            // Mostrar el modal
+            modal.classList.add('show');
+            
+            // Permitir cerrar con Escape
+            document.addEventListener('keydown', closeModalOnEscape);
+            
+            // Permitir cerrar al hacer clic fuera del modal
+            modal.addEventListener('click', closeModalOnOutsideClick);
+        }
+
+        // Función para cerrar el modal
+        function closePackageModal() {
+            const modal = document.getElementById('packageDetailModal');
+            modal.classList.remove('show');
+            
+            // Eliminar event listeners
+            document.removeEventListener('keydown', closeModalOnEscape);
+            modal.removeEventListener('click', closeModalOnOutsideClick);
+        }
+
+        // Función auxiliar para cerrar con Escape
+        function closeModalOnEscape(e) {
+            if (e.key === 'Escape') {
+                closePackageModal();
+            }
+        }
+
+        // Función auxiliar para cerrar al hacer clic fuera
+        function closeModalOnOutsideClick(e) {
+            const modalDialog = document.querySelector('.modal-dialog');
+            if (e.target.classList.contains('modal') && !modalDialog.contains(e.target)) {
+                closePackageModal();
+            }
         }
         
         // Inicializar al cargar la página
