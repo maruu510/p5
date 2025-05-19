@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 250" width="500" height="250">
+  <!-- Definiciones de gradientes y filtros -->
+  <defs>
+    <!-- Gradiente para el fondo del logo -->
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#f8fafc" />
+    </linearGradient>
+    
+    <!-- Gradiente para el paquete principal -->
+    <linearGradient id="box-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e40af" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+    
+    <!-- Sombra sutil -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+      <feOffset dx="0" dy="2" result="offsetblur" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.2" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Fondo del SVG -->
+  <rect width="100%" height="100%" fill="url(#bg-gradient)" rx="15" ry="15" />
+  
+  <!-- Contenedor principal del logo -->
+  <g transform="translate(30, 60)">
+    <!-- Símbolo del paquete con código QR -->
+    <g filter="url(#shadow)">
+      <!-- Forma base del paquete -->
+      <path d="M10,30 L90,30 L90,90 L10,90 Z" fill="url(#box-gradient)" />
+      
+      <!-- Tapa del paquete -->
+      <path d="M10,30 L90,30 L105,10 L25,10 Z" fill="#1e3a8a" />
+      
+      <!-- Lado derecho del paquete -->
+      <path d="M90,30 L105,10 L105,70 L90,90 Z" fill="#2563eb" />
+
+      <!-- Código QR estilizado en el paquete -->
+      <g transform="translate(20, 40)">
+        <!-- Fondo blanco para el código QR -->
+        <rect x="0" y="0" width="40" height="40" fill="white" rx="3" ry="3" />
+        
+        <!-- Módulos del código QR -->
+        <!-- Fila 1 -->
+        <rect x="5" y="5" width="5" height="5" fill="#0f172a" />
+        <rect x="10" y="5" width="5" height="5" fill="#0f172a" />
+        <rect x="15" y="5" width="5" height="5" fill="#0f172a" />
+        <rect x="25" y="5" width="5" height="5" fill="#0f172a" />
+        <rect x="30" y="5" width="5" height="5" fill="#0f172a" />
+        
+        <!-- Fila 2 -->
+        <rect x="5" y="10" width="5" height="5" fill="#0f172a" />
+        <rect x="15" y="10" width="5" height="5" fill="#0f172a" />
+        <rect x="25" y="10" width="5" height="5" fill="#0f172a" />
+        <rect x="30" y="10" width="5" height="5" fill="#0f172a" />
+        
+        <!-- Fila 3 -->
+        <rect x="5" y="15" width="5" height="5" fill="#0f172a" />
+        <rect x="15" y="15" width="5" height="5" fill="#0f172a" />
+        <rect x="20" y="15" width="5" height="5" fill="#0f172a" />
+        <rect x="30" y="15" width="5" height="5" fill="#0f172a" />
+        
+        <!-- Fila 4 -->
+        <rect x="15" y="20" width="5" height="5" fill="#0f172a" />
+        <rect x="25" y="20" width="5" height="5" fill="#0f172a" />
+        
+        <!-- Fila 5 -->
+        <rect x="5" y="25" width="5" height="5" fill="#0f172a" />
+        <rect x="10" y="25" width="5" height="5" fill="#0f172a" />
+        <rect x="15" y="25" width="5" height="5" fill="#0f172a" />
+        <rect x="25" y="25" width="5" height="5" fill="#0f172a" />
+        
+        <!-- Fila 6 -->
+        <rect x="5" y="30" width="5" height="5" fill="#0f172a" />
+        <rect x="15" y="30" width="5" height="5" fill="#0f172a" />
+        <rect x="20" y="30" width="5" height="5" fill="#0f172a" />
+        <rect x="25" y="30" width="5" height="5" fill="#0f172a" />
+        <rect x="30" y="30" width="5" height="5" fill="#0f172a" />
+      </g>
+
+      <!-- Elemento de escaneo - línea animada -->
+      <rect x="20" y="55" width="40" height="2" fill="#0ea5e9" rx="1" ry="1">
+        <animate attributeName="y" from="40" to="80" dur="2s" repeatCount="indefinite" />
+      </rect>
+      
+      <!-- Punto de marcador de ubicación superpuesto -->
+      <circle cx="70" cy="50" r="10" fill="#0ea5e9" />
+      <circle cx="70" cy="50" r="4" fill="white" />
+    </g>
+    
+    <!-- Texto del logo - mejor alineación y contraste -->
+    <g transform="translate(130, 55)">
+      <!-- Nombre del logo con color uniforme -->
+      <text font-family="Arial, sans-serif" font-weight="800" font-size="44" letter-spacing="0">
+        <tspan fill="#0f172a">Pack</tspan><tspan fill="#0ea5e9">Track</tspan>
+      </text>
+      
+      <!-- Tagline con mejor espaciado -->
+      <text font-family="Arial, sans-serif" font-weight="400" font-size="16" fill="#64748b" y="30">
+        Gestión Inteligente de Encomiendas
+      </text>
+    </g>
+  </g>
+  
+  <!-- Elemento decorativo - línea de conexión -->
+  <path d="M30,185 L470,185" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="5,5" />
+</svg>

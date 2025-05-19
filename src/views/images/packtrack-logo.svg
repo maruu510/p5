@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="400" height="100">
+  <!-- Definiciones simplificadas -->
+  <defs>
+    <!-- Gradiente para el paquete principal -->
+    <linearGradient id="box-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e40af" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Contenedor principal del logo sin márgenes excesivos -->
+  <g transform="translate(0, 5)">
+    <!-- Símbolo del paquete con código QR -->
+    <g>
+      <!-- Forma base del paquete -->
+      <path d="M10,30 L70,30 L70,80 L10,80 Z" fill="url(#box-gradient)" />
+      
+      <!-- Tapa del paquete -->
+      <path d="M10,30 L70,30 L85,15 L25,15 Z" fill="#1e3a8a" />
+      
+      <!-- Lado derecho del paquete -->
+      <path d="M70,30 L85,15 L85,65 L70,80 Z" fill="#2563eb" />
+
+      <!-- Código QR estilizado en el paquete -->
+      <g transform="translate(18, 38)">
+        <!-- Fondo blanco para el código QR -->
+        <rect x="0" y="0" width="35" height="35" fill="white" rx="2" ry="2" />
+        
+        <!-- Módulos del código QR (simplificados) -->
+        <rect x="4" y="4" width="4" height="4" fill="#0f172a" />
+        <rect x="8" y="4" width="4" height="4" fill="#0f172a" />
+        <rect x="12" y="4" width="4" height="4" fill="#0f172a" />
+        <rect x="24" y="4" width="4" height="4" fill="#0f172a" />
+        <rect x="28" y="4" width="4" height="4" fill="#0f172a" />
+        
+        <rect x="4" y="8" width="4" height="4" fill="#0f172a" />
+        <rect x="12" y="8" width="4" height="4" fill="#0f172a" />
+        <rect x="24" y="8" width="4" height="4" fill="#0f172a" />
+        
+        <rect x="4" y="12" width="4" height="4" fill="#0f172a" />
+        <rect x="12" y="12" width="4" height="4" fill="#0f172a" />
+        <rect x="16" y="12" width="4" height="4" fill="#0f172a" />
+        <rect x="28" y="12" width="4" height="4" fill="#0f172a" />
+        
+        <rect x="12" y="16" width="4" height="4" fill="#0f172a" />
+        <rect x="24" y="16" width="4" height="4" fill="#0f172a" />
+        
+        <rect x="4" y="24" width="4" height="4" fill="#0f172a" />
+        <rect x="8" y="24" width="4" height="4" fill="#0f172a" />
+        <rect x="12" y="24" width="4" height="4" fill="#0f172a" />
+        <rect x="24" y="24" width="4" height="4" fill="#0f172a" />
+        
+        <rect x="4" y="28" width="4" height="4" fill="#0f172a" />
+        <rect x="12" y="28" width="4" height="4" fill="#0f172a" />
+        <rect x="16" y="28" width="4" height="4" fill="#0f172a" />
+        <rect x="24" y="28" width="4" height="4" fill="#0f172a" />
+        <rect x="28" y="28" width="4" height="4" fill="#0f172a" />
+      </g>
+
+      <!-- Elemento de escaneo - línea animada -->
+      <rect x="18" y="55" width="35" height="1.5" fill="#0ea5e9" rx="0.75" ry="0.75">
+        <animate attributeName="y" from="38" to="73" dur="2s" repeatCount="indefinite" />
+      </rect>
+      
+      <!-- Punto de marcador de ubicación -->
+      <circle cx="65" cy="45" r="8" fill="#0ea5e9" />
+      <circle cx="65" cy="45" r="3" fill="white" />
+    </g>
+    
+    <!-- Texto del logo -->
+    <g transform="translate(100, 55)">
+      <!-- Nombre del logo -->
+      <text font-family="Arial, sans-serif" font-weight="800" font-size="36" letter-spacing="0">
+        <tspan fill="#0f172a">Pack</tspan><tspan fill="#0ea5e9">Track</tspan>
+      </text>
+      
+      <!-- Tagline -->
+      <text font-family="Arial, sans-serif" font-weight="400" font-size="14" fill="#64748b" y="25">
+        Gestión Inteligente de Encomiendas
+      </text>
+    </g>
+  </g>
+</svg>
