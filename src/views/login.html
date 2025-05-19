@@ -7,10 +7,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #27ae60;
-            --primary-dark: #145a32;
+            --primary: #1e3a8a;
+            --primary-dark: #0b1b48;
             --primary-light: #2ecc71;
-            --secondary: #2c3e50;
+            --secondary: #06006f;
             --accent: #3498db;
             --info: #3498db;
             --warning: #f39c12;
@@ -72,7 +72,7 @@
         }
         
         .shape-2 {
-            background-color: var(--info);
+            background-color: var(--primary-light);
             width: 350px;
             height: 350px;
             bottom: -100px;
@@ -88,7 +88,7 @@
         }
         
         .shape-4 {
-            background-color: var(--primary-light);
+            background-color: var(--accent);
             width: 200px;
             height: 200px;
             top: 20%;
@@ -125,10 +125,11 @@
         }
         
         .top-bar-left img {
-            height: 28px;
-            margin-right: 10px;
+            height: 40px;
+            margin-right: 20px;
+            width: auto;
         }
-        
+         
         .top-bar-right {
             display: flex;
             align-items: center;
@@ -168,7 +169,7 @@
             padding: 30px;
             margin-top: 60px;
             text-align: center;
-            position: relative;
+            position: center;
             z-index: 10;
             background-color: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
@@ -176,15 +177,20 @@
         }
         
         .login-logo {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             display: flex;
             justify-content: center;
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
         .login-logo img {
-            height: 80px;
+            height: 100px;
             width: auto;
             object-fit: contain;
+            margin: 30 auto;
         }
         
         .login-title {
@@ -244,6 +250,29 @@
         
         .input-icon input {
             padding-left: 40px;
+        }
+        
+        /* Botón para mostrar/ocultar contraseña */
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 5px;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+        
+        .toggle-password:hover {
+            color: var(--primary);
+        }
+        
+        .toggle-password:focus {
+            outline: none;
         }
         
         .form-options {
@@ -363,7 +392,7 @@
         .loader {
             width: 50px;
             height: 50px;
-            border: 5px solid var(--primary-light);
+            border: 5px solid var(--info);
             border-radius: 50%;
             border-top-color: var(--primary);
             animation: spin 1s linear infinite;
@@ -411,7 +440,7 @@
         
         @media (max-width: 480px) {
             .login-container {
-                padding: 20px;
+                padding: 30px;
             }
             
             .login-title {
@@ -452,7 +481,7 @@
     <!-- Barra superior -->
     <div class="top-bar">
         <div class="top-bar-left">
-            <img src="./images/ENCOMIENDA.png" alt="Logo">
+            <img src="./images/favicon.svg" alt="Logo PackTrack">
             <span>Sistema de Gestión de Paquetes</span>
         </div>
         <div class="top-bar-right">
@@ -469,7 +498,7 @@
     <!-- Contenedor de login -->
     <div class="login-container">
         <div class="login-logo">
-            <img src="./images/ENCOMIENDA.png" alt="Logo Sistema de Encomiendas">
+            <img src="./images/packtrack-logo.svg" alt="Logo PackTrack">
         </div>
         <h1 class="login-title">Bienvenido al Sistema</h1>
         <p class="login-subtitle">Inicia sesión para continuar</p>
@@ -499,6 +528,9 @@
                 <div class="input-icon">
                     <i class="fas fa-lock"></i>
                     <input type="password" id="password" class="form-input" placeholder="Ingresa tu contraseña" required>
+                    <button type="button" id="togglePassword" class="toggle-password" aria-label="Mostrar/Ocultar contraseña">
+                        <i class="fas fa-eye"></i>
+                    </button>
                 </div>
                 <div class="error-message" id="passwordError">La contraseña debe tener al menos 6 caracteres</div>
             </div>
@@ -568,6 +600,27 @@
             const loginError = document.getElementById('loginError');
             const loader = document.getElementById('loader');
             
+            // Botón para mostrar/ocultar contraseña
+            const togglePasswordBtn = document.getElementById('togglePassword');
+            
+            togglePasswordBtn.addEventListener('click', function() {
+                // Cambiar el tipo de input entre password y text
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                // Cambiar el icono entre ojo y ojo tachado
+                const icon = this.querySelector('i');
+                if (type === 'text') {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                    this.setAttribute('aria-label', 'Ocultar contraseña');
+                } else {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                    this.setAttribute('aria-label', 'Mostrar contraseña');
+                }
+            });
+            
             loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
@@ -600,7 +653,7 @@
                     
                     // Credenciales de prueba
                     const validCredentials = {
-                        admin: { username: 'admin', password: 'admin123' },
+                        admin: { username: 'Admin@gmail.com', password: 'admin12345' },
                         resident: { username: 'residente', password: 'residente123' }
                     };
                     
