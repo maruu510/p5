@@ -12,4 +12,4 @@ const pool = new Pool({
   port: Number(Deno.env.get("DB_PORT")),
 }, 10);
 
-export { pool };
+export { pool }; 
