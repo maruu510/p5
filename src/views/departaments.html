@@ -550,42 +550,68 @@
     </div>
     
     <script>
-        function getAllDepartments() {
-            try {
-                const departments = localStorage.getItem('departments');
-                // Si no hay departamentos, crear un array vacío
-                if (!departments) {
-                    return [];
-                }
-                
-                // Parsear los departamentos almacenados
-                const parsedDepts = JSON.parse(departments);
-                
-                // Verificar si es un array
-                if (!Array.isArray(parsedDepts)) {
-                    console.warn('El formato de los departamentos no es un array:', parsedDepts);
-                    return [];
-                }
-                
-                // Convertir los departamentos a un formato consistente (objetos)
-                return parsedDepts.map(dept => {
-                    // Si es un objeto, verificar que tenga la propiedad number
-                    if (typeof dept === 'object' && dept !== null) {
-                        if (dept.number) {
-                            return dept;
-                        } else if (dept.deptNumber) {
-                            // Convertir al formato correcto
-                            return { number: dept.deptNumber };
-                        }
-                    }
-                    // Si es un string o número, convertir a objeto
-                    return { number: dept.toString() };
-                });
-            } catch (error) {
-                console.error('Error al obtener departamentos:', error);
-                return [];
-            }
+        // Función centralizada para obtener departamentos - usar en TODAS las páginas
+function getAllDepartments() {
+    try {
+        console.log("Obteniendo departamentos desde localStorage...");
+        const departmentsString = localStorage.getItem('departments');
+        
+        // Si no hay datos, devolver array vacío
+        if (!departmentsString) {
+            console.log("No se encontraron departamentos en localStorage");
+            return [];
         }
+        
+        let departments;
+        try {
+            departments = JSON.parse(departmentsString);
+            console.log("Departamentos parseados:", departments);
+        } catch (parseError) {
+            console.error("Error al parsear departamentos:", parseError);
+            return [];
+        }
+        
+        // Verificar si es un array
+        if (!Array.isArray(departments)) {
+            console.warn("Los departamentos no están en formato array:", departments);
+            // Intentar convertir a array si es posible
+            if (departments) {
+                return [departments];
+            }
+            return [];
+        }
+        
+        // Normalizar formato: convertir todos los departamentos a un formato estándar
+        const normalizedDepts = departments.map(dept => {
+            // Si es null o undefined, omitir
+            if (dept === null || dept === undefined) {
+                return null;
+            }
+            
+            // Si ya es un objeto con número
+            if (typeof dept === 'object' && dept !== null) {
+                // Priorizar la propiedad 'number', luego 'deptNumber', luego 'numero'
+                const deptNumber = dept.number || dept.deptNumber || dept.numero;
+                if (deptNumber) {
+                    return { number: deptNumber.toString() };
+                }
+                return null; // Omitir si no tiene número
+            }
+            
+            // Si es un valor primitivo (string o número)
+            return { number: dept.toString() };
+        });
+        
+        // Filtrar valores null
+        const validDepts = normalizedDepts.filter(dept => dept !== null);
+        console.log("Departamentos normalizados:", validDepts);
+        
+        return validDepts;
+    } catch (error) {
+        console.error("Error general al obtener departamentos:", error);
+        return [];
+    }
+}
         
         function saveDepartments(departments) {
             localStorage.setItem('departments', JSON.stringify(departments));
