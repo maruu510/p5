@@ -550,45 +550,66 @@
     </div>
     
     <script>
-        // Funciones de gestión de departamentos
         function getAllDepartments() {
-            const departments = localStorage.getItem('departments');
-            // Si no hay departamentos, crear un array vacío
-            if (!departments) {
-                return [];
-            }
-            // Parsear los departamentos almacenados
-            const parsedDepts = JSON.parse(departments);
-            // Verificar si es un array
-            if (!Array.isArray(parsedDepts)) {
-                console.warn('El formato de los departamentos no es un array:', parsedDepts);
-                return [];
-            }
-            // Convertir los departamentos a un formato consistente (objetos)
-            return parsedDepts.map(dept => {
-                // Si es un objeto, verificar que tenga la propiedad number
-                if (typeof dept === 'object' && dept !== null) {
-                    if (dept.number) {
-                        return dept;
-                    } else if (dept.deptNumber) {
-                        // Convertir al formato correcto
-                        return { number: dept.deptNumber };
-                    }
+            try {
+                const departments = localStorage.getItem('departments');
+                // Si no hay departamentos, crear un array vacío
+                if (!departments) {
+                    return [];
                 }
-                // Si es un string o número, convertir a objeto
-                return { number: dept.toString() };
-            });
+                
+                // Parsear los departamentos almacenados
+                const parsedDepts = JSON.parse(departments);
+                
+                // Verificar si es un array
+                if (!Array.isArray(parsedDepts)) {
+                    console.warn('El formato de los departamentos no es un array:', parsedDepts);
+                    return [];
+                }
+                
+                // Convertir los departamentos a un formato consistente (objetos)
+                return parsedDepts.map(dept => {
+                    // Si es un objeto, verificar que tenga la propiedad number
+                    if (typeof dept === 'object' && dept !== null) {
+                        if (dept.number) {
+                            return dept;
+                        } else if (dept.deptNumber) {
+                            // Convertir al formato correcto
+                            return { number: dept.deptNumber };
+                        }
+                    }
+                    // Si es un string o número, convertir a objeto
+                    return { number: dept.toString() };
+                });
+            } catch (error) {
+                console.error('Error al obtener departamentos:', error);
+                return [];
+            }
         }
         
         function saveDepartments(departments) {
             localStorage.setItem('departments', JSON.stringify(departments));
         }
-        
         function getPackagesByDepartment(departmentNumber) {
-            const key = `packages_${departmentNumber}`;
-            const packages = localStorage.getItem(key);
-            return packages ? JSON.parse(packages) : [];
-        }
+            try {
+        // Intentar primero obtener desde paquetesPrueba filtrando por departamento
+                const allPackages = localStorage.getItem('paquetesPrueba');
+                if (allPackages) {
+                    const parsed = JSON.parse(allPackages);
+                    return parsed.filter(pkg => pkg.apartment_number == departmentNumber);
+                }
+        
+        // Si no hay paquetes globales, intentar con el método específico
+                    const key = `packages_${departmentNumber}`;
+                    const packages = localStorage.getItem(key);
+                    return packages ? JSON.parse(packages) : [];
+                } catch (error) {
+        console.error(`Error al obtener paquetes del departamento ${departmentNumber}:`, error);
+        return [];
+    }
+}
+        
+        
         
         function showNotification(message, isError = false) {
             const notification = document.getElementById('notification');

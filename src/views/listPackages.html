@@ -892,15 +892,13 @@
         }
 
         // Función para obtener todos los departamentos
-        function getAllDepartments() {
+        function getAllPackages() {
             try {
-                const departmentsString = localStorage.getItem('departments');
-                if (!departmentsString) return [];
-                
-                const departments = JSON.parse(departmentsString);
-                return departments || [];
+                const packagesString = localStorage.getItem('paquetesPrueba');
+                if (!packagesString) return [];
+                return JSON.parse(packagesString) || [];
             } catch (error) {
-                console.error('Error al obtener departamentos:', error);
+                console.error('Error al obtener paquetes:', error);
                 return [];
             }
         }
@@ -933,19 +931,19 @@
         // Función para agregar datos de prueba
         function addTestData() {
             const departments = getAllDepartments();
+            const existingPackages = localStorage.getItem('paquetesPrueba');
+
             
             // Si no hay departamentos, agregar algunos de prueba
-            if (departments.length === 0) {
-                // Crear departamentos de prueba
-                const newDepartments = ['101', '102', '103', '201', '202', '301'];
+            if (departments.length === 0 && (!existingPackages || JSON.parse(existingPackages)))
+            var newDepartments = ['101', '102', '103', '201', '202', '301'];
                 saveDepartments(newDepartments);
-                
+                // Crear departamentos de prueba
                 // Agregar paquetes de prueba para cada departamento
                 let allPackages = [];
-                
                 newDepartments.forEach((dept, index) => {
                     const packages = [
-                        {
+                      {
                             id: `PKG-${dept}-${Date.now()}-${index}`,
                             apartment_number: dept,
                             sender: `Remitente Prueba ${index + 1}`,
@@ -954,15 +952,17 @@
                             notes: `Paquete de prueba para departamento ${dept}`
                         }
                     ];
-                    
                     savePackagesToDepartment(dept, packages);
                     allPackages = allPackages.concat(packages);
-                });
+        });
+        
+        // Guardar todos los paquetes en formato global
+        localStorage.setItem('paquetesPrueba', JSON.stringify(allPackages));
+    }
+
+
                 
-                // Guardar todos los paquetes en formato global
-                localStorage.setItem('paquetesPrueba', JSON.stringify(allPackages));
-            }
-        }
+
 
         // Cargar departamentos en el selector
         function loadDepartments() {

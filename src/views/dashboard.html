@@ -817,26 +817,17 @@
     </div>
     
     <script>
-        // Funciones para manejar los datos
         function getAllDepartments() {
-    try {
-        const departments = localStorage.getItem('departments');
-        return departments ? JSON.parse(departments) : [];
-    } catch (error) {
-        console.error('Error al cargar departamentos:', error);
-        return [];
-    }
-}
+            try {
+                const departments = localStorage.getItem('departments');
+                return departments ? JSON.parse(departments) : [];
+            } catch (error) {
+                console.error('Error al cargar departamentos:', error);
+                return [];
+            }
+        }
 
-function getAllPackages() {
-    try {
-        const packagesData = localStorage.getItem('paquetesPrueba');
-        return packagesData ? JSON.parse(packagesData) : [];
-    } catch (error) {
-        console.error('Error al cargar paquetes:', error);
-        return [];
-    }
-}
+
           
         
         function getAllPackages() {
@@ -850,10 +841,10 @@ function getAllPackages() {
         }
         
         function getDepartmentNumber(dept) {
-            // Para manejar diferentes formatos de departamento (objeto o valor simple)
-            if (typeof dept === 'object') {
-                return dept.deptNumber || dept.numero;
-            }
+    // Para manejar diferentes formatos de departamento (objeto o valor simple)
+            if (typeof dept === 'object' && dept !== null) {
+                return dept.deptNumber || dept.number || dept.numero || null;
+            } 
             return dept;
         }
         

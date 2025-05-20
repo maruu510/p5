@@ -792,48 +792,59 @@
     }
     
     // Función para obtener todos los departamentos
-    function getAllDepartments() {
-      try {
+    // Función para obtener todos los departamentos
+        function getAllDepartments() {
+    try {
         // Obtener departamentos del localStorage
-        const storedDepartments = JSON.parse(localStorage.getItem('departments')) || [];
+        const storedDepartments = localStorage.getItem('departments');
+        if (!storedDepartments) return [];
         
-        // Si hay datos en formato de objetos, extraer los números
-        if (storedDepartments.length > 0 && typeof storedDepartments[0] === 'object') {
-          return storedDepartments.map(dept => dept.deptNumber || dept.numero);
-        }
+        const parsedDepartments = JSON.parse(storedDepartments);
+        if (!Array.isArray(parsedDepartments)) return [];
         
-        // Si son solo números o está vacío
-        return storedDepartments.length > 0 ? storedDepartments : [101, 102, 201, 202, 301, 302]; // Valores por defecto
-      } catch (error) {
+        return parsedDepartments;
+    } catch (error) {
         console.error('Error al cargar departamentos:', error);
-        return [101, 102, 201, 202, 301, 302]; // Valores por defecto en caso de error
-      }
+        return [];
     }
+}
     
     // Función para cargar departamentos en el select
-    function loadDepartments() {
-      try {
+    // Función para cargar departamentos en el select
+function loadDepartments() {
+    try {
         const departmentSelect = document.getElementById('apartment_number');
         if (!departmentSelect) {
-          console.error('No se encontró el elemento select de departamentos');
-          return;
+            console.error('No se encontró el elemento select de departamentos');
+            return;
         }
         
         // Obtener todos los departamentos
         const departments = getAllDepartments();
-        MOCK_DATA.departments = departments; // Guardar en datos locales
+        console.log('Departamentos cargados:', departments); // Para depuración
         
         // Limpiar opciones existentes excepto la primera
         while (departmentSelect.options.length > 1) {
-          departmentSelect.remove(1);
+            departmentSelect.remove(1);
         }
         
         // Agregar departamentos existentes
         departments.forEach(dept => {
-          const option = document.createElement('option');
-          option.value = dept;
-          option.textContent = `Departamento ${dept}`;
-          departmentSelect.appendChild(option);
+            // Extraer el número de departamento, manejando diferentes formatos posibles
+            let deptNumber;
+            if (typeof dept === 'object' && dept !== null) {
+                deptNumber = dept.number || dept.deptNumber || dept.numero;
+            } else {
+                deptNumber = dept;
+            }
+            
+            // Verificar que el número de departamento no es null o undefined
+            if (deptNumber) {
+                const option = document.createElement('option');
+                option.value = deptNumber;
+                option.textContent = `Departamento ${deptNumber}`;
+                departmentSelect.appendChild(option);
+            }
         });
         
         // Agregar opción para nuevo departamento
@@ -844,52 +855,61 @@
         
         // Evento para manejar selección de nuevo departamento
         departmentSelect.addEventListener('change', function() {
-          if (this.value === 'new') {
-            const newDept = prompt('Ingrese el número del nuevo departamento:');
-            if (newDept && !isNaN(newDept)) {
-              const deptNumber = parseInt(newDept);
-              
-              // Verificar si ya existe
-              if (MOCK_DATA.departments.includes(deptNumber)) {
-                showToast('error', 'Este número de departamento ya existe');
-                this.value = '';
-                return;
-              }
-              
-              // Añadir nuevo departamento
-              MOCK_DATA.departments.push(deptNumber);
-              
-              // Actualizar localStorage
-              try {
-                localStorage.setItem('departments', JSON.stringify(MOCK_DATA.departments));
-              } catch (e) {
-                console.warn('No se pudo guardar en localStorage:', e);
-              }
-              
-              // Crear opción
-              const option = document.createElement('option');
-              option.value = deptNumber;
-              option.textContent = `Departamento ${deptNumber}`;
-              
-              // Insertar antes de la opción 'Agregar nuevo'
-              const newIndex = this.options.length - 1;
-              this.insertBefore(option, this.options[newIndex]);
-              
-              // Seleccionar el nuevo departamento
-              this.value = deptNumber;
-            } else {
-              this.value = ''; // Resetear si no es válido
-              showToast('error', 'Por favor ingrese un número válido para el departamento');
+            if (this.value === 'new') {
+                const newDept = prompt('Ingrese el número del nuevo departamento:');
+                if (newDept && !isNaN(newDept)) {
+                    const deptNumber = parseInt(newDept);
+                    
+                    // Verificar si ya existe
+                    const exists = departments.some(dept => {
+                        if (typeof dept === 'object') {
+                            return (dept.number || dept.deptNumber || dept.numero) == deptNumber;
+                        }
+                        return dept == deptNumber;
+                    });
+                    
+                    if (exists) {
+                        showToast('error', 'Este número de departamento ya existe');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    // Añadir nuevo departamento
+                    // Guardar el departamento en un formato consistente
+                    const newDepartment = { number: deptNumber };
+                    departments.push(newDepartment);
+                    
+                    // Actualizar localStorage
+                    try {
+                        localStorage.setItem('departments', JSON.stringify(departments));
+                    } catch (e) {
+                        console.warn('No se pudo guardar en localStorage:', e);
+                    }
+                    
+                    // Crear opción
+                    const option = document.createElement('option');
+                    option.value = deptNumber;
+                    option.textContent = `Departamento ${deptNumber}`;
+                    
+                    // Insertar antes de la opción 'Agregar nuevo'
+                    const newIndex = this.options.length - 1;
+                    this.insertBefore(option, this.options[newIndex]);
+                    
+                    // Seleccionar el nuevo departamento
+                    this.value = deptNumber;
+                } else {
+                    this.value = ''; // Resetear si no es válido
+                    showToast('error', 'Por favor ingrese un número válido para el departamento');
+                }
             }
-          }
         });
         
         console.log('Departamentos cargados correctamente');
-      } catch (error) {
+    } catch (error) {
         console.error('Error al cargar departamentos:', error);
-        showToast('error', 'No se pudieron cargar los departamentos');
-      }
+        showToast('error', 'No se pudieron cargar los departamentos: ' + error.message);
     }
+}
     
     // Sistema unificado de gestión de UI
     const AppManager = {
@@ -1315,16 +1335,35 @@
       
       handleFormSubmit(e) {
         e.preventDefault();
-        
         try {
-          console.log('Procesando envío de formulario...');
-          
-          // Validar formulario
-          if (!this.validateForm()) {
-            showToast('error', 'Por favor, completa todos los campos requeridos');
-            return;
-          }
-          
+    const packageData = this.getFormData();
+    // Validar datos críticos
+    if (!packageData.apartment_number || !packageData.sender || !packageData.delivery_date) {
+        throw new Error('Faltan datos requeridos en el formulario');
+    }
+    
+    // Asignar ID único si no tiene
+    if (!packageData.id) {
+        packageData.id = generateUniqueId();
+    }
+    
+    packageData.created_at = new Date().toISOString();
+    
+    // Guardar en localStorage - primero obtener los existentes
+    const existingPackages = JSON.parse(localStorage.getItem('paquetesPrueba')) || [];
+    existingPackages.push(packageData);
+    localStorage.setItem('paquetesPrueba', JSON.stringify(existingPackages));
+    console.log('Paquete guardado en localStorage. Total:', existingPackages.length);
+    
+    // También guardar en el específico del departamento
+    if (packageData.apartment_number) {
+        const deptKey = `packages_${packageData.apartment_number}`;
+        const deptPackages = JSON.parse(localStorage.getItem(deptKey)) || [];
+        deptPackages.push(packageData);
+        localStorage.setItem(deptKey, JSON.stringify(deptPackages));
+    }
+    
+    showToast('success', '¡Paquete registrado exitosamente!');
           // Si no hay código QR generado, preguntar si desea continuar
           if (this.elements.qrCodeInput && !this.elements.qrCodeInput.value.trim()) {
             if (!confirm('No has generado un código QR para este paquete. ¿Deseas continuar sin código QR?')) {
