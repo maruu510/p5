@@ -1308,62 +1308,83 @@
       document.getElementById('residentModal').classList.remove('show');
     }
     
-    // Función para guardar un residente (nuevo o editado)
-    function saveResident() {
-      // Obtener datos del formulario
-      const id = document.getElementById('residentId').value;
-      const name = document.getElementById('residentName').value.trim();
-      const apartment = document.getElementById('residentApartment').value.trim();
-      const email = document.getElementById('residentEmail').value.trim();
-      const phone = document.getElementById('residentPhone').value.trim();
-      const status = document.getElementById('residentStatus').value;
-      
-      // Validar campos obligatorios
-      if (!name || !apartment || !email) {
-        showToast('error', 'Por favor, completa los campos obligatorios');
-        return;
+    // Modificaciones a configuracion.html - Función saveResident
+// Añadir a la función existente saveResident() en configuracion.html
+
+function saveResident() {
+  // Obtener datos del formulario
+  const id = document.getElementById('residentId').value;
+  const name = document.getElementById('residentName').value.trim();
+  const apartment = document.getElementById('residentApartment').value.trim();
+  const email = document.getElementById('residentEmail').value.trim();
+  const phone = document.getElementById('residentPhone').value.trim();
+  const status = document.getElementById('residentStatus').value;
+  
+  // Validar campos obligatorios
+  if (!name || !apartment || !email) {
+    showToast('error', 'Por favor, completa los campos obligatorios');
+    return;
+  }
+  
+  // Generar contraseña por defecto (primera parte del email + número de departamento)
+  const defaultPassword = email.split('@')[0] + apartment;
+  
+  // Crear objeto residente
+  const resident = {
+    id: id || generateUniqueId(),
+    name,
+    apartment,
+    email,
+    phone,
+    status,
+    // Añadir estos campos para autenticación
+    username: email, // Usamos email como nombre de usuario
+    password: btoa(defaultPassword), // Encriptar contraseña en base64 (simple)
+    role: 'resident' // Rol de residente
+  };
+  
+  // Verificar si es edición o nuevo
+  if (id) {
+    // Edición: actualizar residente existente
+    const index = residents.findIndex(r => r.id === id);
+    if (index !== -1) {
+      // Preservar contraseña existente si no estamos cambiando el correo
+      if (residents[index].email === email) {
+        resident.password = residents[index].password;
       }
-      
-      // Crear objeto residente
-      const resident = {
-        id: id || generateUniqueId(),
-        name,
-        apartment,
-        email,
-        phone,
-        status
-      };
-      
-      // Verificar si es edición o nuevo
-      if (id) {
-        // Edición: actualizar residente existente
-        const index = residents.findIndex(r => r.id === id);
-        if (index !== -1) {
-          residents[index] = resident;
-          showToast('success', 'Residente actualizado correctamente');
-        } else {
-          showToast('error', 'No se encontró el residente a editar');
-          return;
-        }
-      } else {
-        // Nuevo: agregar a la lista
-        residents.push(resident);
-        
-        // Verificar si es necesario crear o actualizar el departamento
-        updateDepartmentList(apartment);
-        
-        showToast('success', 'Residente añadido correctamente');
-      }
-      
-      // Guardar cambios
-      saveResidentsToStorage();
-      
-      // Actualizar tabla
-      updateResidentsTable();
-      
-      // Cerrar modal
-      closeResidentModal();
+      residents[index] = resident;
+      showToast('success', 'Residente actualizado correctamente');
+    } else {
+      showToast('error', 'No se encontró el residente a editar');
+      return;
     }
+  } else {
+    // Nuevo: agregar a la lista
+    residents.push(resident);
+    
+    // Verificar si es necesario crear o actualizar el departamento
+    updateDepartmentList(apartment);
+    
+    showToast('success', `Residente añadido correctamente. 
+      Credenciales generadas: 
+      • Usuario: ${email}
+      • Contraseña: ${defaultPassword}`);
+  }
+  
+  // Guardar cambios en residentes
+  saveResidentsToStorage();
+  
+  // También guardar en usuarios para login
+  updateUsersList(residents);
+  
+  // Actualizar tabla
+  updateResidentsTable();
+  
+  // Cerrar modal
+  closeResidentModal();
+}
+
+
     
     // Función para actualizar la lista de departamentos
     function updateDepartmentList(apartmentNumber) {
