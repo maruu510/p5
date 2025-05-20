@@ -591,6 +591,30 @@
             gap: 10px;
         }
         
+        .alert {
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
         @media (max-width: 992px) {
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -697,10 +721,10 @@
                 <li class="nav-item" onclick="window.location.href='codigoqr.html'">
                     <i class="fas fa-qrcode"></i>
                     <span>Lector QR</span>
-                    <li class="nav-item" onclick="window.location.href='configuracion.html'">
-                        <i class="fas fa-cog"></i>
-                        <span>Configuración</span>
-                    </li>
+                </li>
+                <li class="nav-item" onclick="window.location.href='configuracion.html'">
+                    <i class="fas fa-cog"></i>
+                    <span>Configuración</span>
                 </li>
                 <li class="nav-item" onclick="logout()" style="margin-top: 50px; color: #e74c3c;">
                     <i class="fas fa-sign-out-alt"></i>
@@ -743,6 +767,9 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Alerta para notificaciones -->
+            <div id="alertContainer" style="display: none;"></div>
             
             <!-- Estadísticas -->
             <div class="stats-grid">
@@ -882,183 +909,352 @@
     </div>
     
     <script>
-        let currentPackageId = null;
+        // URLs del backend - Configurar según tu entorno
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:3000/api'  // Entorno de desarrollo
+            : '/api';                     // Entorno de producción
+            
+        const ENDPOINTS = {
+            packages: `${API_URL}/packages`,
+            departments: `${API_URL}/departments`,
+            stats: `${API_URL}/stats`,
+            updatePackage: (id) => `${API_URL}/packages/${id}`,
+            getPackagesByDept: (deptId) => `${API_URL}/packages/department/${deptId}`,
+            userProfile: `${API_URL}/user/profile`
+        };
+        
+        // Variables globales
         let allPackages = [];
-
-        // Función para cerrar sesión
-        function logout() {
-            localStorage.removeItem('authToken');
-            window.location.href = 'login.html';
+        let currentPackageId = null;
+        
+        // Variable para activar modo de respaldo cuando el backend no está disponible
+        let fallbackMode = false;
+        
+        // Función para mostrar alertas
+        function showAlert(message, type = 'info', duration = 5000) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertId = Date.now();
+            
+            const alertHTML = `
+                <div id="alert-${alertId}" class="alert alert-${type}">
+                    <i class="fas ${type === 'danger' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i>
+                    ${message}
+                </div>
+            `;
+            
+            alertContainer.innerHTML = alertHTML;
+            alertContainer.style.display = 'block';
+            
+            setTimeout(() => {
+                const alert = document.getElementById(`alert-${alertId}`);
+                if (alert) {
+                    alert.style.opacity = '0';
+                    alert.style.transition = 'opacity 0.5s ease';
+                    
+                    setTimeout(() => {
+                        alertContainer.style.display = 'none';
+                    }, 500);
+                }
+            }, duration);
         }
-
-        // Función para obtener todos los departamentos
-        function getAllPackages() {
+        
+        // Función para realizar solicitudes a la API con control de errores y modo fallback
+        async function fetchAPI(url, options = {}) {
             try {
-                const packagesString = localStorage.getItem('paquetesPrueba');
-                if (!packagesString) return [];
-                return JSON.parse(packagesString) || [];
-            } catch (error) {
-                console.error('Error al obtener paquetes:', error);
-                return [];
-            }
-        }
-
-        // Función para guardar departamentos
-        function saveDepartments(departments) {
-            localStorage.setItem('departments', JSON.stringify(departments));
-        }
-
-        // Función para obtener paquetes por departamento
-        function getPackagesByDepartment(deptNumber) {
-            try {
-                const key = `packages_${deptNumber}`;
-                const packagesString = localStorage.getItem(key);
-                if (!packagesString) return [];
+                // Si estamos en modo fallback, usar localStorage
+                if (fallbackMode) {
+                    return await handleFallbackRequest(url, options);
+                }
                 
-                return JSON.parse(packagesString) || [];
+                // Configurar cabeceras de autenticación
+                const token = localStorage.getItem('authToken');
+                const headers = {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                };
+                
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                
+                // Agregar un timeout para la solicitud
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos de timeout
+                
+                const response = await fetch(url, {
+                    ...options,
+                    headers,
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                // Verificar si la respuesta es 401 (No autorizado)
+                if (response.status === 401) {
+                    localStorage.removeItem('authToken');
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                
+                // Verificar si la respuesta es exitosa
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status} - ${response.statusText}`);
+                }
+                
+                // Devolver los datos como JSON
+                return await response.json();
             } catch (error) {
-                console.error(`Error al obtener paquetes del departamento ${deptNumber}:`, error);
-                return [];
-            }
-        }
-
-        // Función para guardar paquetes por departamento
-        function savePackagesToDepartment(deptNumber, packages) {
-            const key = `packages_${deptNumber}`;
-            localStorage.setItem(key, JSON.stringify(packages));
-        }
-        // Función centralizada para obtener departamentos - usar en TODAS las páginas
-function getAllDepartments() {
-    try {
-        console.log("Obteniendo departamentos desde localStorage...");
-        const departmentsString = localStorage.getItem('departments');
-        
-        // Si no hay datos, devolver array vacío
-        if (!departmentsString) {
-            console.log("No se encontraron departamentos en localStorage");
-            return [];
-        }
-        
-        let departments;
-        try {
-            departments = JSON.parse(departmentsString);
-            console.log("Departamentos parseados:", departments);
-        } catch (parseError) {
-            console.error("Error al parsear departamentos:", parseError);
-            return [];
-        }
-        
-        // Verificar si es un array
-        if (!Array.isArray(departments)) {
-            console.warn("Los departamentos no están en formato array:", departments);
-            // Intentar convertir a array si es posible
-            if (departments) {
-                return [departments];
-            }
-            return [];
-        }
-        
-        // Normalizar formato: convertir todos los departamentos a un formato estándar
-        const normalizedDepts = departments.map(dept => {
-            // Si es null o undefined, omitir
-            if (dept === null || dept === undefined) {
+                console.error('Error en la solicitud API:', error);
+                
+                // Si es un error de conexión, activar modo fallback
+                if (error.name === 'TypeError' || error.name === 'AbortError' || error.message.includes('Failed to fetch')) {
+                    if (!fallbackMode) {
+                        fallbackMode = true;
+                        showAlert('El servidor no está disponible. Usando modo de respaldo local.', 'warning', 10000);
+                        console.warn('Activando modo fallback para localStorage');
+                        
+                        // Intentar nuevamente con localStorage
+                        return await handleFallbackRequest(url, options);
+                    }
+                }
+                
+                showAlert(`Error en la solicitud: ${error.message}`, 'danger');
                 return null;
             }
+        }
+        
+        // Función para manejar solicitudes en modo fallback (localStorage)
+        async function handleFallbackRequest(url, options = {}) {
+            console.log('Usando localStorage como respaldo para:', url);
             
-            // Si ya es un objeto con número
-            if (typeof dept === 'object' && dept !== null) {
-                // Priorizar la propiedad 'number', luego 'deptNumber', luego 'numero'
-                const deptNumber = dept.number || dept.deptNumber || dept.numero;
-                if (deptNumber) {
-                    return { number: deptNumber.toString() };
+            // Simular pequeño retraso para imitar una API
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            try {
+                // Crear paquetes de ejemplo si no existen
+                if (!localStorage.getItem('fallback_packages')) {
+                    initializeFallbackData();
                 }
-                return null; // Omitir si no tiene número
+                
+                // Determinar qué operación es basada en la URL y método
+                if (url.includes('/packages') && !url.includes('/department/')) {
+                    // Operación de paquetes general
+                    if (options.method === 'PATCH' && url.includes('/packages/')) {
+                        // Actualizar paquete
+                        const packageId = url.split('/').pop();
+                        const updateData = JSON.parse(options.body);
+                        return updatePackageInLocalStorage(packageId, updateData);
+                    } else {
+                        // Obtener todos los paquetes
+                        return getAllPackagesFromLocalStorage();
+                    }
+                } else if (url.includes('/department/')) {
+                    // Obtener paquetes por departamento
+                    const deptId = url.split('/').pop();
+                    return getPackagesByDeptFromLocalStorage(deptId);
+                } else if (url.includes('/departments')) {
+                    // Obtener departamentos
+                    return getAllDepartmentsFromLocalStorage();
+                } else if (url.includes('/stats')) {
+                    // Obtener estadísticas
+                    return getStatsFromLocalStorage();
+                } else if (url.includes('/user/profile')) {
+                    // Obtener perfil de usuario
+                    return {
+                        name: localStorage.getItem('userName') || 'Administrador',
+                        role: 'Administrador'
+                    };
+                }
+                
+                return null;
+            } catch (error) {
+                console.error('Error en modo fallback:', error);
+                return null;
+            }
+        }
+        
+        // Inicializar datos de respaldo
+        function initializeFallbackData() {
+            // Crear departamentos de prueba
+            const departments = ['101', '102', '103', '201', '202', '301'];
+            localStorage.setItem('fallback_departments', JSON.stringify(departments));
+            
+            // Crear paquetes de prueba
+            const packages = [];
+            departments.forEach((dept, index) => {
+                // Crear 2 paquetes por departamento
+                for (let i = 0; i < 2; i++) {
+                    packages.push({
+                        id: `PKG-${dept}-${Date.now()}-${i}`,
+                        apartment_number: dept,
+                        sender: `Remitente Prueba ${index + 1} - ${i}`,
+                        delivery_date: new Date().toISOString(),
+                        status: i % 2 === 0 ? 'pendiente' : 'retirado',
+                        notes: `Paquete de prueba para departamento ${dept}`
+                    });
+                }
+            });
+            
+            localStorage.setItem('fallback_packages', JSON.stringify(packages));
+            console.log('Datos de respaldo inicializados con', packages.length, 'paquetes');
+        }
+        
+        // Obtener todos los paquetes desde localStorage
+        function getAllPackagesFromLocalStorage() {
+            try {
+                const packagesString = localStorage.getItem('fallback_packages');
+                return packagesString ? JSON.parse(packagesString) : [];
+            } catch (error) {
+                console.error('Error obteniendo paquetes de localStorage:', error);
+                return [];
+            }
+        }
+        
+        // Obtener departamentos desde localStorage
+        function getAllDepartmentsFromLocalStorage() {
+            try {
+                const deptsString = localStorage.getItem('fallback_departments');
+                return deptsString ? JSON.parse(deptsString) : [];
+            } catch (error) {
+                console.error('Error obteniendo departamentos de localStorage:', error);
+                return [];
+            }
+        }
+        
+        // Obtener paquetes por departamento desde localStorage
+        function getPackagesByDeptFromLocalStorage(deptId) {
+            try {
+                const allPackages = getAllPackagesFromLocalStorage();
+                return allPackages.filter(pkg => pkg.apartment_number === deptId);
+            } catch (error) {
+                console.error('Error obteniendo paquetes por departamento de localStorage:', error);
+                return [];
+            }
+        }
+        
+        // Actualizar paquete en localStorage
+        function updatePackageInLocalStorage(packageId, updateData) {
+            try {
+                const allPackages = getAllPackagesFromLocalStorage();
+                const index = allPackages.findIndex(pkg => pkg.id === packageId);
+                
+                if (index !== -1) {
+                    allPackages[index] = { ...allPackages[index], ...updateData };
+                    localStorage.setItem('fallback_packages', JSON.stringify(allPackages));
+                    return allPackages[index];
+                }
+                
+                return null;
+            } catch (error) {
+                console.error('Error actualizando paquete en localStorage:', error);
+                return null;
+            }
+        }
+        
+        // Obtener estadísticas desde localStorage
+        function getStatsFromLocalStorage() {
+            try {
+                const allPackages = getAllPackagesFromLocalStorage();
+                const departments = getAllDepartmentsFromLocalStorage();
+                
+                return {
+                    totalPackages: allPackages.length,
+                    departmentsCount: departments.length,
+                    pendingPackages: allPackages.filter(pkg => pkg.status === 'pendiente').length,
+                    deliveredPackages: allPackages.filter(pkg => pkg.status === 'retirado' || pkg.status === 'entregado').length
+                };
+            } catch (error) {
+                console.error('Error obteniendo estadísticas de localStorage:', error);
+                return {
+                    totalPackages: 0,
+                    departmentsCount: 0,
+                    pendingPackages: 0,
+                    deliveredPackages: 0
+                };
+            }
+        }
+        
+        // Cerrar sesión
+        async function logout() {
+            try {
+                // Solo intentar llamar a la API de logout si no estamos en modo fallback
+                if (!fallbackMode) {
+                    await fetchAPI(`${API_URL}/auth/logout`, { 
+                        method: 'POST',
+                        // Añadir un tiempo de espera corto para evitar que se bloquee la UI
+                        signal: AbortSignal.timeout(3000)
+                    }).catch(err => console.warn('Error en logout API:', err));
+                }
+            } catch (error) {
+                console.warn('Error al cerrar sesión en el servidor:', error);
+            } finally {
+                // Siempre limpiar localStorage y redirigir
+                localStorage.removeItem('authToken');
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // Función para obtener todos los paquetes
+        async function getAllPackages() {
+            const packages = await fetchAPI(ENDPOINTS.packages);
+            return packages || [];
+        }
+        
+        // Función para obtener todos los departamentos
+        async function getAllDepartments() {
+            const departments = await fetchAPI(ENDPOINTS.departments);
+            return departments || [];
+        }
+        
+        // Función para obtener las estadísticas del sistema
+        async function getStats() {
+            const stats = await fetchAPI(ENDPOINTS.stats);
+            
+            if (stats) {
+                document.getElementById('totalPackages').textContent = stats.totalPackages || 0;
+                document.getElementById('departmentsCount').textContent = stats.departmentsCount || 0;
+                document.getElementById('pendingPackages').textContent = stats.pendingPackages || 0;
+                document.getElementById('deliveredPackages').textContent = stats.deliveredPackages || 0;
+                
+                // Actualizar contador de notificaciones (paquetes pendientes)
+                document.getElementById('notificationCount').textContent = stats.pendingPackages || 0;
+            }
+        }
+        
+        // Función para obtener paquetes por departamento
+        async function getPackagesByDepartment(deptId) {
+            if (deptId === 'all') {
+                return await getAllPackages();
             }
             
-            // Si es un valor primitivo (string o número)
-            return { number: dept.toString() };
-        });
+            const packages = await fetchAPI(ENDPOINTS.getPackagesByDept(deptId));
+            return packages || [];
+        }
         
-        // Filtrar valores null
-        const validDepts = normalizedDepts.filter(dept => dept !== null);
-        console.log("Departamentos normalizados:", validDepts);
-        
-        return validDepts;
-    } catch (error) {
-        console.error("Error general al obtener departamentos:", error);
-        return [];
-    }
-}
-
-        // Función para agregar datos de prueba
-        function addTestData() {
-            const departments = getAllDepartments();
-            const existingPackages = localStorage.getItem('paquetesPrueba');
-
-            
-            // Si no hay departamentos, agregar algunos de prueba
-            if (departments.length === 0 && (!existingPackages || JSON.parse(existingPackages)))
-            var newDepartments = ['101', '102', '103', '201', '202', '301'];
-                saveDepartments(newDepartments);
-                // Crear departamentos de prueba
-                // Agregar paquetes de prueba para cada departamento
-                let allPackages = [];
-                newDepartments.forEach((dept, index) => {
-                    const packages = [
-                      {
-                            id: `PKG-${dept}-${Date.now()}-${index}`,
-                            apartment_number: dept,
-                            sender: `Remitente Prueba ${index + 1}`,
-                            delivery_date: new Date().toISOString(),
-                            status: index % 2 === 0 ? 'pendiente' : 'retirado',
-                            notes: `Paquete de prueba para departamento ${dept}`
-                        }
-                    ];
-                    savePackagesToDepartment(dept, packages);
-                    allPackages = allPackages.concat(packages);
-        });
-        
-        // Guardar todos los paquetes en formato global
-        localStorage.setItem('paquetesPrueba', JSON.stringify(allPackages));
-    }
-
-
-                
-
-
         // Cargar departamentos en el selector
-        function loadDepartments() {
-                                const departmentFilter = document.getElementById('departmentFilter');
-            const departments = getAllDepartments();
+        async function loadDepartments() {
+            const departmentFilter = document.getElementById('departmentFilter');
+            const departments = await getAllDepartments();
             
             // Limpiar opciones excepto la primera
             departmentFilter.innerHTML = '<option value="all">Todos los departamentos</option>';
             
             // Agregar departamentos al selector
-            departments.forEach(dept => {
-                // Manejar diferentes formatos de departamento
-                let deptNumber;
-                
-                if (typeof dept === 'object') {
-                    // Si es un objeto, intenta obtener deptNumber o numero
-                    deptNumber = dept.deptNumber || dept.numero;
-                } else {
-                    // Si no es un objeto, usar el valor directamente
-                    deptNumber = dept;
-                }
-                
-                const option = document.createElement('option');
-                option.value = deptNumber;
-                option.textContent = `Departamento ${deptNumber}`;
-                departmentFilter.appendChild(option);
-            });
-            
-            // Actualizar contador de departamentos
-            document.getElementById('departmentsCount').textContent = departments.length;
+            if (departments && departments.length > 0) {
+                departments.forEach(dept => {
+                    // Obtener el número de departamento, considerando diferentes formatos
+                    const deptNumber = dept.number || dept.id || dept.deptNumber || dept;
+                    
+                    const option = document.createElement('option');
+                    option.value = deptNumber;
+                    option.textContent = `Departamento ${deptNumber}`;
+                    departmentFilter.appendChild(option);
+                });
+            }
         }
-
+        
         // Cargar paquetes en la tabla
-        function loadPackages() {
+        async function loadPackages() {
             const tableBody = document.querySelector('#packagesTable tbody');
             const departmentFilter = document.getElementById('departmentFilter');
             const selectedDepartment = departmentFilter.value;
@@ -1074,24 +1270,25 @@ function getAllDepartments() {
                 </tr>
             `;
             
-            // Obtener paquetes según el filtro seleccionado
-            let packages = [];
+            // Ocultar mensajes de error anteriores
+            document.getElementById('errorMessage').style.display = 'none';
             
             try {
-                if (selectedDepartment === 'all') {
-                    // Obtener todos los paquetes
-                    const packagesString = localStorage.getItem('paquetesPrueba');
-                    packages = packagesString ? JSON.parse(packagesString) : [];
-                } else {
-                    // Obtener paquetes del departamento seleccionado
-                    packages = getPackagesByDepartment(selectedDepartment);
-                }
+                // Obtener paquetes según el filtro seleccionado
+                const packages = await getPackagesByDepartment(selectedDepartment);
                 
-                // Guardar referencia a todos los paquetes para el dashboard
+                // Guardar referencia a todos los paquetes
                 allPackages = packages;
                 
-                // Actualizar los contadores del dashboard
-                updateDashboardCounters();
+                // Actualizar título según departamento seleccionado
+                const packageListTitle = document.getElementById('packageListTitle');
+                if (packageListTitle) {
+                    if (selectedDepartment === 'all') {
+                        packageListTitle.textContent = 'Lista de Paquetes';
+                    } else {
+                        packageListTitle.textContent = `Paquetes del Departamento ${selectedDepartment}`;
+                    }
+                }
                 
                 // Verificar si hay paquetes
                 if (!packages || packages.length === 0) {
@@ -1114,12 +1311,7 @@ function getAllDepartments() {
                 
                 // Construir filas de la tabla
                 let tableContent = '';
-                packages.forEach((pkg, index) => {
-                    // Asignar ID si no existe
-                    if (!pkg.id) {
-                        pkg.id = `PKG-${pkg.apartment_number}-${Date.now()}-${index}`;
-                    }
-                    
+                packages.forEach(pkg => {
                     // Formatear fecha
                     let formattedDate = 'Fecha no disponible';
                     if (pkg.delivery_date) {
@@ -1157,12 +1349,8 @@ function getAllDepartments() {
                 
                 tableBody.innerHTML = tableContent;
                 
-                // Actualizar paquetes
-                if (selectedDepartment === 'all') {
-                    localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
-                } else {
-                    savePackagesToDepartment(selectedDepartment, packages);
-                }
+                // Actualizar estadísticas
+                await getStats();
                 
             } catch (error) {
                 console.error('Error al cargar paquetes:', error);
@@ -1180,94 +1368,55 @@ function getAllDepartments() {
             }
         }
         
-        // Actualizar los contadores del dashboard
-        function updateDashboardCounters() {
-            const totalPackages = allPackages.length;
-            const pendingPackages = allPackages.filter(pkg => pkg.status === 'pendiente').length;
-            const deliveredPackages = allPackages.filter(pkg => pkg.status === 'retirado' || pkg.status === 'entregado').length;
-            
-            document.getElementById('totalPackages').textContent = totalPackages;
-            document.getElementById('pendingPackages').textContent = pendingPackages;
-            document.getElementById('deliveredPackages').textContent = deliveredPackages;
-            
-            // Actualizar contador de notificaciones (paquetes pendientes)
-            document.getElementById('notificationCount').textContent = pendingPackages;
-        }
-
         // Abrir modal de confirmación
         function openModal(packageId) {
             currentPackageId = packageId;
             document.getElementById('confirmModal').classList.add('show');
         }
-
+        
         // Cerrar modal
         function closeModal() {
             document.getElementById('confirmModal').classList.remove('show');
-        }
-
-        // Actualizar estado de un paquete
-        function updatePackageStatus(packageId, newStatus) {
-            // Actualizar en lista global
-            try {
-                const packagesString = localStorage.getItem('paquetesPrueba');
-                if (packagesString) {
-                    const packages = JSON.parse(packagesString);
-                    const packageIndex = packages.findIndex(pkg => pkg.id === packageId);
-                    
-                    if (packageIndex !== -1) {
-                        packages[packageIndex].status = newStatus;
-                        localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
-                    }
-                }
-            } catch (error) {
-                console.error('Error al actualizar paquete en lista global:', error);
-            }
-            
-            // Actualizar en departamento específico
-            const departments = getAllDepartments();
-            
-            for (const dept of departments) {
-                let deptNumber;
-                
-                if (typeof dept === 'object') {
-                    deptNumber = dept.deptNumber || dept.numero;
-                } else {
-                    deptNumber = dept;
-                }
-                
-                const deptPackages = getPackagesByDepartment(deptNumber);
-                const packageIndex = deptPackages.findIndex(pkg => pkg.id === packageId);
-                
-                if (packageIndex !== -1) {
-                    deptPackages[packageIndex].status = newStatus;
-                    savePackagesToDepartment(deptNumber, deptPackages);
-                    break;
-                }
-            }
-            
-            // Recargar tabla
-            loadPackages();
+            currentPackageId = null;
         }
         
-        // Configurar perfil de usuario
-        function setupUserProfile() {
-            // Obtener el nombre de usuario desde localStorage (guardado en el login)
-            const storedUserName = localStorage.getItem('userName');
-            const userName = storedUserName || 'Administrador';
-            const userRole = 'Administrador';
-            
-            document.getElementById('userName').textContent = userName;
-            document.getElementById('userRole').textContent = userRole;
-            
-            // Establecer iniciales para el avatar
-            const nameParts = userName.split(' ');
-            let initials = nameParts[0].charAt(0);
-            if (nameParts.length > 1) {
-                initials += nameParts[1].charAt(0);
-            } else {
-                initials = userName.charAt(0);
+        // Actualizar estado de un paquete
+        async function updatePackageStatus(packageId, newStatus) {
+            try {
+                const response = await fetchAPI(ENDPOINTS.updatePackage(packageId), {
+                    method: 'PATCH',
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                if (response) {
+                    showAlert('Paquete actualizado correctamente', 'success');
+                    await loadPackages(); // Recargar tabla
+                }
+            } catch (error) {
+                console.error('Error al actualizar paquete:', error);
+                showAlert('Error al actualizar el paquete', 'danger');
             }
-            document.getElementById('userAvatar').textContent = initials.toUpperCase();
+        }
+        
+        // Obtener información del perfil de usuario
+        async function getUserProfile() {
+            const profile = await fetchAPI(ENDPOINTS.userProfile);
+            
+            if (profile) {
+                const userName = profile.name || 'Administrador';
+                const userRole = profile.role || 'Administrador';
+                
+                document.getElementById('userName').textContent = userName;
+                document.getElementById('userRole').textContent = userRole;
+                
+                // Establecer iniciales para el avatar
+                const nameParts = userName.split(' ');
+                let initials = nameParts[0].charAt(0);
+                if (nameParts.length > 1) {
+                    initials += nameParts[1].charAt(0);
+                }
+                document.getElementById('userAvatar').textContent = initials.toUpperCase();
+            }
         }
         
         // Manejador de eventos para el menú desplegable de usuario
@@ -1287,9 +1436,9 @@ function getAllDepartments() {
                 }
             });
         }
-
+        
         // Event listeners
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             // Verificar autenticación
             const token = localStorage.getItem('authToken');
             if (!token) {
@@ -1297,71 +1446,65 @@ function getAllDepartments() {
                 return;
             }
             
-            // Configurar perfil de usuario
-            setupUserProfile();
-            
-            // Configurar menú desplegable
-            setupUserDropdown();
-            
-            // Agregar datos de prueba si es necesario
-            addTestData();
-            
-            // Cargar departamentos y paquetes
-            loadDepartments();
-            loadPackages();
-            
-            // Filtro de departamentos
-            document.getElementById('departmentFilter').addEventListener('change', function() {
-                const selectedValue = this.value;
+            try {
+                // Configurar interfaz
+                setupUserDropdown();
                 
-                // Actualizar título según departamento seleccionado
-                const packageListTitle = document.getElementById('packageListTitle');
-                if (packageListTitle) {
-                    if (selectedValue === 'all') {
-                        packageListTitle.textContent = 'Lista de Paquetes';
-                    } else {
-                        packageListTitle.textContent = `Paquetes del Departamento ${selectedValue}`;
+                // Intentar conexión con el backend
+                try {
+                    // Verificar conectividad con una petición simple
+                    const connectionTest = await fetch(`${API_URL}/status`, { 
+                        method: 'GET',
+                        headers: { 'Authorization': `Bearer ${token}` },
+                        signal: AbortSignal.timeout(5000) // 5 segundos timeout
+                    });
+                    
+                    if (!connectionTest.ok) {
+                        throw new Error(`Backend no disponible: ${connectionTest.status}`);
                     }
+                    
+                    console.log('Conexión con backend establecida');
+                } catch (connectionError) {
+                    console.warn('Error conectando con el backend:', connectionError);
+                    fallbackMode = true;
+                    showAlert('No se pudo conectar con el servidor. Usando datos locales.', 'warning', 10000);
                 }
                 
-                // Cargar paquetes según filtro
-                loadPackages();
-            });
-            
-            // Configurar botón de confirmación
-            document.getElementById('confirmButton').addEventListener('click', function() {
-                if (currentPackageId) {
-                    updatePackageStatus(currentPackageId, 'retirado');
-                    closeModal();
-                }
-            });
-            
-            // Cerrar modal con Escape
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeModal();
-            });
-            
-            // Cerrar modal al hacer clic fuera
-            document.getElementById('confirmModal').addEventListener('click', (e) => {
-                if (e.target === document.getElementById('confirmModal')) {
-                    closeModal();
-                }
-            });
-            
-            // Cargar departamento específico desde URL si existe
-            const urlParams = new URLSearchParams(window.location.search);
-            const departmentParam = urlParams.get('department');
-            
-            if (departmentParam) {
-                const departments = getAllDepartments();
-                const departmentExists = departments.some(dept => {
-                    if (typeof dept === 'object') {
-                        return (dept.deptNumber || dept.numero) == departmentParam;
+                // Cargar datos del usuario
+                await getUserProfile();
+                
+                // Cargar departamentos y paquetes
+                await loadDepartments();
+                await loadPackages();
+                
+                // Filtro de departamentos
+                document.getElementById('departmentFilter').addEventListener('change', loadPackages);
+                
+                // Configurar botón de confirmación
+                document.getElementById('confirmButton').addEventListener('click', async function() {
+                    if (currentPackageId) {
+                        closeModal(); // Cerrar modal inmediatamente para mejor UX
+                        await updatePackageStatus(currentPackageId, 'retirado');
                     }
-                    return dept == departmentParam;
                 });
                 
-                if (departmentExists) {
+                // Cerrar modal con Escape
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') closeModal();
+                });
+                
+                // Cerrar modal al hacer clic fuera
+                document.getElementById('confirmModal').addEventListener('click', (e) => {
+                    if (e.target === document.getElementById('confirmModal')) {
+                        closeModal();
+                    }
+                });
+                
+                // Cargar departamento específico desde URL si existe
+                const urlParams = new URLSearchParams(window.location.search);
+                const departmentParam = urlParams.get('department');
+                
+                if (departmentParam) {
                     setTimeout(() => {
                         const departmentFilter = document.getElementById('departmentFilter');
                         
@@ -1369,20 +1512,24 @@ function getAllDepartments() {
                         for (let i = 0; i < departmentFilter.options.length; i++) {
                             if (departmentFilter.options[i].value == departmentParam) {
                                 departmentFilter.selectedIndex = i;
+                                loadPackages();
                                 break;
                             }
                         }
-                        
-                        // Actualizar título
-                        const packageListTitle = document.getElementById('packageListTitle');
-                        if (packageListTitle) {
-                            packageListTitle.textContent = `Paquetes del Departamento ${departmentParam}`;
-                        }
-                        
-                        // Cargar paquetes
-                        loadPackages();
                     }, 100);
                 }
+            } catch (error) {
+                console.error('Error al inicializar la página:', error);
+                showAlert('Error al cargar la página. Usando modo de respaldo.', 'danger');
+                
+                // Activar modo de respaldo en caso de error
+                fallbackMode = true;
+                
+                // Intentar cargar en modo respaldo
+                setupUserDropdown();
+                await getUserProfile();
+                await loadDepartments();
+                await loadPackages();
             }
         });
     </script>
