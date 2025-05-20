@@ -69,7 +69,7 @@
     }
     
     .logo img {
-        height: 40px;
+        height: 36px;
         width: auto;
         object-fit: contain;
     }
@@ -460,6 +460,81 @@
         color: var(--danger);
     }
     
+    /* Estilos para el modal de residentes */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1050;
+        align-items: center;
+        justify-content: center;
+        overflow-y: auto;
+        padding: 30px 0;
+    }
+    
+    .modal.show {
+        display: flex;
+    }
+    
+    .modal-dialog {
+        width: 100%;
+        max-width: 500px;
+        margin: auto;
+        pointer-events: none;
+    }
+    
+    .modal-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        pointer-events: auto;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        outline: 0;
+    }
+    
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px 20px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .modal-title {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+    
+    .close-button {
+        background: transparent;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0;
+        color: #6c757d;
+        line-height: 1;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 15px 20px;
+        border-top: 1px solid #e9ecef;
+    }
+    
     @media (max-width: 992px) {
         .main-content {
             padding: 15px;
@@ -533,7 +608,7 @@
         <div class="sidebar-header">
             <a href="dashboard.html" class="logo">
                 <img src="./images/favicon1.svg" alt="Logo Encomiendas">
-                <span>PackTrack</span>
+                <span>Encomiendas</span>
             </a>
         </div>
         <ul class="nav-menu">
@@ -561,7 +636,7 @@
                 <i class="fas fa-cog"></i>
                 <span>Configuración</span>
             </li>
-            <li class="nav-item" onclick="window.location.href='login.html'" style="margin-top: 50px; color: #e74c3c;">
+            <li class="nav-item" onclick="cerrarSesion()" style="margin-top: 50px; color: #e74c3c;">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Cerrar Sesión</span>
             </li>
@@ -586,6 +661,7 @@
         <div class="tabs">
             <div class="tab active" data-tab="profile">Perfil de Administrador</div>
             <div class="tab" data-tab="residents">Gestión de Residentes</div>
+            <div class="tab" data-tab="system">Configuración del Sistema</div>
         </div>
 
         <!-- Contenido de Perfil -->
@@ -671,49 +747,126 @@
                                 </tr>
                             </thead>
                             <tbody id="residentsTableBody">
-                                <!-- Ejemplo de residente -->
-                                <tr>
-                                    <td>Juan Pérez</td>
-                                    <td>101</td>
-                                    <td>juan.perez@example.com</td>
-                                    <td>+56 9 8765 4321</td>
-                                    <td><span class="badge badge-primary">Activo</span></td>
-                                    <td class="action-buttons">
-                                        <button class="btn-icon btn-view">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="btn-icon btn-edit">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn-icon btn-delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>María González</td>
-                                    <td>202</td>
-                                    <td>maria.gonzalez@example.com</td>
-                                    <td>+56 9 1122 3344</td>
-                                    <td><span class="badge badge-primary">Activo</span></td>
-                                    <td class="action-buttons">
-                                        <button class="btn-icon btn-view">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="btn-icon btn-edit">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn-icon btn-delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
+                                <!-- El contenido se cargará dinámicamente -->
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Contenido de configuración del sistema -->
+        <div class="tab-content" id="system-tab">
+            <div class="card">
+                <div class="card-header">
+                    Configuración del Sistema
+                    <button class="btn btn-primary" id="saveSystemSettingsBtn">
+                        <i class="fas fa-save"></i> Guardar Configuración
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="buildingName"><i class="fas fa-building"></i> Nombre del Edificio/Condominio</label>
+                        <input type="text" id="buildingName" class="form-input" placeholder="Ej: Edificio Las Flores" value="Edificio Las Flores">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="buildingAddress"><i class="fas fa-map-marker-alt"></i> Dirección</label>
+                        <input type="text" id="buildingAddress" class="form-input" placeholder="Dirección completa" value="Av. Principal 123, Santiago">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Notificaciones por Email</label>
+                        <div style="margin-top: 10px;">
+                            <input type="checkbox" id="notifyNewPackage" checked>
+                            <label for="notifyNewPackage" style="display: inline;">Notificar cuando llegue un nuevo paquete</label>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <input type="checkbox" id="notifyPackageDelivery" checked>
+                            <label for="notifyPackageDelivery" style="display: inline;">Notificar cuando se entregue un paquete</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="retentionDays"><i class="fas fa-calendar-alt"></i> Días de retención de paquetes</label>
+                        <select id="retentionDays" class="form-input">
+                            <option value="7">7 días</option>
+                            <option value="14" selected>14 días</option>
+                            <option value="30">30 días</option>
+                            <option value="60">60 días</option>
+                        </select>
+                        <small style="display: block; margin-top: 5px; color: var(--gray);">Después de este período, se enviará un recordatorio al residente.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-database"></i> Respaldo de Datos</label>
+                        <div style="margin-top: 10px;">
+                            <button class="btn btn-secondary" id="exportDataBtn">
+                                <i class="fas fa-file-export"></i> Exportar Datos
+                            </button>
+                            <button class="btn btn-light" id="importDataBtn" style="margin-left: 10px;">
+                                <i class="fas fa-file-import"></i> Importar Datos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Modal para Añadir/Editar Residente -->
+  <div id="residentModal" class="modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" id="residentModalTitle">Añadir Nuevo Residente</h3>
+          <button type="button" class="close-button" id="closeResidentModal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="residentForm">
+            <input type="hidden" id="residentId">
+            
+            <div class="form-group">
+              <label for="residentName"><i class="fas fa-user"></i> Nombre completo</label>
+              <input type="text" id="residentName" class="form-input" placeholder="Nombre y apellidos" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="residentApartment"><i class="fas fa-building"></i> Número de departamento</label>
+              <input type="text" id="residentApartment" class="form-input" placeholder="Ej: 101" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="residentEmail"><i class="fas fa-envelope"></i> Correo electrónico</label>
+              <input type="email" id="residentEmail" class="form-input" placeholder="correo@ejemplo.com" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="residentPhone"><i class="fas fa-phone"></i> Teléfono</label>
+              <input type="tel" id="residentPhone" class="form-input" placeholder="+56 9 XXXX XXXX">
+            </div>
+            
+            <div class="form-group">
+              <label for="residentStatus"><i class="fas fa-toggle-on"></i> Estado</label>
+              <select id="residentStatus" class="form-input" required>
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" id="cancelResidentBtn">
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+          <button type="button" class="btn btn-primary" id="saveResidentBtn">
+            <i class="fas fa-save"></i> Guardar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -732,8 +885,26 @@
     <div class="toast-message" id="errorMessage">Ha ocurrido un error.</div>
   </div>
 
-  <!-- Scripts simplificado -->
   <script>
+    // Variables globales
+    let residents = [];
+    
+    // Verificar autenticación al cargar la página
+    function checkAuth() {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        window.location.href = 'login.html';
+        return false;
+      }
+      return true;
+    }
+    
+    // Función para cerrar sesión
+    function cerrarSesion() {
+      localStorage.removeItem('authToken');
+      window.location.href = 'login.html';
+    }
+
     // Función para cambiar entre pestañas
     function setupTabs() {
       const tabs = document.querySelectorAll('.tab');
@@ -778,6 +949,8 @@
       const email = document.getElementById('adminEmail').value.trim();
       const phone = document.getElementById('adminPhone').value.trim();
       const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
       
       if (!name || !email) {
         showToast('error', 'Por favor, completa los campos obligatorios');
@@ -789,39 +962,626 @@
         return;
       }
       
-      // Simulamos guardar los datos
-      document.getElementById('userName').textContent = name;
-      document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-      document.getElementById('profileAvatarPreview').textContent = name.charAt(0).toUpperCase();
+      // Validar contraseñas si se quiere cambiar
+      if (newPassword) {
+        if (newPassword !== confirmPassword) {
+          showToast('error', 'Las contraseñas no coinciden');
+          return;
+        }
+        
+        if (newPassword.length < 6) {
+          showToast('error', 'La nueva contraseña debe tener al menos 6 caracteres');
+          return;
+        }
+      }
       
-      // Limpiar campo de contraseña
-      document.getElementById('currentPassword').value = '';
-      
-      showToast('success', 'Perfil actualizado correctamente');
+      // Obtener usuario actual
+      try {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser')) || {};
+        
+        // Actualizar datos del usuario
+        currentUser.username = name;
+        currentUser.email = email;
+        currentUser.phone = phone;
+        
+        // Guardar en localStorage
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
+        // Actualizar interfaz
+        document.getElementById('userName').textContent = name;
+        document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+        document.getElementById('profileAvatarPreview').textContent = name.charAt(0).toUpperCase();
+        
+        // Limpiar campos sensibles
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+        
+        showToast('success', 'Perfil actualizado correctamente');
+      } catch (error) {
+        console.error('Error al guardar perfil:', error);
+        showToast('error', 'Error al guardar el perfil');
+      }
     }
     
-    // Función para mostrar el formulario de añadir residente
-    function showAddResidentForm() {
-      alert('Funcionalidad de añadir residente');
-      // Aquí iría el código para mostrar el formulario
+    // Funciones para manejar la imagen de perfil
+    function setupProfilePicture() {
+      const profilePictureInput = document.getElementById('profilePictureInput');
+      
+      profilePictureInput.addEventListener('change', function(e) {
+        if (e.target.files && e.target.files[0]) {
+          const reader = new FileReader();
+          
+          reader.onload = function(e) {
+            // Guardar en localStorage (convertido a string)
+            localStorage.setItem('profilePicture', e.target.result);
+            
+            // Actualizar la vista previa
+            const profileAvatar = document.getElementById('profileAvatarPreview');
+            profileAvatar.innerHTML = '';
+            profileAvatar.style.backgroundImage = `url(${e.target.result})`;
+            profileAvatar.style.backgroundSize = 'cover';
+            profileAvatar.style.backgroundPosition = 'center';
+            
+            // Actualizar avatar en el header también
+            const userAvatar = document.getElementById('userAvatar');
+            userAvatar.innerHTML = '';
+            userAvatar.style.backgroundImage = `url(${e.target.result})`;
+            userAvatar.style.backgroundSize = 'cover';
+            userAvatar.style.backgroundPosition = 'center';
+            
+            showToast('success', 'Imagen de perfil actualizada');
+          };
+          
+          reader.readAsDataURL(e.target.files[0]);
+        }
+      });
+      
+      // Verificar si ya hay una imagen guardada
+      const savedPicture = localStorage.getItem('profilePicture');
+      if (savedPicture) {
+        const profileAvatar = document.getElementById('profileAvatarPreview');
+        profileAvatar.innerHTML = '';
+        profileAvatar.style.backgroundImage = `url(${savedPicture})`;
+        profileAvatar.style.backgroundSize = 'cover';
+        profileAvatar.style.backgroundPosition = 'center';
+        
+        const userAvatar = document.getElementById('userAvatar');
+        userAvatar.innerHTML = '';
+        userAvatar.style.backgroundImage = `url(${savedPicture})`;
+        userAvatar.style.backgroundSize = 'cover';
+        userAvatar.style.backgroundPosition = 'center';
+      }
     }
     
-    // Inicializar la aplicación cuando el DOM esté listo
+    // Función para cargar los datos del usuario al iniciar
+    function loadUserData() {
+      try {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser')) || {};
+        
+        if (currentUser.username) {
+          document.getElementById('adminName').value = currentUser.username;
+          document.getElementById('userName').textContent = currentUser.username;
+          document.getElementById('userAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
+          document.getElementById('profileAvatarPreview').textContent = currentUser.username.charAt(0).toUpperCase();
+        }
+        
+        if (currentUser.email) {
+          document.getElementById('adminEmail').value = currentUser.email;
+        }
+        
+        if (currentUser.phone) {
+          document.getElementById('adminPhone').value = currentUser.phone;
+        }
+        
+        if (currentUser.role) {
+          document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'Administrador' : 'Usuario';
+        }
+      } catch (error) {
+        console.error('Error al cargar datos del usuario:', error);
+      }
+    }
+    
+    // ======= FUNCIONALIDAD DE GESTIÓN DE RESIDENTES =======
+    
+    // Función para generar un ID único
+    function generateUniqueId() {
+      return Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
+    }
+    
+    // Función para cargar residentes desde localStorage
+    function loadResidents() {
+      try {
+        // Intentar cargar desde localStorage
+        const savedResidents = localStorage.getItem('residents');
+        if (savedResidents) {
+          residents = JSON.parse(savedResidents);
+        } else {
+          // Datos de ejemplo si no hay datos guardados
+          residents = [
+            {
+              id: generateUniqueId(),
+              name: 'Juan Pérez',
+              apartment: '101',
+              email: 'juan.perez@example.com',
+              phone: '+56 9 8765 4321',
+              status: 'Activo'
+            },
+            {
+              id: generateUniqueId(),
+              name: 'María González',
+              apartment: '202',
+              email: 'maria.gonzalez@example.com',
+              phone: '+56 9 1122 3344',
+              status: 'Activo'
+            }
+          ];
+          // Guardar los datos de ejemplo
+          saveResidentsToStorage();
+        }
+        
+        // Actualizar la tabla con los datos cargados
+        updateResidentsTable();
+      } catch (error) {
+        console.error('Error al cargar residentes:', error);
+        showToast('error', 'Error al cargar la lista de residentes');
+      }
+    }
+    
+    // Función para guardar residentes en localStorage
+    function saveResidentsToStorage() {
+      try {
+        localStorage.setItem('residents', JSON.stringify(residents));
+      } catch (error) {
+        console.error('Error al guardar residentes:', error);
+        showToast('error', 'Error al guardar los cambios');
+      }
+    }
+    
+    // Función para actualizar la tabla de residentes
+    function updateResidentsTable() {
+      const tableBody = document.getElementById('residentsTableBody');
+      if (!tableBody) return;
+      
+      // Limpiar tabla
+      tableBody.innerHTML = '';
+      
+      // Si no hay residentes, mostrar mensaje
+      if (residents.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td colspan="6" style="text-align: center; padding: 30px;">
+            <i class="fas fa-users" style="font-size: 3rem; color: #ddd; margin-bottom: 10px; display: block;"></i>
+            <p>No hay residentes registrados</p>
+          </td>
+        `;
+        tableBody.appendChild(row);
+        return;
+      }
+      
+      // Agregar residentes a la tabla
+      residents.forEach(resident => {
+        const row = document.createElement('tr');
+        row.dataset.id = resident.id;
+        
+        row.innerHTML = `
+          <td>${resident.name}</td>
+          <td>${resident.apartment}</td>
+          <td>${resident.email}</td>
+          <td>${resident.phone || '-'}</td>
+          <td><span class="badge badge-${resident.status === 'Activo' ? 'primary' : 'danger'}">${resident.status}</span></td>
+          <td class="action-buttons">
+            <button class="btn-icon btn-view" data-id="${resident.id}" title="Ver detalles">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn-icon btn-edit" data-id="${resident.id}" title="Editar">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon btn-delete" data-id="${resident.id}" title="Eliminar">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        
+        tableBody.appendChild(row);
+      });
+      
+      // Configurar eventos para los botones
+      setupTableActions();
+    }
+    
+    // Función para configurar eventos de los botones de la tabla
+    function setupTableActions() {
+      // Configurar botones de ver
+      document.querySelectorAll('.btn-view').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const residentId = this.getAttribute('data-id');
+          viewResident(residentId);
+        });
+      });
+      
+      // Configurar botones de editar
+      document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const residentId = this.getAttribute('data-id');
+          editResident(residentId);
+        });
+      });
+      
+      // Configurar botones de eliminar
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const residentId = this.getAttribute('data-id');
+          deleteResident(residentId);
+        });
+      });
+    }
+    
+    // Función para ver detalles de un residente
+    function viewResident(residentId) {
+      const resident = residents.find(r => r.id === residentId);
+      if (!resident) {
+        showToast('error', 'No se encontró el residente');
+        return;
+      }
+      
+      // Mostrar detalles del residente en una alerta
+      alert(`
+        Detalles del Residente:
+        
+        Nombre: ${resident.name}
+        Departamento: ${resident.apartment}
+        Email: ${resident.email}
+        Teléfono: ${resident.phone || 'No especificado'}
+        Estado: ${resident.status}
+      `);
+    }
+    
+    // Función para abrir modal para editar residente
+    function editResident(residentId) {
+      const resident = residents.find(r => r.id === residentId);
+      if (!resident) {
+        showToast('error', 'No se encontró el residente');
+        return;
+      }
+      
+      // Rellenar el formulario con los datos
+      document.getElementById('residentId').value = resident.id;
+      document.getElementById('residentName').value = resident.name;
+      document.getElementById('residentApartment').value = resident.apartment;
+      document.getElementById('residentEmail').value = resident.email;
+      document.getElementById('residentPhone').value = resident.phone || '';
+      document.getElementById('residentStatus').value = resident.status;
+      
+      // Cambiar título del modal
+      document.getElementById('residentModalTitle').textContent = 'Editar Residente';
+      
+      // Mostrar modal
+      openResidentModal();
+    }
+    
+    // Función para eliminar un residente
+    function deleteResident(residentId) {
+      const resident = residents.find(r => r.id === residentId);
+      if (!resident) {
+        showToast('error', 'No se encontró el residente');
+        return;
+      }
+      
+      // Pedir confirmación
+      const confirmDelete = confirm(`¿Está seguro que desea eliminar al residente ${resident.name}?`);
+      if (!confirmDelete) return;
+      
+      // Eliminar residente
+      residents = residents.filter(r => r.id !== residentId);
+      
+      // Guardar cambios
+      saveResidentsToStorage();
+      
+      // Actualizar tabla
+      updateResidentsTable();
+      
+      // Mostrar mensaje
+      showToast('success', 'Residente eliminado correctamente');
+    }
+    
+    // Función para abrir modal para añadir un nuevo residente
+    function openAddResidentModal() {
+      // Limpiar formulario
+      document.getElementById('residentForm').reset();
+      document.getElementById('residentId').value = '';
+      
+      // Cambiar título
+      document.getElementById('residentModalTitle').textContent = 'Añadir Nuevo Residente';
+      
+      // Mostrar modal
+      openResidentModal();
+    }
+    
+    // Función para abrir el modal
+    function openResidentModal() {
+      document.getElementById('residentModal').classList.add('show');
+    }
+    
+    // Función para cerrar el modal
+    function closeResidentModal() {
+      document.getElementById('residentModal').classList.remove('show');
+    }
+    
+    // Función para guardar un residente (nuevo o editado)
+    function saveResident() {
+      // Obtener datos del formulario
+      const id = document.getElementById('residentId').value;
+      const name = document.getElementById('residentName').value.trim();
+      const apartment = document.getElementById('residentApartment').value.trim();
+      const email = document.getElementById('residentEmail').value.trim();
+      const phone = document.getElementById('residentPhone').value.trim();
+      const status = document.getElementById('residentStatus').value;
+      
+      // Validar campos obligatorios
+      if (!name || !apartment || !email) {
+        showToast('error', 'Por favor, completa los campos obligatorios');
+        return;
+      }
+      
+      // Crear objeto residente
+      const resident = {
+        id: id || generateUniqueId(),
+        name,
+        apartment,
+        email,
+        phone,
+        status
+      };
+      
+      // Verificar si es edición o nuevo
+      if (id) {
+        // Edición: actualizar residente existente
+        const index = residents.findIndex(r => r.id === id);
+        if (index !== -1) {
+          residents[index] = resident;
+          showToast('success', 'Residente actualizado correctamente');
+        } else {
+          showToast('error', 'No se encontró el residente a editar');
+          return;
+        }
+      } else {
+        // Nuevo: agregar a la lista
+        residents.push(resident);
+        
+        // Verificar si es necesario crear o actualizar el departamento
+        updateDepartmentList(apartment);
+        
+        showToast('success', 'Residente añadido correctamente');
+      }
+      
+      // Guardar cambios
+      saveResidentsToStorage();
+      
+      // Actualizar tabla
+      updateResidentsTable();
+      
+      // Cerrar modal
+      closeResidentModal();
+    }
+    
+    // Función para actualizar la lista de departamentos
+    function updateDepartmentList(apartmentNumber) {
+      try {
+        // Obtener departamentos existentes
+        const departments = JSON.parse(localStorage.getItem('departments')) || [];
+        
+        // Verificar si ya existe el departamento
+        if (!departments.includes(apartmentNumber)) {
+          departments.push(apartmentNumber);
+          localStorage.setItem('departments', JSON.stringify(departments));
+          console.log(`Departamento ${apartmentNumber} añadido automáticamente`);
+        }
+      } catch (error) {
+        console.error('Error al actualizar lista de departamentos:', error);
+      }
+    }
+    
+    // ======= CONFIGURACIÓN DEL SISTEMA =======
+    
+    // Función para cargar configuración del sistema
+    function loadSystemSettings() {
+      try {
+        const settings = JSON.parse(localStorage.getItem('systemSettings')) || {};
+        
+        // Cargar datos en el formulario
+        if (settings.buildingName) {
+          document.getElementById('buildingName').value = settings.buildingName;
+        }
+        
+        if (settings.buildingAddress) {
+          document.getElementById('buildingAddress').value = settings.buildingAddress;
+        }
+        
+        if (settings.notifyNewPackage !== undefined) {
+          document.getElementById('notifyNewPackage').checked = settings.notifyNewPackage;
+        }
+        
+        if (settings.notifyPackageDelivery !== undefined) {
+          document.getElementById('notifyPackageDelivery').checked = settings.notifyPackageDelivery;
+        }
+        
+        if (settings.retentionDays) {
+          document.getElementById('retentionDays').value = settings.retentionDays;
+        }
+      } catch (error) {
+        console.error('Error al cargar configuración del sistema:', error);
+      }
+    }
+    
+    // Función para guardar configuración del sistema
+    function saveSystemSettings() {
+      try {
+        const settings = {
+          buildingName: document.getElementById('buildingName').value.trim(),
+          buildingAddress: document.getElementById('buildingAddress').value.trim(),
+          notifyNewPackage: document.getElementById('notifyNewPackage').checked,
+          notifyPackageDelivery: document.getElementById('notifyPackageDelivery').checked,
+          retentionDays: document.getElementById('retentionDays').value
+        };
+        
+        // Guardar en localStorage
+        localStorage.setItem('systemSettings', JSON.stringify(settings));
+        
+        showToast('success', 'Configuración guardada correctamente');
+      } catch (error) {
+        console.error('Error al guardar configuración:', error);
+        showToast('error', 'Error al guardar la configuración');
+      }
+    }
+    
+    // Función para exportar datos
+    function exportData() {
+      try {
+        // Recopilar todos los datos importantes
+        const exportData = {
+          residents: residents,
+          departments: JSON.parse(localStorage.getItem('departments')) || [],
+          packages: JSON.parse(localStorage.getItem('paquetesPrueba')) || [],
+          systemSettings: JSON.parse(localStorage.getItem('systemSettings')) || {},
+          exportDate: new Date().toISOString()
+        };
+        
+        // Convertir a cadena JSON
+        const jsonData = JSON.stringify(exportData, null, 2);
+        
+        // Crear un blob con los datos
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        
+        // Crear URL para descargar
+        const url = URL.createObjectURL(blob);
+        
+        // Crear enlace para descargar
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_encomiendas_${new Date().toISOString().split('T')[0]}.json`;
+        
+        // Simular clic en el enlace para iniciar descarga
+        document.body.appendChild(a);
+        a.click();
+        
+        // Limpiar
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showToast('success', 'Datos exportados correctamente');
+      } catch (error) {
+        console.error('Error al exportar datos:', error);
+        showToast('error', 'Error al exportar los datos');
+      }
+    }
+    
+    // Función para importar datos
+    function importData() {
+      // Crear un input de tipo file oculto
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'application/json';
+      
+      // Agregar evento change
+      fileInput.addEventListener('change', function(e) {
+        if (e.target.files && e.target.files[0]) {
+          const file = e.target.files[0];
+          const reader = new FileReader();
+          
+          reader.onload = function(e) {
+            try {
+              const data = JSON.parse(e.target.result);
+              
+              // Verificar si tiene la estructura esperada
+              if (!data.residents || !data.departments || !data.packages) {
+                throw new Error('El archivo no tiene el formato correcto');
+              }
+              
+              // Preguntar al usuario si está seguro
+              const confirmImport = confirm('¿Está seguro que desea importar estos datos? Se sobrescribirán los datos actuales.');
+              if (!confirmImport) return;
+              
+              // Importar datos
+              localStorage.setItem('residents', JSON.stringify(data.residents));
+              localStorage.setItem('departments', JSON.stringify(data.departments));
+              localStorage.setItem('paquetesPrueba', JSON.stringify(data.packages));
+              
+              if (data.systemSettings) {
+                localStorage.setItem('systemSettings', JSON.stringify(data.systemSettings));
+              }
+              
+              // Recargar datos
+              residents = data.residents;
+              updateResidentsTable();
+              loadSystemSettings();
+              
+              showToast('success', 'Datos importados correctamente');
+              
+              // Sugerir recargar la página
+              setTimeout(() => {
+                if (confirm('Se recomienda recargar la página para ver todos los cambios. ¿Desea hacerlo ahora?')) {
+                  window.location.reload();
+                }
+              }, 1000);
+              
+            } catch (error) {
+              console.error('Error al procesar el archivo:', error);
+              showToast('error', 'Error al importar los datos: ' + error.message);
+            }
+          };
+          
+          reader.readAsText(file);
+        }
+      });
+      
+      // Simular clic para abrir el diálogo
+      document.body.appendChild(fileInput);
+      fileInput.click();
+      document.body.removeChild(fileInput);
+    }
+    
+    // Inicializar la aplicación
     document.addEventListener('DOMContentLoaded', function() {
+      // Verificar autenticación
+      if (!checkAuth()) return;
+      
       // Configurar pestañas
       setupTabs();
       
-      // Configurar eventos
-      document.getElementById('saveProfileBtn').addEventListener('click', saveProfile);
-      document.getElementById('addResidentBtn').addEventListener('click', showAddResidentForm);
+      // Cargar datos del usuario
+      loadUserData();
       
       // Configurar imagen de perfil
-      const profilePictureInput = document.getElementById('profilePictureInput');
-      profilePictureInput.addEventListener('change', function() {
-        // Aquí iría el código para cambiar la imagen
-        showToast('success', 'La imagen se cambiaría aquí');
+      setupProfilePicture();
+      
+      // Cargar residentes
+      loadResidents();
+      
+      // Cargar configuración del sistema
+      loadSystemSettings();
+      
+      // Configurar eventos para el perfil
+      document.getElementById('saveProfileBtn').addEventListener('click', saveProfile);
+      
+      // Configurar eventos para residentes
+      document.getElementById('addResidentBtn').addEventListener('click', openAddResidentModal);
+      document.getElementById('closeResidentModal').addEventListener('click', closeResidentModal);
+      document.getElementById('cancelResidentBtn').addEventListener('click', closeResidentModal);
+      document.getElementById('saveResidentBtn').addEventListener('click', saveResident);
+      
+      // Configurar eventos para cerrar modal con clic fuera
+      document.getElementById('residentModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeResidentModal();
+        }
       });
+      
+      // Configurar eventos para configuración del sistema
+      document.getElementById('saveSystemSettingsBtn').addEventListener('click', saveSystemSettings);
+      document.getElementById('exportDataBtn').addEventListener('click', exportData);
+      document.getElementById('importDataBtn').addEventListener('click', importData);
     });
   </script>
-</body>
+</body> 
 </html>
