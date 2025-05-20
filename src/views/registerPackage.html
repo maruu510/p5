@@ -1350,9 +1350,9 @@
 
             // Guardar en localStorage para persistencia
             try {
-              const existingPackages = JSON.parse(localStorage.getItem('packages')) || [];
+              const existingPackages = JSON.parse(localStorage.getItem('paquetesPrueba')) || [];
               existingPackages.push(packageData);
-              localStorage.setItem('packages', JSON.stringify(existingPackages));
+              localStorage.setItem('paquetesPrueba', JSON.stringify(existingPackages));
               console.log('Paquete guardado en localStorage. Total:', existingPackages.length);
               
               // Actualizar contador de paquetes pendientes para el dashboard
