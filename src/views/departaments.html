@@ -483,308 +483,15 @@ padding: 10px 8px;
 
 <script>
 // URLs del backend - Configurar según tu entorno
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? 'http://localhost:3000/api'  // Entorno de desarrollo
-    : '/api';                     // Entorno de producción
-    
-const ENDPOINTS = {
-    departments: `${API_URL}/departments`,
-    department: (id) => `${API_URL}/departments/${id}`,
-    packagesByDept: (deptId) => `${API_URL}/packages/department/${deptId}`,
-    departmentSummary: (id) => `${API_URL}/departments/${id}/summary`
-};
-
-// Variable para activar modo de respaldo cuando el backend no está disponible
-let fallbackMode = false;
-
-// Función para realizar solicitudes a la API con control de errores y modo fallback
-async function fetchAPI(url, options = {}) {
-    try {
-        // Si estamos en modo fallback, usar localStorage
-        if (fallbackMode) {
-            return await handleFallbackRequest(url, options);
-        }
-        
-        // Configurar cabeceras de autenticación
-        const token = localStorage.getItem('authToken');
-        const headers = {
-            'Content-Type': 'application/json',
-            ...options.headers
-        };
-        
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-        
-        // Agregar un timeout para la solicitud
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos de timeout
-        
-        const response = await fetch(url, {
-            ...options,
-            headers,
-            signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        
-        // Verificar si la respuesta es 401 (No autorizado)
-        if (response.status === 401) {
-            localStorage.removeItem('authToken');
-            window.location.href = 'login.html';
-            return null;
-        }
-        
-        // Verificar si la respuesta es exitosa
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status} - ${response.statusText}`);
-        }
-        
-        // Devolver los datos como JSON
-        return await response.json();
-    } catch (error) {
-        console.error('Error en la solicitud API:', error);
-        
-        // Si es un error de conexión, activar modo fallback
-        if (error.name === 'TypeError' || error.name === 'AbortError' || error.message.includes('Failed to fetch')) {
-            if (!fallbackMode) {
-                fallbackMode = true;
-                showNotification('El servidor no está disponible. Usando modo de respaldo local.', true);
-                console.warn('Activando modo fallback para localStorage');
-                
-                // Intentar nuevamente con localStorage
-                return await handleFallbackRequest(url, options);
-            }
-        }
-        
-        showNotification(`Error en la solicitud: ${error.message}`, true);
-        return null;
-    }
-}
-
-// Función para manejar solicitudes en modo fallback (localStorage)
-async function handleFallbackRequest(url, options = {}) {
-    console.log('Usando localStorage como respaldo para:', url);
-    
-    // Simular pequeño retraso para imitar una API
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    try {
-        // Crear departamentos de ejemplo si no existen
-        if (!localStorage.getItem('fallback_departments')) {
-            initializeFallbackData();
-        }
-        
-        // Determinar qué operación es basada en la URL y método
-        if (url.includes('/departments') && !url.includes('/departments/')) {
-            // Operaciones generales de departamentos
-            if (options.method === 'POST') {
-                // Crear nuevo departamento
-                const newDept = JSON.parse(options.body);
-                return createDepartmentInLocalStorage(newDept);
-            } else {
-                // Obtener todos los departamentos
-                return getAllDepartmentsFromLocalStorage();
-            }
-        } else if (url.includes('/departments/') && url.includes('/summary')) {
-            // Obtener resumen de departamento
-            const deptId = url.split('/departments/')[1].split('/summary')[0];
-            return getDepartmentSummaryFromLocalStorage(deptId);
-        } else if (url.includes('/departments/')) {
-            // Operaciones específicas de departamento
-            const deptId = url.split('/departments/')[1];
-            
-            if (options.method === 'DELETE') {
-                // Eliminar departamento
-                return deleteDepartmentFromLocalStorage(deptId);
-            } else if (options.method === 'PUT' || options.method === 'PATCH') {
-                // Actualizar departamento
-                const updateData = JSON.parse(options.body);
-                return updateDepartmentInLocalStorage(deptId, updateData);
-            } else {
-                // Obtener un departamento
-                return getDepartmentFromLocalStorage(deptId);
-            }
-        } else if (url.includes('/packages/department/')) {
-            // Obtener paquetes por departamento
-            const deptId = url.split('/packages/department/')[1];
-            return getPackagesByDepartmentFromLocalStorage(deptId);
-        }
-        
-        return null;
-    } catch (error) {
-        console.error('Error en modo fallback:', error);
-        return null;
-    }
-}
-
-// Inicializar datos de respaldo
-function initializeFallbackData() {
-    // Crear departamentos de prueba
-    const departments = [
-        { id: '101', number: '101' },
-        { id: '102', number: '102' },
-        { id: '103', number: '103' },
-        { id: '201', number: '201' },
-        { id: '202', number: '202' },
-        { id: '301', number: '301' }
-    ];
-    localStorage.setItem('fallback_departments', JSON.stringify(departments));
-    
-    // Crear paquetes de prueba
-    const packages = [];
-    departments.forEach((dept, index) => {
-        // Crear 2 paquetes por departamento
-        for (let i = 0; i < 2; i++) {
-            packages.push({
-                id: `PKG-${dept.number}-${Date.now()}-${i}`,
-                apartment_number: dept.number,
-                sender: `Remitente Prueba ${index + 1} - ${i}`,
-                delivery_date: new Date().toISOString(),
-                status: i % 2 === 0 ? 'pendiente' : 'retirado',
-                notes: `Paquete de prueba para departamento ${dept.number}`
-            });
-        }
-    });
-    
-    localStorage.setItem('fallback_packages', JSON.stringify(packages));
-    console.log('Datos de respaldo inicializados con', departments.length, 'departamentos y', packages.length, 'paquetes');
-}
-
-// Obtener todos los departamentos desde localStorage
-function getAllDepartmentsFromLocalStorage() {
-    try {
-        const deptsString = localStorage.getItem('fallback_departments');
-        return deptsString ? JSON.parse(deptsString) : [];
-    } catch (error) {
-        console.error('Error obteniendo departamentos de localStorage:', error);
-        return [];
-    }
-}
-
-// Obtener un departamento específico desde localStorage
-function getDepartmentFromLocalStorage(deptId) {
-    try {
-        const departments = getAllDepartmentsFromLocalStorage();
-        return departments.find(dept => dept.id === deptId || dept.number === deptId) || null;
-    } catch (error) {
-        console.error('Error obteniendo departamento de localStorage:', error);
-        return null;
-    }
-}
-
-// Crear departamento en localStorage
-function createDepartmentInLocalStorage(newDept) {
-    try {
-        const departments = getAllDepartmentsFromLocalStorage();
-        
-        // Verificar si ya existe el número de departamento
-        if (departments.some(dept => dept.number === newDept.number)) {
-            throw new Error('Ya existe un departamento con ese número');
-        }
-        
-        // Asignar un ID si no tiene
-        if (!newDept.id) {
-            newDept.id = newDept.number;
-        }
-        
-        // Agregar el nuevo departamento
-        departments.push(newDept);
-        localStorage.setItem('fallback_departments', JSON.stringify(departments));
-        
-        return newDept;
-    } catch (error) {
-        console.error('Error creando departamento en localStorage:', error);
-        throw error;
-    }
-}
-
-// Actualizar departamento en localStorage
-function updateDepartmentInLocalStorage(deptId, updateData) {
-    try {
-        const departments = getAllDepartmentsFromLocalStorage();
-        const index = departments.findIndex(dept => dept.id === deptId || dept.number === deptId);
-        
-        if (index === -1) {
-            throw new Error('Departamento no encontrado');
-        }
-        
-        // Actualizar el departamento
-        departments[index] = { ...departments[index], ...updateData };
-        localStorage.setItem('fallback_departments', JSON.stringify(departments));
-        
-        return departments[index];
-    } catch (error) {
-        console.error('Error actualizando departamento en localStorage:', error);
-        throw error;
-    }
-}
-
-// Eliminar departamento de localStorage
-function deleteDepartmentFromLocalStorage(deptId) {
-    try {
-        const departments = getAllDepartmentsFromLocalStorage();
-        const filteredDepts = departments.filter(dept => dept.id !== deptId && dept.number !== deptId);
-        
-        // Si no cambió el tamaño, el departamento no existía
-        if (filteredDepts.length === departments.length) {
-            throw new Error('Departamento no encontrado');
-        }
-        
-        localStorage.setItem('fallback_departments', JSON.stringify(filteredDepts));
-        
-        // También eliminamos los paquetes asociados
-        const allPackages = JSON.parse(localStorage.getItem('fallback_packages') || '[]');
-        const updatedPackages = allPackages.filter(pkg => pkg.apartment_number !== deptId);
-        localStorage.setItem('fallback_packages', JSON.stringify(updatedPackages));
-        
-        return { success: true, message: 'Departamento eliminado correctamente' };
-    } catch (error) {
-        console.error('Error eliminando departamento de localStorage:', error);
-        throw error;
-    }
-}
-
-// Obtener paquetes por departamento desde localStorage
-function getPackagesByDepartmentFromLocalStorage(deptId) {
-    try {
-        const packagesString = localStorage.getItem('fallback_packages');
-        if (!packagesString) return [];
-        
-        const packages = JSON.parse(packagesString);
-        return packages.filter(pkg => pkg.apartment_number === deptId);
-    } catch (error) {
-        console.error('Error obteniendo paquetes por departamento de localStorage:', error);
-        return [];
-    }
-}
-
-// Obtener resumen de departamento (conteo de paquetes) desde localStorage
-function getDepartmentSummaryFromLocalStorage(deptId) {
-    try {
-        const packages = getPackagesByDepartmentFromLocalStorage(deptId);
-        
-        return {
-            departmentId: deptId,
-            totalPackages: packages.length,
-            pendingPackages: packages.filter(pkg => pkg.status === 'pendiente').length,
-            deliveredPackages: packages.filter(pkg => pkg.status === 'retirado' || pkg.status === 'entregado').length
-        };
-    } catch (error) {
-        console.error('Error obteniendo resumen de departamento de localStorage:', error);
-        return {
-            departmentId: deptId,
-            totalPackages: 0,
-            pendingPackages: 0,
-            deliveredPackages: 0
-        };
-    }
-}
+// Forzamos modo fallback para garantizar el funcionamiento local
+let fallbackMode = true;
 
 // Función para mostrar notificaciones
 function showNotification(message, isError = false) {
     const notification = document.getElementById('notification');
     const notificationMessage = document.getElementById('notification-message');
+    
+    if (!notification || !notificationMessage) return;
     
     notificationMessage.textContent = message;
     notification.classList.toggle('error', isError);
@@ -796,24 +503,17 @@ function showNotification(message, isError = false) {
 }
 
 // Función para cerrar sesión
-async function logout() {
+function logout() {
     try {
-        // Solo intentar llamar a la API de logout si no estamos en modo fallback
-        if (!fallbackMode) {
-            await fetchAPI(`${API_URL}/auth/logout`, { 
-                method: 'POST',
-                // Añadir un tiempo de espera corto para evitar que se bloquee la UI
-                signal: AbortSignal.timeout(3000)
-            }).catch(err => console.warn('Error en logout API:', err));
-        }
-    } catch (error) {
-        console.warn('Error al cerrar sesión en el servidor:', error);
-    } finally {
-        // Siempre limpiar localStorage y redirigir
+        // Limpiar localStorage y redirigir
         localStorage.removeItem('authToken');
         localStorage.removeItem('userName');
         localStorage.removeItem('userType');
         localStorage.removeItem('isLoggedIn');
+        window.location.href = 'login.html';
+    } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+        // En caso de error, intentar forzar la redirección
         window.location.href = 'login.html';
     }
 }
@@ -822,22 +522,66 @@ async function logout() {
 window.logout = logout;
 
 // Función para obtener todos los departamentos
-async function getAllDepartments() {
+function getAllDepartments() {
     try {
-        const departments = await fetchAPI(ENDPOINTS.departments);
-        return departments || [];
+        // Intentar obtener departamentos del localStorage
+        const deptsFromStorage = localStorage.getItem('departments');
+        if (deptsFromStorage) {
+            const departments = JSON.parse(deptsFromStorage);
+            // Verificar si es un array
+            if (Array.isArray(departments)) {
+                return departments;
+            } else if (typeof departments === 'object' && departments !== null) {
+                // Si es un objeto, convertirlo a array
+                return [departments];
+            }
+        }
+        
+        // Si no hay datos, crear datos de ejemplo
+        const defaultDepartments = [
+            { id: '101', number: '101' },
+            { id: '102', number: '102' },
+            { id: '103', number: '103' },
+            { id: '201', number: '201' }
+        ];
+        
+        // Guardar datos de ejemplo en localStorage
+        localStorage.setItem('departments', JSON.stringify(defaultDepartments));
+        return defaultDepartments;
     } catch (error) {
         console.error('Error al obtener departamentos:', error);
-        showNotification('Error al cargar departamentos', true);
+        return [];
+    }
+}
+
+// Función para obtener todos los paquetes
+function getAllPackages() {
+    try {
+        // Intentar obtener de packages primero
+        const packagesData = localStorage.getItem('packages');
+        if (packagesData) {
+            return JSON.parse(packagesData);
+        }
+        
+        // Si no existe, intentar con paquetesPrueba
+        const oldPackagesData = localStorage.getItem('paquetesPrueba');
+        if (oldPackagesData) {
+            return JSON.parse(oldPackagesData);
+        }
+        
+        // Si no hay datos, devolver array vacío
+        return [];
+    } catch (error) {
+        console.error('Error al cargar paquetes:', error);
         return [];
     }
 }
 
 // Función para obtener paquetes por departamento
-async function getPackagesByDepartment(deptId) {
+function getPackagesByDepartment(deptId) {
     try {
-        const packages = await fetchAPI(ENDPOINTS.packagesByDept(deptId));
-        return packages || [];
+        const packages = getAllPackages();
+        return packages.filter(pkg => pkg.apartment_number === deptId.toString());
     } catch (error) {
         console.error(`Error al obtener paquetes del departamento ${deptId}:`, error);
         return [];
@@ -845,34 +589,54 @@ async function getPackagesByDepartment(deptId) {
 }
 
 // Función para obtener el resumen de un departamento
-async function getDepartmentSummary(deptId) {
+function getDepartmentSummary(deptId) {
     try {
-        const summary = await fetchAPI(ENDPOINTS.departmentSummary(deptId));
-        return summary || { pendingPackages: 0, deliveredPackages: 0 };
-    } catch (error) {
-        console.error(`Error al obtener resumen del departamento ${deptId}:`, error);
-        
-        // Si el endpoint de resumen falla, calcular desde los paquetes
-        const packages = await getPackagesByDepartment(deptId);
+        const packages = getPackagesByDepartment(deptId);
         return {
+            departmentId: deptId,
+            totalPackages: packages.length,
             pendingPackages: packages.filter(pkg => pkg.status === 'pendiente').length,
             deliveredPackages: packages.filter(pkg => pkg.status === 'retirado' || pkg.status === 'entregado').length
+        };
+    } catch (error) {
+        console.error(`Error al obtener resumen del departamento ${deptId}:`, error);
+        return {
+            departmentId: deptId,
+            totalPackages: 0,
+            pendingPackages: 0,
+            deliveredPackages: 0
         };
     }
 }
 
 // Función para eliminar un departamento
-async function deleteDepartment(deptId) {
+function deleteDepartment(deptId) {
     if (confirm(`¿Está seguro que desea eliminar el Departamento ${deptId}?`)) {
         try {
-            const response = await fetchAPI(ENDPOINTS.department(deptId), {
-                method: 'DELETE'
+            // Obtener departamentos actuales
+            const departments = getAllDepartments();
+            
+            // Filtrar el departamento a eliminar
+            const filteredDepts = departments.filter(dept => {
+                const deptNumber = dept.number || dept.id || dept;
+                return deptNumber.toString() !== deptId.toString();
             });
             
-            if (response) {
-                showNotification(`Departamento ${deptId} eliminado correctamente`);
-                await loadDepartments(); // Recargar la tabla
-            }
+            // Guardar departamentos actualizados
+            localStorage.setItem('departments', JSON.stringify(filteredDepts));
+            
+            // También eliminar paquetes asociados al departamento
+            const packages = getAllPackages();
+            const filteredPackages = packages.filter(pkg => pkg.apartment_number !== deptId.toString());
+            
+            // Guardar en ambos formatos para compatibilidad
+            localStorage.setItem('packages', JSON.stringify(filteredPackages));
+            localStorage.setItem('paquetesPrueba', JSON.stringify(filteredPackages));
+            
+            showNotification(`Departamento ${deptId} eliminado correctamente`);
+            
+            // Recargar los departamentos
+            loadDepartments();
         } catch (error) {
             console.error('Error al eliminar departamento:', error);
             showNotification(`Error al eliminar departamento: ${error.message}`, true);
@@ -886,9 +650,14 @@ function viewDepartment(deptId) {
 }
 
 // Función para cargar departamentos en la tabla
-async function loadDepartments() {
+function loadDepartments() {
     const tbody = document.querySelector('#departmentsTable tbody');
     const errorMessage = document.getElementById('errorMessage');
+    
+    if (!tbody || !errorMessage) {
+        console.error('No se encontraron elementos del DOM necesarios');
+        return;
+    }
     
     // Ocultar mensajes de error previos
     errorMessage.style.display = 'none';
@@ -904,7 +673,7 @@ async function loadDepartments() {
     
     try {
         // Obtener todos los departamentos
-        const departments = await getAllDepartments();
+        const departments = getAllDepartments();
         
         // Verificar si hay departamentos
         if (!departments || departments.length === 0) {
@@ -913,13 +682,20 @@ async function loadDepartments() {
                     <td colspan="4" class="empty-state">
                         <i class="fas fa-building"></i>
                         <p>No hay departamentos registrados</p>
-                        <button class="btn btn-primary" onclick="window.location.href='moredepartaments.html'">
+                        <button class="btn btn-primary" id="addFirstDeptBtn">
                             <i class="fas fa-plus"></i>
                             <span>Agregar primer departamento</span>
                         </button>
                     </td>
                 </tr>
             `;
+            
+            // Agregar evento para agregar primer departamento
+            const addFirstDeptBtn = document.getElementById('addFirstDeptBtn');
+            if (addFirstDeptBtn) {
+                addFirstDeptBtn.addEventListener('click', addNewDepartment);
+            }
+            
             return;
         }
         
@@ -927,13 +703,13 @@ async function loadDepartments() {
         tbody.innerHTML = '';
         
         // Procesar cada departamento
-        for (const dept of departments) {
+        departments.forEach(dept => {
             try {
                 // Obtener el número de departamento
                 const deptNumber = dept.number || dept.id || dept;
                 
-                // Obtener resumen del departamento (paquetes pendientes y retirados)
-                const summary = await getDepartmentSummary(deptNumber);
+                // Obtener resumen del departamento
+                const summary = getDepartmentSummary(deptNumber);
                 
                 // Crear la fila
                 const row = document.createElement('tr');
@@ -966,7 +742,7 @@ async function loadDepartments() {
                 `;
                 tbody.appendChild(row);
             } catch (packageError) {
-                console.error('Error al procesar paquetes del departamento', dept, packageError);
+                console.error('Error al procesar departamento', dept, packageError);
                 
                 // Agregar fila con error para este departamento
                 const deptNumber = dept.number || dept.id || dept;
@@ -980,7 +756,7 @@ async function loadDepartments() {
                 `;
                 tbody.appendChild(row);
             }
-        }
+        });
     } catch (error) {
         console.error('Error al cargar departamentos:', error);
         
@@ -1003,52 +779,68 @@ async function loadDepartments() {
     }
 }
 
+// Función para añadir un nuevo departamento
+function addNewDepartment() {
+    try {
+        // Solicitar número de departamento
+        const deptNumber = prompt('Ingrese el número del nuevo departamento:');
+        
+        // Validar entrada
+        if (!deptNumber) return;
+        
+        // Validar que sea un número
+        if (isNaN(deptNumber)) {
+            showNotification('Por favor ingrese un número válido', true);
+            return;
+        }
+        
+        // Verificar si ya existe
+        const departments = getAllDepartments();
+        const exists = departments.some(dept => {
+            const existingNumber = dept.number || dept.id || dept;
+            return existingNumber.toString() === deptNumber.toString();
+        });
+        
+        if (exists) {
+            showNotification('Ya existe un departamento con ese número', true);
+            return;
+        }
+        
+        // Crear nuevo departamento
+        const newDept = { id: deptNumber, number: deptNumber };
+        departments.push(newDept);
+        
+        // Guardar en localStorage
+        localStorage.setItem('departments', JSON.stringify(departments));
+        
+        showNotification('Departamento agregado correctamente');
+        
+        // Recargar tabla
+        loadDepartments();
+    } catch (error) {
+        console.error('Error al agregar departamento:', error);
+        showNotification('Error al agregar departamento: ' + error.message, true);
+    }
+}
+
 // Inicialización cuando se carga la página
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     // Verificar autenticación
     const authToken = localStorage.getItem('authToken');
-    if (!authToken) {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    
+    if (!authToken || !isLoggedIn) {
         window.location.href = 'login.html';
         return;
     }
     
-    try {
-        // Intentar conexión con el backend
-        try {
-            // Verificar conectividad con una petición simple
-            const connectionTest = await fetch(`${API_URL}/status`, { 
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${authToken}` },
-                signal: AbortSignal.timeout(5000) // 5 segundos timeout
-            });
-            
-            if (!connectionTest.ok) {
-                throw new Error(`Backend no disponible: ${connectionTest.status}`);
-            }
-            
-            console.log('Conexión con backend establecida');
-        } catch (connectionError) {
-            console.warn('Error conectando con el backend:', connectionError);
-            fallbackMode = true;
-            showNotification('No se pudo conectar con el servidor. Usando datos locales.', 'warning', 10000);
-        }
-        
-        // Cargar departamentos
-        await loadDepartments();
-        
-        // Configurar botón para agregar departamentos
-        document.getElementById('addDeptBtn').addEventListener('click', function() {
-            window.location.href = 'moredepartaments.html';
-        });
-    } catch (error) {
-        console.error('Error al inicializar la página:', error);
-        showNotification('Error al cargar la página. Usando modo de respaldo.', true);
-        
-        // Activar modo de respaldo en caso de error
-        fallbackMode = true;
-        
-        // Intentar cargar en modo respaldo
-        await loadDepartments();
+    // Cargar departamentos
+    loadDepartments();
+    
+    // Configurar botón para agregar departamentos
+    const addDeptBtn = document.getElementById('addDeptBtn');
+    if (addDeptBtn) {
+        addDeptBtn.addEventListener('click', addNewDepartment);
     }
 });
 </script>
