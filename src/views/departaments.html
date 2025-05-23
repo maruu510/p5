@@ -530,10 +530,27 @@ function getAllDepartments() {
             const departments = JSON.parse(deptsFromStorage);
             // Verificar si es un array
             if (Array.isArray(departments)) {
-                return departments;
+                // Asegurarnos de que cada elemento sea un objeto con propiedad number
+                return departments.map(dept => {
+                    if (typeof dept === 'object' && dept !== null) {
+                        return {
+                            id: dept.id || dept.number || dept.deptNumber || dept,
+                            number: dept.number || dept.id || dept.deptNumber || dept
+                        };
+                    } else {
+                        // Si es un string u otro tipo, convertirlo a objeto
+                        return {
+                            id: dept,
+                            number: dept
+                        };
+                    }
+                });
             } else if (typeof departments === 'object' && departments !== null) {
                 // Si es un objeto, convertirlo a array
-                return [departments];
+                return [{
+                    id: departments.id || departments.number || departments.deptNumber || departments,
+                    number: departments.number || departments.id || departments.deptNumber || departments
+                }];
             }
         }
         
@@ -704,49 +721,52 @@ function loadDepartments() {
         
         // Procesar cada departamento
         departments.forEach(dept => {
-            try {
-                // Obtener el número de departamento
-                const deptNumber = dept.number || dept.id || dept;
-                
-                // Obtener resumen del departamento
-                const summary = getDepartmentSummary(deptNumber);
-                
-                // Crear la fila
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>
-                        <strong>Departamento ${deptNumber}</strong>
-                    </td>
-                    <td>
-                        <span class="badge badge-pending">
-                            <i class="fas fa-clock"></i>
-                            ${summary.pendingPackages || 0}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="badge badge-success">
-                            <i class="fas fa-check"></i>
-                            ${summary.deliveredPackages || 0}
-                        </span>
-                    </td>
-                    <td class="actions-cell">
-                        <button class="btn btn-view" onclick="viewDepartment('${deptNumber}')" aria-label="Ver paquetes del departamento ${deptNumber}">
-                            <i class="fas fa-eye"></i>
-                            <span>Ver Paquetes</span>
-                        </button>
-                        <button class="btn btn-danger" onclick="deleteDepartment('${deptNumber}')" aria-label="Eliminar departamento ${deptNumber}">
-                            <i class="fas fa-trash"></i>
-                            <span>Eliminar</span>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            } catch (packageError) {
-                console.error('Error al procesar departamento', dept, packageError);
-                
-                // Agregar fila con error para este departamento
-                const deptNumber = dept.number || dept.id || dept;
-                const row = document.createElement('tr');
+    try {
+        // Obtener el número de departamento
+        const deptNumber = typeof dept === 'object' && dept !== null 
+            ? (dept.number || dept.id || dept.deptNumber || JSON.stringify(dept)) 
+            : dept;
+        
+        // Obtener resumen del departamento
+        const summary = getDepartmentSummary(deptNumber);
+        
+        // Crear la fila
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <strong>Departamento ${deptNumber}</strong>
+            </td>
+            <td>
+                <span class="badge badge-pending">
+                    <i class="fas fa-clock"></i>
+                    ${summary.pendingPackages || 0}
+                </span>
+            </td>
+            <td>
+                <span class="badge badge-success">
+                    <i class="fas fa-check"></i>
+                    ${summary.deliveredPackages || 0}
+                </span>
+            </td>
+            <td class="actions-cell">
+                <button class="btn btn-view" onclick="viewDepartment('${deptNumber}')" aria-label="Ver paquetes del departamento ${deptNumber}">
+                    <i class="fas fa-eye"></i>
+                    <span>Ver Paquetes</span>
+                </button>
+                <button class="btn btn-danger" onclick="deleteDepartment('${deptNumber}')" aria-label="Eliminar departamento ${deptNumber}">
+                    <i class="fas fa-trash"></i>
+                    <span>Eliminar</span>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    } catch (packageError) {
+        console.error('Error al procesar departamento', dept, packageError);
+        
+        // Agregar fila con error para este departamento
+        const deptNumber = typeof dept === 'object' && dept !== null 
+            ? (dept.number || dept.id || dept.deptNumber || JSON.stringify(dept)) 
+            : dept;
                 row.innerHTML = `
                     <td>Departamento ${deptNumber}</td>
                     <td colspan="3" style="color: var(--danger);">
