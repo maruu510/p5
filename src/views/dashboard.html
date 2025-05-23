@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Sistema de Gestión de Paquetes</title>
-    <!-- Core Utilities -->
-<script src="./js/utils/utils.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -19,7 +17,6 @@
             --danger: #e74c3c;
             --dark: #212529;
             --light: #f8f9fa;
-            --dark: #212529;
             --gray: #6c757d;
             --gray-light: #e9ecef;
             --success: #276fae;
@@ -369,7 +366,7 @@
         
         .action-card:nth-child(4) .action-icon {
             background-color: rgba(124, 53, 206, 0.15);
-            color: var(#6c5ce7);
+            color: var(--secondary);
         }
         
         .action-title {
@@ -517,6 +514,87 @@
             gap: 20px;
         }
         
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: var(--primary);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .close-modal:hover {
+            color: var(--danger);
+        }
+        
+        .package-info {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: var(--light);
+            border-radius: 5px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .info-value {
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
         @media (max-width: 992px) {
             .stats-grid, .quick-actions {
                 grid-template-columns: repeat(2, 1fr);
@@ -578,6 +656,11 @@
             .stats-grid, .quick-actions {
                 grid-template-columns: 1fr;
             }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10px;
+            }
         }
     </style>
 </head>
@@ -612,7 +695,7 @@
                     <i class="fas fa-qrcode"></i>
                     <span>Lector QR</span>
                 </li>
-                <li class="nav-item " onclick="window.location.href='notificaciones.html'">
+                <li class="nav-item " onclick="window.location.href='notificacion.html'">
                     <i class="fas fa-bell"></i>
                     <span>Notificaciones</span>
                 </li>
@@ -822,72 +905,82 @@
         </div>
     </div>
     
+    <!-- Modal para ver detalles del paquete -->
+    <div id="packageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-box"></i> Detalles del Paquete</h3>
+                <button type="button" class="close-modal">&times;</button>
+            </div>
+            <div id="packageDetails" class="package-info">
+                <!-- Los detalles del paquete se cargarán aquí -->
+            </div>
+        </div>
+    </div>
+    
     <script>
         // Función centralizada para obtener departamentos - usar en TODAS las páginas
-function getAllDepartments() {
-    try {
-        console.log("Obteniendo departamentos desde localStorage...");
-        const departmentsString = localStorage.getItem('departments');
-        
-        // Si no hay datos, devolver array vacío
-        if (!departmentsString) {
-            console.log("No se encontraron departamentos en localStorage");
-            return [];
-        }
-        
-        let departments;
-        try {
-            departments = JSON.parse(departmentsString);
-            console.log("Departamentos parseados:", departments);
-        } catch (parseError) {
-            console.error("Error al parsear departamentos:", parseError);
-            return [];
-        }
-        
-        // Verificar si es un array
-        if (!Array.isArray(departments)) {
-            console.warn("Los departamentos no están en formato array:", departments);
-            // Intentar convertir a array si es posible
-            if (departments) {
-                return [departments];
-            }
-            return [];
-        }
-        
-        // Normalizar formato: convertir todos los departamentos a un formato estándar
-        const normalizedDepts = departments.map(dept => {
-            // Si es null o undefined, omitir
-            if (dept === null || dept === undefined) {
-                return null;
-            }
-            
-            // Si ya es un objeto con número
-            if (typeof dept === 'object' && dept !== null) {
-                // Priorizar la propiedad 'number', luego 'deptNumber', luego 'numero'
-                const deptNumber = dept.number || dept.deptNumber || dept.numero;
-                if (deptNumber) {
-                    return { number: deptNumber.toString() };
+        function getAllDepartments() {
+            try {
+                console.log("Obteniendo departamentos desde localStorage...");
+                const departmentsString = localStorage.getItem('departments');
+                
+                // Si no hay datos, devolver array vacío
+                if (!departmentsString) {
+                    console.log("No se encontraron departamentos en localStorage");
+                    return [];
                 }
-                return null; // Omitir si no tiene número
+                
+                let departments;
+                try {
+                    departments = JSON.parse(departmentsString);
+                    console.log("Departamentos parseados:", departments);
+                } catch (parseError) {
+                    console.error("Error al parsear departamentos:", parseError);
+                    return [];
+                }
+                
+                // Verificar si es un array
+                if (!Array.isArray(departments)) {
+                    console.warn("Los departamentos no están en formato array:", departments);
+                    // Intentar convertir a array si es posible
+                    if (departments) {
+                        return [departments];
+                    }
+                    return [];
+                }
+                
+                // Normalizar formato: convertir todos los departamentos a un formato estándar
+                const normalizedDepts = departments.map(dept => {
+                    // Si es null o undefined, omitir
+                    if (dept === null || dept === undefined) {
+                        return null;
+                    }
+                    
+                    // Si ya es un objeto con número
+                    if (typeof dept === 'object' && dept !== null) {
+                        // Priorizar la propiedad 'number', luego 'deptNumber', luego 'numero'
+                        const deptNumber = dept.number || dept.deptNumber || dept.numero;
+                        if (deptNumber) {
+                            return { number: deptNumber.toString() };
+                        }
+                        return null; // Omitir si no tiene número
+                    }
+                    
+                    // Si es un valor primitivo (string o número)
+                    return { number: dept.toString() };
+                });
+                
+                // Filtrar valores null
+                const validDepts = normalizedDepts.filter(dept => dept !== null);
+                console.log("Departamentos normalizados:", validDepts);
+                
+                return validDepts;
+            } catch (error) {
+                console.error("Error general al obtener departamentos:", error);
+                return [];
             }
-            
-            // Si es un valor primitivo (string o número)
-            return { number: dept.toString() };
-        });
-        
-        // Filtrar valores null
-        const validDepts = normalizedDepts.filter(dept => dept !== null);
-        console.log("Departamentos normalizados:", validDepts);
-        
-        return validDepts;
-    } catch (error) {
-        console.error("Error general al obtener departamentos:", error);
-        return [];
-    }
-}
-
-
-          
+        }
         
         function getAllPackages() {
             try {
@@ -900,11 +993,84 @@ function getAllDepartments() {
         }
         
         function getDepartmentNumber(dept) {
-    // Para manejar diferentes formatos de departamento (objeto o valor simple)
+            // Para manejar diferentes formatos de departamento (objeto o valor simple)
             if (typeof dept === 'object' && dept !== null) {
                 return dept.deptNumber || dept.number || dept.numero || null;
             } 
             return dept;
+        }
+        
+        // NUEVA FUNCIÓN: Mostrar detalles del paquete en modal
+        function showPackageDetails(packageId) {
+            const packages = getAllPackages();
+            const packageData = packages.find(pkg => pkg.id === packageId);
+            
+            if (!packageData) {
+                alert('No se encontró el paquete especificado');
+                return;
+            }
+            
+            const modal = document.getElementById('packageModal');
+            const detailsContainer = document.getElementById('packageDetails');
+            
+            // Formatear fecha
+            let formattedDate = 'No disponible';
+            if (packageData.delivery_date) {
+                const date = new Date(packageData.delivery_date);
+                formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+            }
+            
+            // Determinar estado y color
+            const status = packageData.status || 'pendiente';
+            const statusClass = status === 'pendiente' ? 'status-pending' : 'status-delivered';
+            const statusText = status === 'pendiente' ? 'Pendiente' : 'Entregado';
+            
+            // Generar HTML con los detalles
+            detailsContainer.innerHTML = `
+                <div class="info-item">
+                    <span class="info-label">ID del Paquete:</span>
+                    <span class="info-value">${packageData.id || 'No disponible'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Departamento:</span>
+                    <span class="info-value">${packageData.apartment_number || 'No especificado'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Remitente:</span>
+                    <span class="info-value">${packageData.sender || 'No especificado'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Destinatario:</span>
+                    <span class="info-value">${packageData.recipient || 'No especificado'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Fecha de Entrega:</span>
+                    <span class="info-value">${formattedDate}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Estado:</span>
+                    <span class="info-value">
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Descripción:</span>
+                    <span class="info-value">${packageData.description || 'Sin descripción'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Observaciones:</span>
+                    <span class="info-value">${packageData.notes || 'Sin observaciones'}</span>
+                </div>
+            `;
+            
+            // Mostrar el modal
+            modal.classList.add('show');
+        }
+        
+        // NUEVA FUNCIÓN: Cerrar modal
+        function closeModal() {
+            const modal = document.getElementById('packageModal');
+            modal.classList.remove('show');
         }
         
         // Función para cargar estadísticas
@@ -934,7 +1100,7 @@ function getAllDepartments() {
             document.getElementById('notificationCount').textContent = pendingCount;
         }
         
-        // Función para cargar paquetes recientes
+        // Función para cargar paquetes recientes (MODIFICADA)
         function loadRecentPackages() {
             const packages = getAllPackages();
             const tableBody = document.getElementById('recentPackagesTable');
@@ -986,7 +1152,7 @@ function getAllDepartments() {
                         <td>${formattedDate}</td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td>
-                            <button class="table-action" onclick="window.location.href='listPackages.html?id=${pkg.id}'">
+                            <button class="table-action" onclick="showPackageDetails('${pkg.id}')">
                                 <i class="fas fa-eye"></i> Ver
                             </button>
                         </td>
@@ -1131,6 +1297,29 @@ function getAllDepartments() {
             });
         }
         
+        // NUEVO: Setup del modal
+        function setupModal() {
+            const modal = document.getElementById('packageModal');
+            const closeButton = modal.querySelector('.close-modal');
+            
+            // Cerrar modal al hacer clic en la X
+            closeButton.addEventListener('click', closeModal);
+            
+            // Cerrar modal al hacer clic fuera del contenido
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            // Cerrar modal con la tecla Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.classList.contains('show')) {
+                    closeModal();
+                }
+            });
+        }
+        
         // Inicializar al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
             // Verificar si el usuario está autenticado
@@ -1146,6 +1335,9 @@ function getAllDepartments() {
             
             // Configurar menú desplegable
             setupUserDropdown();
+            
+            // Configurar modal
+            setupModal();
             
             // Cargar datos
             loadStatistics();

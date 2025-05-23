@@ -334,6 +334,15 @@
             background-color: #e2e6ea;
         }
         
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #1e8449;
+        }
+        
         .disabled {
             opacity: 0.65;
             pointer-events: none;
@@ -443,12 +452,23 @@
             font-size: 0.8rem;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin-right: 5px;
         }
         
         .table-action:hover {
             background-color: var(--info);
             border-color: var(--info);
             color: white;
+        }
+        
+        .table-action.view {
+            background-color: var(--info);
+            border-color: var(--info);
+            color: white;
+        }
+        
+        .table-action.view:hover {
+            background-color: var(--primary-dark);
         }
         
         .empty-state {
@@ -535,6 +555,7 @@
             overflow: hidden;
             outline: 0;
             background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
         }
         
         .modal.show {
@@ -591,6 +612,18 @@
             gap: 10px;
         }
         
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .close-modal:hover {
+            color: var(--danger);
+        }
+        
         .alert {
             padding: 12px 15px;
             border-radius: 5px;
@@ -613,6 +646,41 @@
             background-color: #d1ecf1;
             color: #0c5460;
             border: 1px solid #bee5eb;
+        }
+
+        .package-info {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: var(--light);
+            border-radius: 5px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .info-value {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .refresh-btn {
+            background-color: var(--success);
+            color: white;
+            margin-left: 10px;
+        }
+
+        .refresh-btn:hover {
+            background-color: #1e8449;
         }
         
         @media (max-width: 992px) {
@@ -697,7 +765,7 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <a href="#" class="logo">
-                    <i class="fas fa-box"></i>
+                    <img src="./images/favicon1.svg" alt="Logo Encomiendas">
                     <span>PackTrack</span>
                 </a>
             </div>
@@ -722,7 +790,7 @@
                     <i class="fas fa-qrcode"></i>
                     <span>Lector QR</span>
                 </li>
-                <li class="nav-item " onclick="window.location.href='notificaciones.html'">
+                <li class="nav-item " onclick="window.location.href='notificacion.html'">
                     <i class="fas fa-bell"></i>
                     <span>Notificaciones</span>
                 </li>
@@ -822,6 +890,10 @@
             <div class="section-header">
                 <h2 class="section-title">Paquetes Registrados</h2>
                 <div class="section-actions">
+                    <button class="btn refresh-btn" onclick="loadPackages()">
+                        <i class="fas fa-sync-alt"></i>
+                        Actualizar
+                    </button>
                     <a href="registerPackage.html" class="btn" style="background-color: #2c3e50; color: white;">
                         <i class="fas fa-plus"></i>
                         Registrar Nuevo
@@ -843,6 +915,16 @@
                     </select>
                 </div>
                 
+                <div class="form-group">
+                    <label for="statusFilter" class="form-label">Filtrar por Estado</label>
+                    <select id="statusFilter" class="form-select">
+                        <option value="all">Todos los estados</option>
+                        <option value="pendiente">Pendientes</option>
+                        <option value="entregado">Entregados</option>
+                        <option value="retirado">Retirados</option>
+                    </select>
+                </div>
+                
                 <div>
                     <a href="departaments.html" class="btn" style="background-color: #f39c12; color: white;">
                         <i class="fas fa-building"></i>
@@ -855,6 +937,7 @@
             <div class="card">
                 <div class="card-header">
                     <span id="packageListTitle">Lista de Paquetes</span>
+                    <span id="packageCount" style="font-size: 0.9rem; color: var(--gray);">0 paquetes</span>
                 </div>
                 <div class="card-body">
                     <div id="errorMessage" style="display: none; margin-bottom: 15px; padding: 10px; background-color: #f8d7da; color: #721c24; border-radius: 5px;">
@@ -894,16 +977,17 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Confirmar Acción</h5>
+                    <button type="button" class="close-modal" onclick="closeModal()">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <p>¿Está seguro que desea marcar este paquete como retirado?</p>
+                    <p>¿Está seguro que desea marcar este paquete como entregado?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" onclick="closeModal()">
                         <i class="fas fa-times"></i>
                         Cancelar
                     </button>
-                    <button type="button" class="btn" style="background-color: #2980b9; color: white;" id="confirmButton">
+                    <button type="button" class="btn btn-success" id="confirmButton">
                         <i class="fas fa-check"></i>
                         Confirmar
                     </button>
@@ -911,38 +995,28 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para ver detalles del paquete -->
+    <div id="packageModal" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title"><i class="fas fa-box"></i> Detalles del Paquete</h3>
+                    <button type="button" class="close-modal" onclick="closePackageModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="packageDetails" class="package-info">
+                        <!-- Los detalles del paquete se cargarán aquí -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <script>
-        // Código de utilidades comunes que faltaba
-        function generateRandomId(prefix = 'PKG-') {
-            return `${prefix}${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-        }
-
-        // URLs del backend - Configurar según tu entorno
-        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-            ? 'http://localhost:3000/api'  // Entorno de desarrollo
-            : '/api';                     // Entorno de producción
-            
-        const ENDPOINTS = {
-            packages: `${API_URL}/packages`,
-            departments: `${API_URL}/departments`,
-            stats: `${API_URL}/stats`,
-            updatePackage: (id) => `${API_URL}/packages/${id}`,
-            getPackagesByDept: (deptId) => `${API_URL}/packages/department/${deptId}`,
-            userProfile: `${API_URL}/user/profile`
-        };
-        
         // Variables globales
         let allPackages = [];
         let currentPackageId = null;
-        
-        // Variable para activar modo de respaldo cuando el backend no está disponible
-        let fallbackMode = false;
         
         // Función para mostrar alertas
         function showAlert(message, type = 'info', duration = 5000) {
@@ -972,313 +1046,107 @@
             }, duration);
         }
         
-        // Función para realizar solicitudes a la API con control de errores y modo fallback
-        async function fetchAPI(url, options = {}) {
+        // FUNCIÓN CORREGIDA: Obtener todos los paquetes desde localStorage
+        function getAllPackages() {
             try {
-                // Si estamos en modo fallback, usar localStorage
-                if (fallbackMode) {
-                    return await handleFallbackRequest(url, options);
+                console.log('Obteniendo paquetes desde localStorage...');
+                const packagesData = localStorage.getItem('paquetesPrueba'); // MISMA CLAVE que registerPackage.html
+                if (!packagesData) {
+                    console.log('No se encontraron paquetes en localStorage');
+                    return [];
                 }
                 
-                // Configurar cabeceras de autenticación
-                const token = localStorage.getItem('authToken');
-                const headers = {
-                    'Content-Type': 'application/json',
-                    ...options.headers
-                };
+                const packages = JSON.parse(packagesData);
+                console.log('Paquetes encontrados:', packages.length);
+                return Array.isArray(packages) ? packages : [];
+            } catch (error) {
+                console.error('Error al cargar paquetes:', error);
+                return [];
+            } 
+        }
+
+        // FUNCIÓN CORREGIDA: Obtener departamentos desde localStorage
+        function getAllDepartments() {
+            try {
+                console.log("Obteniendo departamentos desde localStorage...");
+                const departmentsString = localStorage.getItem('departments');
                 
-                if (token) {
-                    headers['Authorization'] = `Bearer ${token}`;
+                if (!departmentsString) {
+                    console.log("No se encontraron departamentos en localStorage");
+                    return [];
                 }
                 
-                // Agregar un timeout para la solicitud
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos de timeout
+                let departments;
+                try {
+                    departments = JSON.parse(departmentsString);
+                    console.log("Departamentos parseados:", departments);
+                } catch (parseError) {
+                    console.error("Error al parsear departamentos:", parseError);
+                    return [];
+                }
                 
-                const response = await fetch(url, {
-                    ...options,
-                    headers,
-                    signal: controller.signal
+                if (!Array.isArray(departments)) {
+                    console.warn("Los departamentos no están en formato array:", departments);
+                    if (departments) {
+                        return [departments];
+                    }
+                    return [];
+                }
+                
+                const normalizedDepts = departments.map(dept => {
+                    if (dept === null || dept === undefined) {
+                        return null;
+                    }
+                    
+                    if (typeof dept === 'object' && dept !== null) {
+                        const deptNumber = dept.number || dept.deptNumber || dept.numero;
+                        if (deptNumber) {
+                            return { number: deptNumber.toString() };
+                        }
+                        return null;
+                    }
+                    
+                    return { number: dept.toString() };
                 });
                 
-                clearTimeout(timeoutId);
+                const validDepts = normalizedDepts.filter(dept => dept !== null);
+                console.log("Departamentos normalizados:", validDepts);
                 
-                // Verificar si la respuesta es 401 (No autorizado)
-                if (response.status === 401) {
-                    localStorage.removeItem('authToken');
-                    // No redirigir automáticamente, simplemente activar modo de respaldo
-                    fallbackMode = true;
-                    showAlert('Utilizando modo sin conexión', 'warning');
-                    return await handleFallbackRequest(url, options);
-                }
-                
-                // Verificar si la respuesta es exitosa
-                if (!response.ok) {
-                    throw new Error(`Error: ${response.status} - ${response.statusText}`);
-                }
-                
-                // Devolver los datos como JSON
-                return await response.json();
+                return validDepts;
             } catch (error) {
-                console.error('Error en la solicitud API:', error);
-                
-                // Si es un error de conexión, activar modo fallback
-                if (error.name === 'TypeError' || error.name === 'AbortError' || error.message.includes('Failed to fetch')) {
-                    if (!fallbackMode) {
-                        fallbackMode = true;
-                        showAlert('El servidor no está disponible. Usando modo de respaldo local.', 'warning', 10000);
-                        console.warn('Activando modo fallback para localStorage');
-                        
-                        // Crear datos de fallback si no existen
-                        initializeFallbackData();
-                        
-                        // Intentar nuevamente con localStorage
-                        return await handleFallbackRequest(url, options);
-                    }
-                }
-                
-                showAlert(`Error en la solicitud: ${error.message}`, 'danger');
-                return null;
-            }
-        }
-        
-        // Función para manejar solicitudes en modo fallback (localStorage)
-        async function handleFallbackRequest(url, options = {}) {
-            console.log('Usando localStorage como respaldo para:', url);
-            
-            // Simular pequeño retraso para imitar una API
-            await new Promise(resolve => setTimeout(resolve, 300));
-            
-            try {
-                // Crear paquetes de ejemplo si no existen
-                if (!localStorage.getItem('fallback_packages')) {
-                    initializeFallbackData();
-                }
-                
-                // Determinar qué operación es basada en la URL y método
-                if (url.includes('/packages') && !url.includes('/department/')) {
-                    // Operación de paquetes general
-                    if (options.method === 'PATCH' && url.includes('/packages/')) {
-                        // Actualizar paquete
-                        const packageId = url.split('/').pop();
-                        const updateData = JSON.parse(options.body);
-                        return updatePackageInLocalStorage(packageId, updateData);
-                    } else {
-                        // Obtener todos los paquetes
-                        return getAllPackagesFromLocalStorage();
-                    }
-                } else if (url.includes('/department/')) {
-                    // Obtener paquetes por departamento
-                    const deptId = url.split('/').pop();
-                    return getPackagesByDeptFromLocalStorage(deptId);
-                } else if (url.includes('/departments')) {
-                    // Obtener departamentos
-                    return getAllDepartmentsFromLocalStorage();
-                } else if (url.includes('/stats')) {
-                    // Obtener estadísticas
-                    return getStatsFromLocalStorage();
-                } else if (url.includes('/user/profile')) {
-                    // Obtener perfil de usuario
-                    return {
-                        name: localStorage.getItem('userName') || 'Administrador',
-                        role: 'Administrador'
-                    };
-                }
-                
-                return null;
-            } catch (error) {
-                console.error('Error en modo fallback:', error);
-                return null;
-            }
-        }
-        
-        // Inicializar datos de respaldo
-        function initializeFallbackData() {
-            // Si ya existen datos, no los volvemos a crear
-            if (localStorage.getItem('fallback_packages') && 
-                localStorage.getItem('fallback_departments')) {
-                console.log('Los datos de fallback ya existen');
-                return;
-            }
-            
-            // Crear departamentos de prueba
-            const departments = ['101', '102', '103', '201', '202', '301'];
-            localStorage.setItem('fallback_departments', JSON.stringify(departments));
-            
-            // Crear paquetes de prueba con IDs únicos
-            const packages = [];
-            departments.forEach((dept, index) => {
-                // Crear 2 paquetes por departamento
-                for (let i = 0; i < 2; i++) {
-                    packages.push({
-                        id: generateRandomId(),
-                        apartment_number: dept,
-                        sender: `Remitente Prueba ${index + 1} - ${i}`,
-                        delivery_date: new Date().toISOString(),
-                        status: i % 2 === 0 ? 'pendiente' : 'retirado',
-                        notes: `Paquete de prueba para departamento ${dept}`
-                    });
-                }
-            });
-            
-            localStorage.setItem('fallback_packages', JSON.stringify(packages));
-            
-            // Simular un token de autenticación si no existe
-            if (!localStorage.getItem('authToken')) {
-                localStorage.setItem('authToken', `demo-token-${Date.now()}`);
-            }
-            
-            console.log('Datos de respaldo inicializados con', packages.length, 'paquetes');
-        }
-        
-        // Obtener todos los paquetes desde localStorage
-        function getAllPackagesFromLocalStorage() {
-            try {
-                const packagesString = localStorage.getItem('fallback_packages');
-                return packagesString ? JSON.parse(packagesString) : [];
-            } catch (error) {
-                console.error('Error obteniendo paquetes de localStorage:', error);
+                console.error("Error general al obtener departamentos:", error);
                 return [];
             }
         }
         
-        // Obtener departamentos desde localStorage
-        function getAllDepartmentsFromLocalStorage() {
-            try {
-                const deptsString = localStorage.getItem('fallback_departments');
-                return deptsString ? JSON.parse(deptsString) : [];
-            } catch (error) {
-                console.error('Error obteniendo departamentos de localStorage:', error);
-                return [];
-            }
-        }
-        
-        // Obtener paquetes por departamento desde localStorage
-        function getPackagesByDeptFromLocalStorage(deptId) {
-            try {
-                const allPackages = getAllPackagesFromLocalStorage();
-                if (deptId === 'all') {
-                    return allPackages;
-                }
-                return allPackages.filter(pkg => pkg.apartment_number === deptId);
-            } catch (error) {
-                console.error('Error obteniendo paquetes por departamento de localStorage:', error);
-                return [];
-            }
-        }
-        
-        // Actualizar paquete en localStorage
-        function updatePackageInLocalStorage(packageId, updateData) {
-            try {
-                const allPackages = getAllPackagesFromLocalStorage();
-                const index = allPackages.findIndex(pkg => pkg.id === packageId);
-                
-                if (index !== -1) {
-                    allPackages[index] = { ...allPackages[index], ...updateData };
-                    localStorage.setItem('fallback_packages', JSON.stringify(allPackages));
-                    return allPackages[index];
-                }
-                
-                return null;
-            } catch (error) {
-                console.error('Error actualizando paquete en localStorage:', error);
-                return null;
-            }
-        }
-        
-        // Obtener estadísticas desde localStorage
-        function getStatsFromLocalStorage() {
-            try {
-                const allPackages = getAllPackagesFromLocalStorage();
-                const departments = getAllDepartmentsFromLocalStorage();
-                
-                return {
-                    totalPackages: allPackages.length,
-                    departmentsCount: departments.length,
-                    pendingPackages: allPackages.filter(pkg => pkg.status === 'pendiente').length,
-                    deliveredPackages: allPackages.filter(pkg => pkg.status === 'retirado' || pkg.status === 'entregado').length
-                };
-            } catch (error) {
-                console.error('Error obteniendo estadísticas de localStorage:', error);
-                return {
-                    totalPackages: 0,
-                    departmentsCount: 0,
-                    pendingPackages: 0,
-                    deliveredPackages: 0
-                };
-            }
-        }
-        
-        // Cerrar sesión
-        async function logout() {
-            try {
-                // Solo intentar llamar a la API de logout si no estamos en modo fallback
-                if (!fallbackMode) {
-                    try {
-                        await fetchAPI(`${API_URL}/auth/logout`, { 
-                            method: 'POST',
-                            // Añadir un tiempo de espera corto para evitar que se bloquee la UI
-                            signal: AbortSignal.timeout(3000)
-                        });
-                    } catch (err) {
-                        console.warn('Error en logout API:', err);
-                    }
-                }
-            } catch (error) {
-                console.warn('Error al cerrar sesión en el servidor:', error);
-            } finally {
-                // Siempre limpiar localStorage y redirigir
-                localStorage.removeItem('authToken');
-                // En modo demo, simplemente recargar la página
-                if (fallbackMode) {
-                    window.location.reload();
-                } else {
-                    window.location.href = 'login.html';
-                }
-            }
-        }
-        
-        // Función para obtener todos los paquetes
-        async function getAllPackages() {
-            const packages = await fetchAPI(ENDPOINTS.packages);
-            return packages || [];
-        }
-        
-        // Función para obtener todos los departamentos
-        async function getAllDepartments() {
-            const departments = await fetchAPI(ENDPOINTS.departments);
-            return departments || [];
-        }
-        
-        // Función para obtener las estadísticas del sistema
-        async function getStats() {
-            const stats = await fetchAPI(ENDPOINTS.stats);
+        // Función para obtener estadísticas
+        function getStats() {
+            const packages = getAllPackages();
+            const departments = getAllDepartments();
             
-            if (stats) {
-                document.getElementById('totalPackages').textContent = stats.totalPackages || 0;
-                document.getElementById('departmentsCount').textContent = stats.departmentsCount || 0;
-                document.getElementById('pendingPackages').textContent = stats.pendingPackages || 0;
-                document.getElementById('deliveredPackages').textContent = stats.deliveredPackages || 0;
-                
-                // Actualizar contador de notificaciones (paquetes pendientes)
-                document.getElementById('notificationCount').textContent = stats.pendingPackages || 0;
-            }
-        }
-        
-        // Función para obtener paquetes por departamento
-        async function getPackagesByDepartment(deptId) {
-            if (deptId === 'all') {
-                return await getAllPackages();
-            }
+            const stats = {
+                totalPackages: packages.length,
+                departmentsCount: departments.length,
+                pendingPackages: packages.filter(pkg => pkg.status === 'pendiente').length,
+                deliveredPackages: packages.filter(pkg => pkg.status === 'entregado' || pkg.status === 'retirado').length
+            };
             
-            const packages = await fetchAPI(ENDPOINTS.getPackagesByDept(deptId));
-            return packages || [];
+            // Actualizar DOM
+            document.getElementById('totalPackages').textContent = stats.totalPackages;
+            document.getElementById('departmentsCount').textContent = stats.departmentsCount;
+            document.getElementById('pendingPackages').textContent = stats.pendingPackages;
+            document.getElementById('deliveredPackages').textContent = stats.deliveredPackages;
+            
+            // Actualizar contador de notificaciones
+            document.getElementById('notificationCount').textContent = stats.pendingPackages;
+            
+            return stats;
         }
         
         // Cargar departamentos en el selector
-        async function loadDepartments() {
+        function loadDepartments() {
             const departmentFilter = document.getElementById('departmentFilter');
-            const departments = await getAllDepartments();
+            const departments = getAllDepartments();
             
             // Limpiar opciones excepto la primera
             departmentFilter.innerHTML = '<option value="all">Todos los departamentos</option>';
@@ -1286,7 +1154,6 @@
             // Agregar departamentos al selector
             if (departments && departments.length > 0) {
                 departments.forEach(dept => {
-                    // Obtener el número de departamento, considerando diferentes formatos
                     const deptNumber = dept.number || dept.id || dept.deptNumber || dept;
                     
                     const option = document.createElement('option');
@@ -1295,13 +1162,21 @@
                     departmentFilter.appendChild(option);
                 });
             }
+            
+            console.log('Departamentos cargados en selector:', departments.length);
         }
         
-        // Cargar paquetes en la tabla
-        async function loadPackages() {
+        // FUNCIÓN CORREGIDA: Cargar paquetes en la tabla
+        function loadPackages() {
+            console.log('Cargando paquetes...');
             const tableBody = document.querySelector('#packagesTable tbody');
             const departmentFilter = document.getElementById('departmentFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            const packageCount = document.getElementById('packageCount');
+            const packageListTitle = document.getElementById('packageListTitle');
+            
             const selectedDepartment = departmentFilter.value;
+            const selectedStatus = statusFilter.value;
             
             // Mostrar cargando
             tableBody.innerHTML = `
@@ -1318,21 +1193,37 @@
             document.getElementById('errorMessage').style.display = 'none';
             
             try {
-                // Obtener paquetes según el filtro seleccionado
-                const packages = await getPackagesByDepartment(selectedDepartment);
+                // Obtener todos los paquetes
+                let packages = getAllPackages();
+                console.log('Paquetes obtenidos:', packages.length);
                 
-                // Guardar referencia a todos los paquetes
+                // Aplicar filtros
+                if (selectedDepartment !== 'all') {
+                    packages = packages.filter(pkg => pkg.apartment_number === selectedDepartment);
+                    console.log('Filtrado por departamento:', selectedDepartment, 'Resultado:', packages.length);
+                }
+                
+                if (selectedStatus !== 'all') {
+                    packages = packages.filter(pkg => pkg.status === selectedStatus);
+                    console.log('Filtrado por estado:', selectedStatus, 'Resultado:', packages.length);
+                }
+                
+                // Guardar referencia a todos los paquetes filtrados
                 allPackages = packages;
                 
-                // Actualizar título según departamento seleccionado
-                const packageListTitle = document.getElementById('packageListTitle');
-                if (packageListTitle) {
-                    if (selectedDepartment === 'all') {
-                        packageListTitle.textContent = 'Lista de Paquetes';
-                    } else {
-                        packageListTitle.textContent = `Paquetes del Departamento ${selectedDepartment}`;
-                    }
+                // Actualizar título según filtros
+                let titleText = 'Lista de Paquetes';
+                if (selectedDepartment !== 'all' && selectedStatus !== 'all') {
+                    titleText = `Paquetes ${selectedStatus} del Departamento ${selectedDepartment}`;
+                } else if (selectedDepartment !== 'all') {
+                    titleText = `Paquetes del Departamento ${selectedDepartment}`;
+                } else if (selectedStatus !== 'all') {
+                    titleText = `Paquetes ${selectedStatus}`;
                 }
+                packageListTitle.textContent = titleText;
+                
+                // Actualizar contador
+                packageCount.textContent = `${packages.length} paquete${packages.length !== 1 ? 's' : ''}`;
                 
                 // Verificar si hay paquetes
                 if (!packages || packages.length === 0) {
@@ -1341,10 +1232,10 @@
                             <td colspan="6">
                                 <div class="empty-state">
                                     <i class="fas fa-box-open"></i>
-                                    <p>No hay paquetes registrados para mostrar</p>
+                                    <p>No hay paquetes que coincidan con los filtros seleccionados</p>
                                     <a href="registerPackage.html" class="btn btn-primary">
                                         <i class="fas fa-plus"></i>
-                                        Registrar Nuevo
+                                        Registrar Nuevo Paquete
                                     </a>
                                 </div>
                             </td>
@@ -1353,37 +1244,54 @@
                     return;
                 }
                 
+                // Ordenar paquetes por fecha (más recientes primero)
+                packages.sort((a, b) => {
+                    const dateA = new Date(a.created_at || a.delivery_date || 0);
+                    const dateB = new Date(b.created_at || b.delivery_date || 0);
+                    return dateB - dateA;
+                });
+                
                 // Construir filas de la tabla
                 let tableContent = '';
                 packages.forEach(pkg => {
                     // Formatear fecha
                     let formattedDate = 'Fecha no disponible';
                     if (pkg.delivery_date) {
-                        const date = new Date(pkg.delivery_date);
-                        formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+                        try {
+                            const date = new Date(pkg.delivery_date);
+                            formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+                        } catch (e) {
+                            console.warn('Error al formatear fecha:', pkg.delivery_date);
+                        }
                     }
                     
                     // Determinar estado
                     const status = pkg.status || 'pendiente';
                     const statusClass = status === 'pendiente' ? 'status-pending' : 'status-delivered';
-                    const statusText = status === 'pendiente' ? 'Pendiente' : 'Entregado';
+                    const statusText = status.charAt(0).toUpperCase() + status.slice(1);
+                    
+                    // Mostrar ID completo o versión corta si es muy largo
+                    const displayId = pkg.id && pkg.id.length > 20 ? 
+                        pkg.id.substring(0, 20) + '...' : 
+                        (pkg.id || 'Sin ID');
                     
                     tableContent += `
                         <tr>
-                            <td>${pkg.id}</td>
-                            <td>${pkg.apartment_number}</td>
+                            <td title="${pkg.id || 'Sin ID'}">${displayId}</td>
+                            <td>${pkg.apartment_number || '-'}</td>
                             <td>${pkg.sender || 'No especificado'}</td>
                             <td>${formattedDate}</td>
                             <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                             <td>
+                                <button class="table-action view" onclick="showPackageDetails('${pkg.id}')">
+                                    <i class="fas fa-eye"></i> Ver
+                                </button>
                                 ${status === 'pendiente' ? 
-                                    `<button class="btn" style="background-color: #2980b9; color: white;" onclick="openModal('${pkg.id}')">
-                                        <i class="fas fa-check"></i>
-                                        Marcar como retirado
+                                    `<button class="table-action" onclick="openModal('${pkg.id}')">
+                                        <i class="fas fa-check"></i> Entregar
                                     </button>` : 
-                                    `<button class="btn btn-light disabled">
-                                        <i class="fas fa-check"></i>
-                                        Retirado
+                                    `<button class="table-action disabled">
+                                        <i class="fas fa-check"></i> ${statusText}
                                     </button>`
                                 }
                             </td>
@@ -1394,7 +1302,9 @@
                 tableBody.innerHTML = tableContent;
                 
                 // Actualizar estadísticas
-                await getStats();
+                getStats();
+                
+                console.log('Paquetes cargados correctamente:', packages.length);
                 
             } catch (error) {
                 console.error('Error al cargar paquetes:', error);
@@ -1405,11 +1315,111 @@
                             <div class="empty-state">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 <p>Ocurrió un error al cargar los paquetes</p>
+                                <button class="btn btn-primary" onclick="loadPackages()">
+                                    <i class="fas fa-sync-alt"></i>
+                                    Intentar de nuevo
+                                </button>
                             </div>
                         </td>
                     </tr>
                 `;
             }
+        }
+        
+        // NUEVA FUNCIÓN: Mostrar detalles del paquete
+        function showPackageDetails(packageId) {
+            const packages = getAllPackages();
+            const packageData = packages.find(pkg => pkg.id === packageId);
+            
+            if (!packageData) {
+                alert('No se encontró el paquete especificado');
+                return;
+            }
+            
+            const modal = document.getElementById('packageModal');
+            const detailsContainer = document.getElementById('packageDetails');
+            
+            // Formatear fecha
+            let formattedDate = 'No disponible';
+            if (packageData.delivery_date) {
+                try {
+                    const date = new Date(packageData.delivery_date);
+                    formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+                } catch (e) {
+                    formattedDate = packageData.delivery_date;
+                }
+            }
+            
+            // Formatear fecha de creación
+            let createdDate = 'No disponible';
+            if (packageData.created_at) {
+                try {
+                    const date = new Date(packageData.created_at);
+                    createdDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+                } catch (e) {
+                    createdDate = packageData.created_at;
+                }
+            }
+            
+            // Determinar estado y color
+            const status = packageData.status || 'pendiente';
+            const statusClass = status === 'pendiente' ? 'status-pending' : 'status-delivered';
+            const statusText = status.charAt(0).toUpperCase() + status.slice(1);
+            
+            // Generar HTML con los detalles
+            detailsContainer.innerHTML = `
+                <div class="info-item">
+                    <span class="info-label">ID del Paquete:</span>
+                    <span class="info-value" style="font-family: monospace;">${packageData.id || 'No disponible'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Departamento:</span>
+                    <span class="info-value">${packageData.apartment_number || 'No especificado'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Remitente:</span>
+                    <span class="info-value">${packageData.sender || 'No especificado'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Destinatario:</span>
+                    <span class="info-value">${packageData.recipient || 'No especificado'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Fecha de Entrega:</span>
+                    <span class="info-value">${formattedDate}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Estado:</span>
+                    <span class="info-value">
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Descripción:</span>
+                    <span class="info-value">${packageData.description || 'Sin descripción'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Código QR:</span>
+                    <span class="info-value" style="font-family: monospace;">${packageData.qr_code || 'No generado'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Fecha de Registro:</span>
+                    <span class="info-value">${createdDate}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Observaciones:</span>
+                    <span class="info-value">${packageData.notes || 'Sin observaciones'}</span>
+                </div>
+            `;
+            
+            // Mostrar el modal
+            modal.classList.add('show');
+        }
+        
+        // Función para cerrar modal de detalles
+        function closePackageModal() {
+            const modal = document.getElementById('packageModal');
+            modal.classList.remove('show');
         }
         
         // Abrir modal de confirmación
@@ -1424,43 +1434,66 @@
             currentPackageId = null;
         }
         
-        // Actualizar estado de un paquete
-        async function updatePackageStatus(packageId, newStatus) {
+        // FUNCIÓN CORREGIDA: Actualizar estado de un paquete
+        function updatePackageStatus(packageId, newStatus) {
             try {
-                const response = await fetchAPI(ENDPOINTS.updatePackage(packageId), {
-                    method: 'PATCH',
-                    body: JSON.stringify({ status: newStatus })
-                });
+                console.log('Actualizando paquete:', packageId, 'a estado:', newStatus);
+                const packages = getAllPackages();
+                const packageIndex = packages.findIndex(pkg => pkg.id === packageId);
                 
-                if (response) {
-                    showAlert('Paquete actualizado correctamente', 'success');
-                    await loadPackages(); // Recargar tabla
+                if (packageIndex === -1) {
+                    throw new Error('Paquete no encontrado');
                 }
+                
+                // Actualizar el estado y la fecha de entrega
+                packages[packageIndex].status = newStatus;
+                packages[packageIndex].delivered_date = new Date().toISOString();
+                packages[packageIndex].delivery_time = new Date().toLocaleString('es-ES');
+                
+                // Guardar en localStorage
+                localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
+                
+                console.log('Paquete actualizado correctamente');
+                showAlert('Paquete actualizado correctamente', 'success');
+                
+                // Recargar tabla
+                loadPackages();
+                
+                return true;
             } catch (error) {
                 console.error('Error al actualizar paquete:', error);
-                showAlert('Error al actualizar el paquete', 'danger');
+                showAlert('Error al actualizar el paquete: ' + error.message, 'danger');
+                return false;
             }
         }
         
-        // Obtener información del perfil de usuario
-        async function getUserProfile() {
-            const profile = await fetchAPI(ENDPOINTS.userProfile);
+        // Función para cerrar sesión
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('userType');
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = 'login.html';
+        }
+        
+        // Configurar perfil de usuario
+        function setupUserProfile() {
+            const storedUserName = localStorage.getItem('userName');
+            const userName = storedUserName || 'Administrador';
+            const userRole = 'Administrador';
             
-            if (profile) {
-                const userName = profile.name || 'Administrador';
-                const userRole = profile.role || 'Administrador';
-                
-                document.getElementById('userName').textContent = userName;
-                document.getElementById('userRole').textContent = userRole;
-                
-                // Establecer iniciales para el avatar
-                const nameParts = userName.split(' ');
-                let initials = nameParts[0].charAt(0);
-                if (nameParts.length > 1) {
-                    initials += nameParts[1].charAt(0);
-                }
-                document.getElementById('userAvatar').textContent = initials.toUpperCase();
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('userRole').textContent = userRole;
+            
+            // Establecer iniciales para el avatar
+            const nameParts = userName.split(' ');
+            let initials = nameParts[0].charAt(0);
+            if (nameParts.length > 1) {
+                initials += nameParts[1].charAt(0);
+            } else {
+                initials = userName.charAt(0);
             }
+            document.getElementById('userAvatar').textContent = initials.toUpperCase();
         }
         
         // Manejador de eventos para el menú desplegable de usuario
@@ -1482,111 +1515,63 @@
         }
         
         // Event listeners
-        document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Inicializando Lista de Paquetes...');
+            
+            // Verificar autenticación
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
             try {
                 // Configurar interfaz
+                setupUserProfile();
                 setupUserDropdown();
                 
-                // Verificar token de autenticación
-                const token = localStorage.getItem('authToken');
+                // Cargar datos
+                loadDepartments();
+                loadPackages();
                 
-                // Si no hay token, iniciar modo fallback automáticamente
-                if (!token) {
-                    console.log('No se encontró token de autenticación, activando modo fallback');
-                    fallbackMode = true;
-                    initializeFallbackData();
-                } else {
-                    // Intentar conexión con el backend
-                    try {
-                        // Verificar conectividad con una petición simple
-                        const response = await fetch(`${API_URL}/status`, { 
-                            method: 'GET',
-                            headers: { 'Authorization': `Bearer ${token}` },
-                            signal: AbortSignal.timeout(5000) // 5 segundos timeout
-                        }).catch(e => {
-                            throw new Error('No se pudo conectar con el servidor');
-                        });
-                        
-                        if (!response.ok) {
-                            throw new Error(`Backend no disponible: ${response.status}`);
-                        }
-                        
-                        console.log('Conexión con backend establecida');
-                    } catch (connectionError) {
-                        console.warn('Error conectando con el backend:', connectionError);
-                        fallbackMode = true;
-                        showAlert('Modo sin conexión activado. Los datos se guardarán localmente.', 'warning', 5000);
-                        initializeFallbackData();
-                    }
-                }
-                
-                // Cargar datos del usuario
-                await getUserProfile();
-                
-                // Cargar departamentos y paquetes
-                await loadDepartments();
-                await loadPackages();
-                
-                // Filtro de departamentos
+                // Event listeners para filtros
                 document.getElementById('departmentFilter').addEventListener('change', loadPackages);
+                document.getElementById('statusFilter').addEventListener('change', loadPackages);
                 
                 // Configurar botón de confirmación
-                document.getElementById('confirmButton').addEventListener('click', async function() {
+                document.getElementById('confirmButton').addEventListener('click', function() {
                     if (currentPackageId) {
-                        closeModal(); // Cerrar modal inmediatamente para mejor UX
-                        await updatePackageStatus(currentPackageId, 'retirado');
+                        closeModal();
+                        updatePackageStatus(currentPackageId, 'entregado');
                     }
                 });
                 
-                // Cerrar modal con Escape
+                // Cerrar modales con Escape
                 document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape') closeModal();
+                    if (e.key === 'Escape') {
+                        closeModal();
+                        closePackageModal();
+                    }
                 });
                 
-                // Cerrar modal al hacer clic fuera
+                // Cerrar modales al hacer clic fuera
                 document.getElementById('confirmModal').addEventListener('click', (e) => {
                     if (e.target === document.getElementById('confirmModal')) {
                         closeModal();
                     }
                 });
+
+                document.getElementById('packageModal').addEventListener('click', (e) => {
+                    if (e.target === document.getElementById('packageModal')) {
+                        closePackageModal();
+                    }
+                });
                 
-                // Cargar departamento específico desde URL si existe
-                const urlParams = new URLSearchParams(window.location.search);
-                const departmentParam = urlParams.get('department');
-                
-                if (departmentParam) {
-                    setTimeout(() => {
-                        const departmentFilter = document.getElementById('departmentFilter');
-                        
-                        // Buscar la opción que coincida con el departamento
-                        for (let i = 0; i < departmentFilter.options.length; i++) {
-                            if (departmentFilter.options[i].value == departmentParam) {
-                                departmentFilter.selectedIndex = i;
-                                loadPackages();
-                                break;
-                            }
-                        }
-                    }, 100);
-                }
-                
-                // Si estamos en modo fallback, mostrar mensaje
-                if (fallbackMode) {
-                    showAlert('Sistema funcionando en modo local. Los datos se guardan en este navegador.', 'info', 5000);
-                }
+                console.log('Lista de Paquetes inicializada correctamente');
                 
             } catch (error) {
                 console.error('Error al inicializar la página:', error);
-                showAlert('Error al cargar la página. Usando modo de respaldo.', 'danger');
-                
-                // Activar modo de respaldo en caso de error
-                fallbackMode = true;
-                initializeFallbackData();
-                
-                // Intentar cargar en modo respaldo
-                setupUserDropdown();
-                await getUserProfile();
-                await loadDepartments();
-                await loadPackages();
+                showAlert('Error al cargar la página: ' + error.message, 'danger');
             }
         });
     </script>
