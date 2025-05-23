@@ -420,6 +420,10 @@
         background-color: var(--danger);
     }
     
+    .btn-login {
+        background-color: var(--success);
+    }
+    
     .toast {
         position: fixed;
         bottom: 20px;
@@ -536,6 +540,50 @@
         padding: 15px 20px;
         border-top: 1px solid #e9ecef;
     }
+
+    /* Estilos para mostrar credenciales */
+    .credentials-display {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 15px;
+    }
+
+    .credentials-title {
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .credential-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .credential-item:last-child {
+        border-bottom: none;
+    }
+
+    .credential-label {
+        font-weight: 500;
+        color: var(--secondary);
+    }
+
+    .credential-value {
+        font-family: 'Courier New', monospace;
+        background-color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+        font-size: 0.9rem;
+    }
     
     @media (max-width: 992px) {
         .main-content {
@@ -610,7 +658,7 @@
         <div class="sidebar-header">
             <a href="dashboard.html" class="logo">
                 <img src="./images/favicon1.svg" alt="Logo Encomiendas">
-                <span>Encomiendas</span>
+                <span>PackTrack</span>
             </a>
         </div>
         <ul class="nav-menu">
@@ -782,6 +830,16 @@
                     </div>
                     
                     <div class="form-group">
+                        <label for="buildingPhone"><i class="fas fa-phone"></i> Teléfono de Conserjería</label>
+                        <input type="tel" id="buildingPhone" class="form-input" placeholder="+56 2 2345 6789" value="+56 2 2345 6789">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="buildingEmail"><i class="fas fa-envelope"></i> Email de Contacto</label>
+                        <input type="email" id="buildingEmail" class="form-input" placeholder="admin@edificio.cl" value="admin@edificio.cl">
+                    </div>
+                    
+                    <div class="form-group">
                         <label><i class="fas fa-envelope"></i> Notificaciones por Email</label>
                         <div style="margin-top: 10px;">
                             <input type="checkbox" id="notifyNewPackage" checked>
@@ -836,8 +894,13 @@
             <input type="hidden" id="residentId">
             
             <div class="form-group">
-              <label for="residentName"><i class="fas fa-user"></i> Nombre completo</label>
-              <input type="text" id="residentName" class="form-input" placeholder="Nombre y apellidos" required>
+              <label for="residentFirstName"><i class="fas fa-user"></i> Nombre</label>
+              <input type="text" id="residentFirstName" class="form-input" placeholder="Nombre" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="residentLastName"><i class="fas fa-user"></i> Apellidos</label>
+              <input type="text" id="residentLastName" class="form-input" placeholder="Apellidos" required>
             </div>
             
             <div class="form-group">
@@ -858,11 +921,41 @@
             <div class="form-group">
               <label for="residentStatus"><i class="fas fa-toggle-on"></i> Estado</label>
               <select id="residentStatus" class="form-input" required>
-                <option value="Activo">Activo</option>
-                <option value="Inactivo">Inactivo</option>
+                <option value="active">Activo</option>
+                <option value="inactive">Inactivo</option>
               </select>
             </div>
+            
+            <div class="form-group">
+              <label for="residentPassword"><i class="fas fa-key"></i> Contraseña (opcional)</label>
+              <input type="password" id="residentPassword" class="form-input" placeholder="Dejar vacío para generar automáticamente">
+              <small style="display: block; margin-top: 5px; color: var(--gray);">Si no se especifica, se generará automáticamente basada en el email y departamento.</small>
+            </div>
           </form>
+          
+          <!-- Mostrar credenciales generadas -->
+          <div id="credentialsDisplay" class="credentials-display" style="display: none;">
+            <div class="credentials-title">
+              <i class="fas fa-key"></i>
+              Credenciales de Acceso Generadas
+            </div>
+            <div class="credential-item">
+              <span class="credential-label">Usuario/Email:</span>
+              <span class="credential-value" id="generatedUsername">-</span>
+            </div>
+            <div class="credential-item">
+              <span class="credential-label">Contraseña:</span>
+              <span class="credential-value" id="generatedPassword">-</span>
+            </div>
+            <div class="credential-item">
+              <span class="credential-label">Panel de Acceso:</span>
+              <span class="credential-value">residente.html</span>
+            </div>
+            <small style="color: var(--warning); margin-top: 10px; display: block;">
+              <i class="fas fa-exclamation-triangle"></i>
+              Asegúrate de comunicar estas credenciales al residente de forma segura.
+            </small>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-light" id="cancelResidentBtn">
@@ -870,6 +963,68 @@
           </button>
           <button type="button" class="btn btn-primary" id="saveResidentBtn">
             <i class="fas fa-save"></i> Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para mostrar credenciales de login -->
+  <div id="loginCredentialsModal" class="modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">Credenciales de Acceso</h3>
+          <button type="button" class="close-button" onclick="closeLoginCredentialsModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="credentials-display">
+            <div class="credentials-title">
+              <i class="fas fa-user-lock"></i>
+              Datos para Acceso al Panel de Residente
+            </div>
+            <div class="credential-item">
+              <span class="credential-label">Nombre:</span>
+              <span class="credential-value" id="loginModalName">-</span>
+            </div>
+            <div class="credential-item">
+              <span class="credential-label">Departamento:</span>
+              <span class="credential-value" id="loginModalDepartment">-</span>
+            </div>
+            <div class="credential-item">
+              <span class="credential-label">Usuario/Email:</span>
+              <span class="credential-value" id="loginModalUsername">-</span>
+            </div>
+            <div class="credential-item">
+              <span class="credential-label">Contraseña:</span>
+              <span class="credential-value" id="loginModalPassword">-</span>
+            </div>
+            <div class="credential-item">
+              <span class="credential-label">URL de Acceso:</span>
+              <span class="credential-value">
+                <a href="residente.html" target="_blank" style="color: var(--primary);">
+                  residente.html
+                </a>
+              </span>
+            </div>
+          </div>
+          <div style="margin-top: 15px; padding: 10px; background-color: #e8f5e8; border-radius: 5px; border-left: 4px solid var(--success);">
+            <strong>Instrucciones:</strong>
+            <ul style="margin: 5px 0 0 20px; color: var(--secondary);">
+              <li>El residente debe usar estas credenciales para ingresar</li>
+              <li>Puede cambiar su contraseña desde su panel</li>
+              <li>El usuario siempre será su email registrado</li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="testResidentLogin()">
+            <i class="fas fa-sign-in-alt"></i> Probar Login
+          </button>
+          <button type="button" class="btn btn-primary" onclick="closeLoginCredentialsModal()">
+            <i class="fas fa-check"></i> Entendido
           </button>
         </div>
       </div>
@@ -1095,6 +1250,58 @@
       return Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
     }
     
+    // Función para generar contraseña automática
+    function generatePassword(email, apartment) {
+      // Usar primera parte del email + número de departamento
+      const emailPart = email.split('@')[0].toLowerCase();
+      return emailPart + apartment;
+    }
+    
+    // Función para actualizar la lista de usuarios para login
+    function updateUsersList(residentsArray) {
+      try {
+        // Crear lista de usuarios para el sistema de login
+        const users = residentsArray.map(resident => ({
+          id: resident.id,
+          username: resident.email, // Email como username
+          email: resident.email,
+          password: resident.password || btoa(generatePassword(resident.email, resident.apartment)), // Encriptar en base64
+          role: 'resident',
+          name: resident.name.split(' ')[0] || resident.name, // Primer nombre
+          lastname: resident.name.split(' ').slice(1).join(' ') || '', // Resto como apellidos
+          department: resident.apartment,
+          phone: resident.phone,
+          active: resident.status === 'active'
+        }));
+        
+        // Guardar en localStorage para el sistema de login
+        localStorage.setItem('users', JSON.stringify(users));
+        
+        console.log('Lista de usuarios actualizada:', users);
+      } catch (error) {
+        console.error('Error al actualizar lista de usuarios:', error);
+      }
+    }
+    
+    // Función para inicializar datos de configuración del edificio
+    function initializeBuildingConfig() {
+      try {
+        const existingConfig = localStorage.getItem('edificioConfig');
+        if (!existingConfig) {
+          const defaultConfig = {
+            nombreEdificio: 'Edificio Las Flores',
+            direccion: 'Av. Principal 123, Santiago',
+            telefono: '+56 2 2345 6789',
+            email: 'admin@edificio.cl',
+            horarioAtencion: 'Lunes a Viernes: 9:00 - 18:00'
+          };
+          localStorage.setItem('edificioConfig', JSON.stringify(defaultConfig));
+        }
+      } catch (error) {
+        console.error('Error al inicializar configuración del edificio:', error);
+      }
+    }
+    
     // Función para cargar residentes desde localStorage
     function loadResidents() {
       try {
@@ -1111,7 +1318,8 @@
               apartment: '101',
               email: 'juan.perez@example.com',
               phone: '+56 9 8765 4321',
-              status: 'Activo'
+              status: 'active',
+              password: btoa(generatePassword('juan.perez@example.com', '101'))
             },
             {
               id: generateUniqueId(),
@@ -1119,12 +1327,16 @@
               apartment: '202',
               email: 'maria.gonzalez@example.com',
               phone: '+56 9 1122 3344',
-              status: 'Activo'
+              status: 'active',
+              password: btoa(generatePassword('maria.gonzalez@example.com', '202'))
             }
           ];
           // Guardar los datos de ejemplo
           saveResidentsToStorage();
         }
+        
+        // Actualizar lista de usuarios para login
+        updateUsersList(residents);
         
         // Actualizar la tabla con los datos cargados
         updateResidentsTable();
@@ -1138,6 +1350,8 @@
     function saveResidentsToStorage() {
       try {
         localStorage.setItem('residents', JSON.stringify(residents));
+        // También actualizar lista de usuarios para login
+        updateUsersList(residents);
       } catch (error) {
         console.error('Error al guardar residentes:', error);
         showToast('error', 'Error al guardar los cambios');
@@ -1175,8 +1389,11 @@
           <td>${resident.apartment}</td>
           <td>${resident.email}</td>
           <td>${resident.phone || '-'}</td>
-          <td><span class="badge badge-${resident.status === 'Activo' ? 'primary' : 'danger'}">${resident.status}</span></td>
+          <td><span class="badge badge-${resident.status === 'active' ? 'primary' : 'danger'}">${resident.status === 'active' ? 'Activo' : 'Inactivo'}</span></td>
           <td class="action-buttons">
+            <button class="btn-icon btn-login" data-id="${resident.id}" title="Ver credenciales de login">
+              <i class="fas fa-sign-in-alt"></i>
+            </button>
             <button class="btn-icon btn-view" data-id="${resident.id}" title="Ver detalles">
               <i class="fas fa-eye"></i>
             </button>
@@ -1198,6 +1415,14 @@
     
     // Función para configurar eventos de los botones de la tabla
     function setupTableActions() {
+      // Configurar botones de login
+      document.querySelectorAll('.btn-login').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const residentId = this.getAttribute('data-id');
+          showLoginCredentials(residentId);
+        });
+      });
+      
       // Configurar botones de ver
       document.querySelectorAll('.btn-view').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -1223,6 +1448,65 @@
       });
     }
     
+    // Función para mostrar credenciales de login
+    function showLoginCredentials(residentId) {
+      const resident = residents.find(r => r.id === residentId);
+      if (!resident) {
+        showToast('error', 'No se encontró el residente');
+        return;
+      }
+      
+      // Decodificar contraseña
+      const password = resident.password ? atob(resident.password) : generatePassword(resident.email, resident.apartment);
+      
+      // Rellenar modal con credenciales
+      document.getElementById('loginModalName').textContent = resident.name;
+      document.getElementById('loginModalDepartment').textContent = resident.apartment;
+      document.getElementById('loginModalUsername').textContent = resident.email;
+      document.getElementById('loginModalPassword').textContent = password;
+      
+      // Mostrar modal
+      document.getElementById('loginCredentialsModal').classList.add('show');
+    }
+    
+    // Función para cerrar modal de credenciales
+    function closeLoginCredentialsModal() {
+      document.getElementById('loginCredentialsModal').classList.remove('show');
+    }
+    
+    // Función para probar login del residente
+    function testResidentLogin() {
+      const username = document.getElementById('loginModalUsername').textContent;
+      const password = document.getElementById('loginModalPassword').textContent;
+      
+      // Simular login automático
+      // Esto normalmente se haría en login.html, pero lo simulamos aquí para pruebas
+      const resident = residents.find(r => r.email === username);
+      if (resident) {
+        // Establecer datos de autenticación para el residente
+        localStorage.setItem('authToken', 'resident-token-' + Date.now());
+        localStorage.setItem('userType', 'resident');
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userName', resident.name);
+        localStorage.setItem('currentResident', JSON.stringify({
+          id: resident.id,
+          name: resident.name.split(' ')[0],
+          lastname: resident.name.split(' ').slice(1).join(' ') || '',
+          email: resident.email,
+          phone: resident.phone,
+          department: resident.apartment
+        }));
+        
+        // Abrir panel de residente en nueva pestaña
+        window.open('residente.html', '_blank');
+        
+        showToast('success', 'Abriendo panel de residente...');
+        closeLoginCredentialsModal();
+      } else {
+        showToast('error', 'Error al realizar login de prueba');
+      }
+    }
+    
     // Función para ver detalles de un residente
     function viewResident(residentId) {
       const resident = residents.find(r => r.id === residentId);
@@ -1239,7 +1523,9 @@
         Departamento: ${resident.apartment}
         Email: ${resident.email}
         Teléfono: ${resident.phone || 'No especificado'}
-        Estado: ${resident.status}
+        Estado: ${resident.status === 'active' ? 'Activo' : 'Inactivo'}
+        Usuario: ${resident.email}
+        Acceso: Panel de Residente (residente.html)
       `);
     }
     
@@ -1251,16 +1537,26 @@
         return;
       }
       
+      // Separar nombre y apellidos
+      const nameParts = resident.name.split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      
       // Rellenar el formulario con los datos
       document.getElementById('residentId').value = resident.id;
-      document.getElementById('residentName').value = resident.name;
+      document.getElementById('residentFirstName').value = firstName;
+      document.getElementById('residentLastName').value = lastName;
       document.getElementById('residentApartment').value = resident.apartment;
       document.getElementById('residentEmail').value = resident.email;
       document.getElementById('residentPhone').value = resident.phone || '';
       document.getElementById('residentStatus').value = resident.status;
+      document.getElementById('residentPassword').value = ''; // No mostrar contraseña actual
       
       // Cambiar título del modal
       document.getElementById('residentModalTitle').textContent = 'Editar Residente';
+      
+      // Ocultar credenciales generadas
+      document.getElementById('credentialsDisplay').style.display = 'none';
       
       // Mostrar modal
       openResidentModal();
@@ -1275,7 +1571,7 @@
       }
       
       // Pedir confirmación
-      const confirmDelete = confirm(`¿Está seguro que desea eliminar al residente ${resident.name}?`);
+      const confirmDelete = confirm(`¿Está seguro que desea eliminar al residente ${resident.name}?\n\nEsto también eliminará su acceso al panel de residente.`);
       if (!confirmDelete) return;
       
       // Eliminar residente
@@ -1300,6 +1596,9 @@
       // Cambiar título
       document.getElementById('residentModalTitle').textContent = 'Añadir Nuevo Residente';
       
+      // Ocultar credenciales generadas
+      document.getElementById('credentialsDisplay').style.display = 'none';
+      
       // Mostrar modal
       openResidentModal();
     }
@@ -1314,83 +1613,107 @@
       document.getElementById('residentModal').classList.remove('show');
     }
     
-    // Modificaciones a configuracion.html - Función saveResident
-// Añadir a la función existente saveResident() en configuracion.html
-
-function saveResident() {
-  // Obtener datos del formulario
-  const id = document.getElementById('residentId').value;
-  const name = document.getElementById('residentName').value.trim();
-  const apartment = document.getElementById('residentApartment').value.trim();
-  const email = document.getElementById('residentEmail').value.trim();
-  const phone = document.getElementById('residentPhone').value.trim();
-  const status = document.getElementById('residentStatus').value;
-  
-  // Validar campos obligatorios
-  if (!name || !apartment || !email) {
-    showToast('error', 'Por favor, completa los campos obligatorios');
-    return;
-  }
-  
-  // Generar contraseña por defecto (primera parte del email + número de departamento)
-  const defaultPassword = email.split('@')[0] + apartment;
-  
-  // Crear objeto residente
-  const resident = {
-    id: id || generateUniqueId(),
-    name,
-    apartment,
-    email,
-    phone,
-    status,
-    // Añadir estos campos para autenticación
-    username: email, // Usamos email como nombre de usuario
-    password: btoa(defaultPassword), // Encriptar contraseña en base64 (simple)
-    role: 'resident' // Rol de residente
-  };
-  
-  // Verificar si es edición o nuevo
-  if (id) {
-    // Edición: actualizar residente existente
-    const index = residents.findIndex(r => r.id === id);
-    if (index !== -1) {
-      // Preservar contraseña existente si no estamos cambiando el correo
-      if (residents[index].email === email) {
-        resident.password = residents[index].password;
+    // Función principal para guardar residente
+    function saveResident() {
+      // Obtener datos del formulario
+      const id = document.getElementById('residentId').value;
+      const firstName = document.getElementById('residentFirstName').value.trim();
+      const lastName = document.getElementById('residentLastName').value.trim();
+      const apartment = document.getElementById('residentApartment').value.trim();
+      const email = document.getElementById('residentEmail').value.trim();
+      const phone = document.getElementById('residentPhone').value.trim();
+      const status = document.getElementById('residentStatus').value;
+      const customPassword = document.getElementById('residentPassword').value.trim();
+      
+      // Validar campos obligatorios
+      if (!firstName || !apartment || !email) {
+        showToast('error', 'Por favor, completa los campos obligatorios (Nombre, Departamento, Email)');
+        return;
       }
-      residents[index] = resident;
-      showToast('success', 'Residente actualizado correctamente');
-    } else {
-      showToast('error', 'No se encontró el residente a editar');
-      return;
+      
+      // Validar formato de email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showToast('error', 'Por favor, ingresa un email válido');
+        return;
+      }
+      
+      // Verificar si el email ya existe (solo para nuevos residentes o si cambió el email)
+      const existingResident = residents.find(r => r.email === email && r.id !== id);
+      if (existingResident) {
+        showToast('error', 'Ya existe un residente con este email');
+        return;
+      }
+      
+      // Verificar si el departamento ya existe (solo para nuevos residentes o si cambió el departamento)
+      const existingApartment = residents.find(r => r.apartment === apartment && r.id !== id);
+      if (existingApartment) {
+        showToast('error', 'Ya existe un residente en este departamento');
+        return;
+      }
+      
+      // Generar contraseña
+      const password = customPassword || generatePassword(email, apartment);
+      const fullName = lastName ? `${firstName} ${lastName}` : firstName;
+      
+      // Crear objeto residente
+      const resident = {
+        id: id || generateUniqueId(),
+        name: fullName,
+        apartment,
+        email,
+        phone,
+        status,
+        password: btoa(password), // Encriptar contraseña en base64
+        created_at: new Date().toISOString()
+      };
+      
+      // Verificar si es edición o nuevo
+      if (id) {
+        // Edición: actualizar residente existente
+        const index = residents.findIndex(r => r.id === id);
+        if (index !== -1) {
+          // Preservar contraseña existente si no se especificó una nueva
+          if (!customPassword) {
+            resident.password = residents[index].password;
+          }
+          residents[index] = resident;
+          showToast('success', 'Residente actualizado correctamente');
+        } else {
+          showToast('error', 'No se encontró el residente a editar');
+          return;
+        }
+      } else {
+        // Nuevo: agregar a la lista
+        residents.push(resident);
+        
+        // Mostrar credenciales generadas
+        showGeneratedCredentials(email, password);
+        
+        // Verificar si es necesario crear o actualizar el departamento
+        updateDepartmentList(apartment);
+        
+        showToast('success', 'Residente añadido correctamente. Revisa las credenciales generadas.');
+      }
+      
+      // Guardar cambios en residentes
+      saveResidentsToStorage();
+      
+      // Actualizar tabla
+      updateResidentsTable();
+      
+      // No cerrar modal automáticamente para nuevos residentes (para que vean las credenciales)
+      if (id) {
+        closeResidentModal();
+      }
     }
-  } else {
-    // Nuevo: agregar a la lista
-    residents.push(resident);
     
-    // Verificar si es necesario crear o actualizar el departamento
-    updateDepartmentList(apartment);
-    
-    showToast('success', `Residente añadido correctamente. 
-      Credenciales generadas: 
-      • Usuario: ${email}
-      • Contraseña: ${defaultPassword}`);
-  }
-  
-  // Guardar cambios en residentes
-  saveResidentsToStorage();
-  
-  // También guardar en usuarios para login
-  updateUsersList(residents);
-  
-  // Actualizar tabla
-  updateResidentsTable();
-  
-  // Cerrar modal
-  closeResidentModal();
-}
-
-
+    // Función para mostrar credenciales generadas
+    function showGeneratedCredentials(email, password) {
+      document.getElementById('generatedUsername').textContent = email;
+      document.getElementById('generatedPassword').textContent = password;
+      document.getElementById('credentialsDisplay').style.display = 'block';
+    }
     
     // Función para actualizar la lista de departamentos
     function updateDepartmentList(apartmentNumber) {
@@ -1401,6 +1724,7 @@ function saveResident() {
         // Verificar si ya existe el departamento
         if (!departments.includes(apartmentNumber)) {
           departments.push(apartmentNumber);
+          departments.sort(); // Ordenar alfabéticamente
           localStorage.setItem('departments', JSON.stringify(departments));
           console.log(`Departamento ${apartmentNumber} añadido automáticamente`);
         }
@@ -1415,14 +1739,23 @@ function saveResident() {
     function loadSystemSettings() {
       try {
         const settings = JSON.parse(localStorage.getItem('systemSettings')) || {};
+        const buildingConfig = JSON.parse(localStorage.getItem('edificioConfig')) || {};
         
-        // Cargar datos en el formulario
-        if (settings.buildingName) {
-          document.getElementById('buildingName').value = settings.buildingName;
+        // Cargar datos en el formulario desde ambas fuentes
+        if (settings.buildingName || buildingConfig.nombreEdificio) {
+          document.getElementById('buildingName').value = settings.buildingName || buildingConfig.nombreEdificio;
         }
         
-        if (settings.buildingAddress) {
-          document.getElementById('buildingAddress').value = settings.buildingAddress;
+        if (settings.buildingAddress || buildingConfig.direccion) {
+          document.getElementById('buildingAddress').value = settings.buildingAddress || buildingConfig.direccion;
+        }
+        
+        if (settings.buildingPhone || buildingConfig.telefono) {
+          document.getElementById('buildingPhone').value = settings.buildingPhone || buildingConfig.telefono;
+        }
+        
+        if (settings.buildingEmail || buildingConfig.email) {
+          document.getElementById('buildingEmail').value = settings.buildingEmail || buildingConfig.email;
         }
         
         if (settings.notifyNewPackage !== undefined) {
@@ -1447,13 +1780,25 @@ function saveResident() {
         const settings = {
           buildingName: document.getElementById('buildingName').value.trim(),
           buildingAddress: document.getElementById('buildingAddress').value.trim(),
+          buildingPhone: document.getElementById('buildingPhone').value.trim(),
+          buildingEmail: document.getElementById('buildingEmail').value.trim(),
           notifyNewPackage: document.getElementById('notifyNewPackage').checked,
           notifyPackageDelivery: document.getElementById('notifyPackageDelivery').checked,
           retentionDays: document.getElementById('retentionDays').value
         };
         
-        // Guardar en localStorage
+        // Guardar en localStorage (configuración del sistema)
         localStorage.setItem('systemSettings', JSON.stringify(settings));
+        
+        // También actualizar configuración del edificio para compatibilidad
+        const buildingConfig = {
+          nombreEdificio: settings.buildingName,
+          direccion: settings.buildingAddress,
+          telefono: settings.buildingPhone,
+          email: settings.buildingEmail,
+          horarioAtencion: 'Lunes a Viernes: 9:00 - 18:00'
+        };
+        localStorage.setItem('edificioConfig', JSON.stringify(buildingConfig));
         
         showToast('success', 'Configuración guardada correctamente');
       } catch (error) {
@@ -1468,10 +1813,13 @@ function saveResident() {
         // Recopilar todos los datos importantes
         const exportData = {
           residents: residents,
+          users: JSON.parse(localStorage.getItem('users')) || [],
           departments: JSON.parse(localStorage.getItem('departments')) || [],
           packages: JSON.parse(localStorage.getItem('paquetesPrueba')) || [],
           systemSettings: JSON.parse(localStorage.getItem('systemSettings')) || {},
-          exportDate: new Date().toISOString()
+          buildingConfig: JSON.parse(localStorage.getItem('edificioConfig')) || {},
+          exportDate: new Date().toISOString(),
+          version: '1.0'
         };
         
         // Convertir a cadena JSON
@@ -1521,7 +1869,7 @@ function saveResident() {
               const data = JSON.parse(e.target.result);
               
               // Verificar si tiene la estructura esperada
-              if (!data.residents || !data.departments || !data.packages) {
+              if (!data.residents && !data.users) {
                 throw new Error('El archivo no tiene el formato correcto');
               }
               
@@ -1530,17 +1878,34 @@ function saveResident() {
               if (!confirmImport) return;
               
               // Importar datos
-              localStorage.setItem('residents', JSON.stringify(data.residents));
-              localStorage.setItem('departments', JSON.stringify(data.departments));
-              localStorage.setItem('paquetesPrueba', JSON.stringify(data.packages));
+              if (data.residents) {
+                localStorage.setItem('residents', JSON.stringify(data.residents));
+                residents = data.residents;
+              }
+              
+              if (data.users) {
+                localStorage.setItem('users', JSON.stringify(data.users));
+              }
+              
+              if (data.departments) {
+                localStorage.setItem('departments', JSON.stringify(data.departments));
+              }
+              
+              if (data.packages) {
+                localStorage.setItem('paquetesPrueba', JSON.stringify(data.packages));
+              }
               
               if (data.systemSettings) {
                 localStorage.setItem('systemSettings', JSON.stringify(data.systemSettings));
               }
               
+              if (data.buildingConfig) {
+                localStorage.setItem('edificioConfig', JSON.stringify(data.buildingConfig));
+              }
+              
               // Recargar datos
-              residents = data.residents;
               updateResidentsTable();
+              updateUsersList(residents);
               loadSystemSettings();
               
               showToast('success', 'Datos importados correctamente');
@@ -1573,6 +1938,9 @@ function saveResident() {
       // Verificar autenticación
       if (!checkAuth()) return;
       
+      // Inicializar configuración del edificio
+      initializeBuildingConfig();
+      
       // Configurar pestañas
       setupTabs();
       
@@ -1604,11 +1972,23 @@ function saveResident() {
         }
       });
       
+      // Configurar eventos para cerrar modal de credenciales con clic fuera
+      document.getElementById('loginCredentialsModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeLoginCredentialsModal();
+        }
+      });
+      
       // Configurar eventos para configuración del sistema
       document.getElementById('saveSystemSettingsBtn').addEventListener('click', saveSystemSettings);
       document.getElementById('exportDataBtn').addEventListener('click', exportData);
       document.getElementById('importDataBtn').addEventListener('click', importData);
     });
+    
+    // Hacer funciones globales disponibles
+    window.showLoginCredentials = showLoginCredentials;
+    window.closeLoginCredentialsModal = closeLoginCredentialsModal;
+    window.testResidentLogin = testResidentLogin;
   </script>
 </body> 
 </html>

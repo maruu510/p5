@@ -136,30 +136,6 @@
             gap: 15px;
         }
         
-        .select-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .select-container label {
-            font-size: 14px;
-        }
-        
-        .select-field {
-            padding: 5px 10px;
-            border-radius: 4px;
-            border: none;
-            font-size: 14px;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-        
-        .select-field option {
-            color: var(--dark);
-            background-color: white;
-        }
-        
         .login-container {
             background-color: white;
             border-radius: var(--radius-lg);
@@ -215,25 +191,49 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--secondary);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-group label i {
+            color: var(--primary);
+            font-size: 1rem;
         }
         
         .form-input {
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: var(--radius);
+            padding: 14px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
             font-size: 1rem;
-            transition: border-color 0.3s;
-            background-color: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.9);
+            font-family: inherit;
         }
         
         .form-input:focus {
             border-color: var(--primary);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
             background-color: white;
+            transform: translateY(-1px);
+        }
+        
+        .form-input:hover {
+            border-color: #c1c7cd;
+        }
+        
+        .form-input::placeholder {
+            color: #9ca3af;
+            transition: color 0.3s ease;
+        }
+        
+        .form-input:focus::placeholder {
+            color: #d1d5db;
         }
         
         .input-icon {
@@ -252,27 +252,45 @@
             padding-left: 40px;
         }
         
-        /* Botón para mostrar/ocultar contraseña */
+        .input-icon input[type="password"],
+        .input-icon input[type="text"]:not(#username) {
+            padding-right: 55px;
+        }
+        
+        /* Específico para el campo de contraseña */
+        #password {
+            padding-right: 55px !important;
+        }
+        
+        <!-- Botón para mostrar/ocultar contraseña */
         .toggle-password {
             position: absolute;
             top: 50%;
-            right: 15px;
+            right: 12px;
             transform: translateY(-50%);
             background: none;
             border: none;
             color: var(--gray);
             cursor: pointer;
-            padding: 5px;
+            padding: 8px;
             font-size: 16px;
-            transition: color 0.2s;
+            transition: color 0.3s ease;
+            border-radius: 4px;
+            z-index: 10;
         }
         
         .toggle-password:hover {
             color: var(--primary);
+            background-color: rgba(0, 0, 0, 0.05);
         }
         
         .toggle-password:focus {
-            outline: none;
+            outline: 2px solid var(--primary);
+            outline-offset: 1px;
+        }
+        
+        .toggle-password:active {
+            transform: translateY(-50%) scale(0.95);
         }
         
         .form-options {
@@ -330,6 +348,12 @@
             box-shadow: var(--shadow-md);
         }
         
+        .btn-primary:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
         .user-type-selector {
             display: flex;
             margin-bottom: 20px;
@@ -362,10 +386,54 @@
             font-size: 0.9rem;
             margin-top: 5px;
             display: none;
+            padding: 8px;
+            background-color: rgba(231, 76, 60, 0.1);
+            border-radius: var(--radius);
+            border-left: 3px solid var(--danger);
         }
         
         .error-message.show {
             display: block;
+        }
+        
+        .success-message {
+            color: var(--primary-light);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+            padding: 8px;
+            background-color: rgba(46, 204, 113, 0.1);
+            border-radius: var(--radius);
+            border-left: 3px solid var(--primary-light);
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        .info-message {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-left: 3px solid var(--info);
+            padding: 10px 15px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--info);
+        }
+        
+        .credentials-hint {
+            background-color: rgba(243, 156, 18, 0.1);
+            border-left: 3px solid var(--warning);
+            padding: 10px 15px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: #b7950b;
+        }
+        
+        .credentials-hint strong {
+            display: block;
+            margin-bottom: 5px;
         }
         
         .loader-container {
@@ -457,10 +525,6 @@
                 padding: 8px 15px;
             }
             
-            .top-bar-right {
-                display: none;
-            }
-            
             .bg-shapes .shape {
                 opacity: 0.3;
                 filter: blur(40px);
@@ -484,15 +548,6 @@
             <img src="./images/favicon.svg" alt="Logo PackTrack">
             <span>Sistema de Gestión de Paquetes</span>
         </div>
-        <div class="top-bar-right">
-            <div class="select-container">
-                <label for="language">Idioma:</label>
-                <select id="language" class="select-field">
-                    <option value="es" selected>Español</option>
-                    <option value="en">English</option>
-                </select>
-            </div>
-        </div>
     </div>
     
     <!-- Contenedor de login -->
@@ -513,26 +568,46 @@
             </div>
         </div>
         
+        <!-- Mensaje informativo dinámico -->
+        <div id="dynamicInfo" class="info-message" style="display: none;">
+            <i class="fas fa-info-circle"></i>
+            <span id="infoText">Selecciona un tipo de usuario para ver las credenciales de ejemplo.</span>
+        </div>
+        
+        <!-- Pistas de credenciales -->
+        <div id="credentialsHint" class="credentials-hint" style="display: none;">
+            <strong>Credenciales de prueba:</strong>
+            <div id="hintContent">
+                <!-- Contenido dinámico -->
+            </div>
+        </div>
+        
         <form id="loginForm" class="login-form">
             <div class="form-group">
-                <label for="username">Usuario</label>
+                <label for="username">
+                    <i class="fas fa-user-circle"></i>
+                    Usuario / Email
+                </label>
                 <div class="input-icon">
-                    <i class="fas fa-user"></i>
-                    <input type="text" id="username" class="form-input" placeholder="Ingresa tu nombre de usuario" required>
+                    <i class="fas fa-envelope"></i>
+                    <input type="text" id="username" class="form-input" placeholder="Ingresa tu email o nombre de usuario" required>
                 </div>
                 <div class="error-message" id="usernameError">Por favor ingresa un nombre de usuario válido</div>
             </div>
             
             <div class="form-group">
-                <label for="password">Contraseña</label>
+                <label for="password">
+                    <i class="fas fa-key"></i>
+                    Contraseña
+                </label>
                 <div class="input-icon">
                     <i class="fas fa-lock"></i>
                     <input type="password" id="password" class="form-input" placeholder="Ingresa tu contraseña" required>
-                    <button type="button" id="togglePassword" class="toggle-password" aria-label="Mostrar/Ocultar contraseña">
+                    <button type="button" id="togglePassword" class="toggle-password" aria-label="Mostrar contraseña" title="Mostrar contraseña">
                         <i class="fas fa-eye"></i>
                     </button>
                 </div>
-                <div class="error-message" id="passwordError">La contraseña debe tener al menos 6 caracteres</div>
+                <div class="error-message" id="passwordError">La contraseña es requerida</div>
             </div>
             
             <div class="form-options">
@@ -540,22 +615,22 @@
                     <input type="checkbox" id="remember">
                     <label for="remember">Recordarme</label>
                 </div>
-                <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+                <a href="#" class="forgot-password" onclick="showForgotPasswordInfo()">¿Olvidaste tu contraseña?</a>
             </div>
             
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary" id="loginBtn">
                 <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
             </button>
             <div class="error-message" id="loginError">Usuario o contraseña incorrectos</div>
+            <div class="success-message" id="loginSuccess">¡Login exitoso! Redirigiendo...</div>
         </form>
     </div>
     
     <footer>
         <div>Sistema de Gestión de Paquetes &copy; 2025</div>
         <div>
-            <a href="#">Términos de Servicio</a>
-            <a href="#">Política de Privacidad</a>
-            <a href="#">Contacto</a>
+            <a href="#" onclick="showSystemInfo()">Información del Sistema</a>
+            <a href="#" onclick="showContactInfo()">Contacto</a>
         </div>
     </footer>
     
@@ -574,10 +649,10 @@
             });
             
             // Limpiar datos de sesión anteriores
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userName');
-            localStorage.removeItem('userType');
-            localStorage.removeItem('isLoggedIn');
+            clearSessionData();
+            
+            // Inicializar datos de prueba si no existen
+            initializeTestData();
             
             // Selector de tipo de usuario
             const userTypeOptions = document.querySelectorAll('.user-type-option');
@@ -588,98 +663,419 @@
                     userTypeOptions.forEach(opt => opt.classList.remove('active'));
                     this.classList.add('active');
                     userType = this.getAttribute('data-type');
+                    
+                    // Actualizar información y pistas según el tipo de usuario
+                    updateUserTypeInfo(userType);
                 });
             });
             
-            // Formulario de login
+            // Elementos del formulario
             const loginForm = document.getElementById('loginForm');
             const usernameInput = document.getElementById('username');
             const passwordInput = document.getElementById('password');
             const usernameError = document.getElementById('usernameError');
             const passwordError = document.getElementById('passwordError');
             const loginError = document.getElementById('loginError');
+            const loginSuccess = document.getElementById('loginSuccess');
             const loader = document.getElementById('loader');
+            const loginBtn = document.getElementById('loginBtn');
             
             // Botón para mostrar/ocultar contraseña
             const togglePasswordBtn = document.getElementById('togglePassword');
             
-            togglePasswordBtn.addEventListener('click', function() {
-                // Cambiar el tipo de input entre password y text
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
+            // Mostrar información inicial
+            updateUserTypeInfo('admin');
+            
+            // Inicializar tooltip del botón de contraseña
+            togglePasswordBtn.setAttribute('title', 'Mostrar contraseña');
+            
+            togglePasswordBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 
-                // Cambiar el icono entre ojo y ojo tachado
+                const currentType = passwordInput.getAttribute('type');
+                const newType = currentType === 'password' ? 'text' : 'password';
+                
+                // Cambiar el tipo de input
+                passwordInput.setAttribute('type', newType);
+                
+                // Cambiar el ícono y los atributos del botón
                 const icon = this.querySelector('i');
-                if (type === 'text') {
+                if (newType === 'text') {
+                    // Mostrar contraseña
                     icon.classList.remove('fa-eye');
                     icon.classList.add('fa-eye-slash');
                     this.setAttribute('aria-label', 'Ocultar contraseña');
+                    this.setAttribute('title', 'Ocultar contraseña');
                 } else {
+                    // Ocultar contraseña
                     icon.classList.remove('fa-eye-slash');
                     icon.classList.add('fa-eye');
                     this.setAttribute('aria-label', 'Mostrar contraseña');
+                    this.setAttribute('title', 'Mostrar contraseña');
                 }
+                
+                // Mantener el foco en el input y posición del cursor
+                const cursorPosition = passwordInput.selectionStart;
+                passwordInput.focus();
+                passwordInput.setSelectionRange(cursorPosition, cursorPosition);
             });
-             
+            
+            // Función para actualizar información según tipo de usuario
+            function updateUserTypeInfo(type) {
+                const dynamicInfo = document.getElementById('dynamicInfo');
+                const credentialsHint = document.getElementById('credentialsHint');
+                const hintContent = document.getElementById('hintContent');
+                const infoText = document.getElementById('infoText');
+                
+                dynamicInfo.style.display = 'block';
+                credentialsHint.style.display = 'block';
+                
+                if (type === 'admin') {
+                    infoText.textContent = 'Modo Administrador: Acceso completo al sistema de gestión.';
+                    hintContent.innerHTML = `
+                        <div>🔧 <strong>Panel de Administración</strong></div>
+                        <div>Gestión completa de paquetes, residentes y configuración del sistema.</div>
+                    `;
+                } else {
+                    const residents = getAvailableResidents();
+                    if (residents.length > 0) {
+                        const example = residents[0];
+                        infoText.textContent = 'Modo Residente: Acceso a tu panel personal de paquetes.';
+                        hintContent.innerHTML = `
+                            <div><strong>Ejemplo de credenciales creadas:</strong></div>
+                            <div>📧 <strong>Email:</strong> ${example.email}</div>
+                            <div>🔑 <strong>Contraseña:</strong> ${example.passwordHint}</div>
+                            <div style="margin-top: 5px; font-size: 0.8rem;">
+                                <i class="fas fa-info-circle"></i> 
+                                Las credenciales son generadas automáticamente desde Configuración
+                            </div>
+                        `;
+                    } else {
+                        infoText.textContent = 'No hay residentes registrados. Contacta al administrador.';
+                        hintContent.innerHTML = `
+                            <div>❌ <strong>No hay residentes registrados</strong></div>
+                            <div>Solicita al administrador crear tu cuenta desde el panel de configuración.</div>
+                        `;
+                    }
+                }
+            }
+            
+            // Función para obtener residentes disponibles
+            function getAvailableResidents() {
+                try {
+                    const users = JSON.parse(localStorage.getItem('users') || '[]');
+                    return users.filter(u => u.role === 'resident' && u.active).map(u => ({
+                        email: u.email,
+                        name: u.name,
+                        department: u.department,
+                        passwordHint: generatePasswordHint(u.email, u.department)
+                    }));
+                } catch (error) {
+                    console.error('Error al obtener residentes:', error);
+                    return [];
+                }
+            }
+            
+            // Función para generar pista de contraseña
+            function generatePasswordHint(email, department) {
+                const emailPart = email.split('@')[0].toLowerCase();
+                return emailPart + department;
+            }
+            
+            // Función para limpiar datos de sesión
+            function clearSessionData() {
+                const keysToRemove = [
+                    'authToken', 'userName', 'userType', 'isLoggedIn',
+                    'currentResidentId', 'currentResident', 'currentUser',
+                    'loginTime', 'sessionData'
+                ];
+                
+                keysToRemove.forEach(key => {
+                    localStorage.removeItem(key);
+                });
+            }
+            
+            // Función para inicializar datos de prueba
+            function initializeTestData() {
+                // Solo si no existen datos de administrador
+                const currentUser = localStorage.getItem('currentUser');
+                if (!currentUser) {
+                    const adminUser = {
+                        username: 'Admin@gmail.com',
+                        email: 'Admin@gmail.com',
+                        role: 'admin',
+                        created_at: new Date().toISOString()
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(adminUser));
+                }
+            }
+            
+            // Función principal de autenticación
+            function authenticateUser(username, password, type) {
+                if (type === 'admin') {
+                    return authenticateAdmin(username, password);
+                } else {
+                    return authenticateResident(username, password);
+                }
+            }
+            
+            // Función para autenticar administrador
+            function authenticateAdmin(username, password) {
+                const validCredentials = {
+                    username: 'Admin@gmail.com',
+                    password: 'admin12345'
+                };
+                
+                if (username === validCredentials.username && password === validCredentials.password) {
+                    return {
+                        success: true,
+                        user: {
+                            username: username,
+                            email: username,
+                            role: 'admin',
+                            name: 'Administrador'
+                        },
+                        redirectUrl: 'dashboard.html'
+                    };
+                }
+                
+                return { success: false, message: 'Credenciales de administrador incorrectas' };
+            }
+            
+            // Función para autenticar residente
+            function authenticateResident(username, password) {
+                try {
+                    const users = JSON.parse(localStorage.getItem('users') || '[]');
+                    const residents = JSON.parse(localStorage.getItem('residents') || '[]');
+                    
+                    // Buscar usuario por email o username
+                    const user = users.find(u => 
+                        u.role === 'resident' && 
+                        u.active &&
+                        (u.email.toLowerCase() === username.toLowerCase() || 
+                         u.username.toLowerCase() === username.toLowerCase())
+                    );
+                    
+                    if (!user) {
+                        return { success: false, message: 'Usuario no encontrado o cuenta inactiva' };
+                    }
+                    
+                    // Verificar contraseña (decodificar base64)
+                    let storedPassword;
+                    try {
+                        storedPassword = atob(user.password);
+                    } catch (e) {
+                        storedPassword = user.password; // Si no está en base64
+                    }
+                    
+                    if (password !== storedPassword) {
+                        return { success: false, message: 'Contraseña incorrecta' };
+                    }
+                    
+                    // Buscar datos completos del residente
+                    const resident = residents.find(r => r.id === user.id);
+                    if (!resident) {
+                        return { success: false, message: 'Datos del residente no encontrados' };
+                    }
+                    
+                    return {
+                        success: true,
+                        user: user,
+                        resident: resident,
+                        redirectUrl: 'residente.html'
+                    };
+                    
+                } catch (error) {
+                    console.error('Error en autenticación de residente:', error);
+                    return { success: false, message: 'Error interno de autenticación' };
+                }
+            }
+            
+            // Función para establecer datos de sesión
+            function setSessionData(authResult, userType, rememberMe) {
+                const sessionData = {
+                    authToken: 'token-' + Date.now() + '-' + Math.random().toString(36).substring(2),
+                    userType: userType,
+                    isLoggedIn: 'true',
+                    userName: authResult.user.name || authResult.user.username,
+                    loginTime: new Date().toISOString()
+                };
+                
+                // Datos comunes
+                Object.keys(sessionData).forEach(key => {
+                    localStorage.setItem(key, sessionData[key]);
+                });
+                
+                if (userType === 'admin') {
+                    localStorage.setItem('currentUser', JSON.stringify(authResult.user));
+                } else {
+                    // Datos específicos para residente
+                    const residentData = {
+                        id: authResult.resident.id,
+                        name: authResult.user.name,
+                        lastname: authResult.user.lastname || '',
+                        email: authResult.user.email,
+                        phone: authResult.user.phone || '',
+                        department: authResult.user.department
+                    };
+                    
+                    localStorage.setItem('currentResident', JSON.stringify(residentData));
+                    localStorage.setItem('currentResidentId', authResult.resident.id);
+                }
+                
+                // Recordar usuario si se seleccionó
+                if (rememberMe) {
+                    localStorage.setItem('rememberedUser', JSON.stringify({
+                        username: authResult.user.username || authResult.user.email,
+                        userType: userType
+                    }));
+                }
+            }
+            
+            // Manejar envío del formulario
             loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                // Resetear errores
-                usernameError.classList.remove('show');
-                passwordError.classList.remove('show');
-                loginError.classList.remove('show');
+                // Resetear mensajes
+                hideAllMessages();
                 
-                // Validar campos
-                let isValid = true;
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
+                const rememberMe = document.getElementById('remember').checked;
                 
-                if (!usernameInput.value.trim()) {
-                    usernameError.classList.add('show');
-                    isValid = false;
+                // Validaciones básicas
+                if (!username) {
+                    showError(usernameError, 'El campo usuario es requerido');
+                    return;
                 }
                 
-                if (passwordInput.value.length < 6) {
-                    passwordError.classList.add('show');
-                    isValid = false;
+                if (!password) {
+                    showError(passwordError, 'El campo contraseña es requerido');
+                    return;
                 }
                 
-                if (!isValid) return;
-                
-                // Mostrar loader
+                // Deshabilitar botón y mostrar loader
+                loginBtn.disabled = true;
                 loader.classList.add('show');
                 
-                // Simular autenticación
+                // Simular tiempo de autenticación
                 setTimeout(() => {
+                    const authResult = authenticateUser(username, password, userType);
+                    
                     loader.classList.remove('show');
+                    loginBtn.disabled = false;
                     
-                    // Credenciales de prueba
-                    const validCredentials = {
-                        admin: { username: 'Admin@gmail.com', password: 'admin12345' },
-                        resident: { username: 'residente', password: 'residente123' }
-                    };
-                    
-                    const currentCredentials = validCredentials[userType];
-                    
-                    if (usernameInput.value === currentCredentials.username && 
-                        passwordInput.value === currentCredentials.password) {
-                        // Login exitoso - Guardar información de sesión
-                        localStorage.setItem('authToken', 'simulated-jwt-token');
-                        localStorage.setItem('userName', usernameInput.value);
-                        localStorage.setItem('userType', userType);
-                        localStorage.setItem('isLoggedIn', 'true');
+                    if (authResult.success) {
+                        // Login exitoso
+                        showSuccess(loginSuccess, '¡Login exitoso! Redirigiendo...');
                         
-                        // Redirigir según tipo de usuario
-                        if (userType === 'admin') {
-                            window.location.href = 'dashboard.html';
-                        } else {
-                            window.location.href = 'resident.html';
-                        }
+                        // Establecer datos de sesión
+                        setSessionData(authResult, userType, rememberMe);
+                        
+                        // Redirigir después de un breve delay
+                        setTimeout(() => {
+                            window.location.href = authResult.redirectUrl;
+                        }, 1500);
+                        
                     } else {
                         // Login fallido
-                        loginError.classList.add('show');
+                        showError(loginError, authResult.message || 'Credenciales incorrectas');
                         passwordInput.value = '';
+                        passwordInput.focus();
                     }
                 }, 1200);
             });
+            
+            // Funciones auxiliares para mostrar/ocultar mensajes
+            function hideAllMessages() {
+                document.querySelectorAll('.error-message, .success-message').forEach(msg => {
+                    msg.classList.remove('show');
+                });
+            }
+            
+            function showError(element, message) {
+                element.textContent = message;
+                element.classList.add('show');
+            }
+            
+            function showSuccess(element, message) {
+                element.textContent = message;
+                element.classList.add('show');
+            }
+            
+            // Cargar usuario recordado
+            function loadRememberedUser() {
+                try {
+                    const remembered = JSON.parse(localStorage.getItem('rememberedUser') || '{}');
+                    if (remembered.username) {
+                        usernameInput.value = remembered.username;
+                        document.getElementById('remember').checked = true;
+                        
+                        // Seleccionar tipo de usuario recordado
+                        if (remembered.userType) {
+                            userTypeOptions.forEach(option => {
+                                option.classList.remove('active');
+                                if (option.getAttribute('data-type') === remembered.userType) {
+                                    option.classList.add('active');
+                                    userType = remembered.userType;
+                                    updateUserTypeInfo(userType);
+                                }
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error al cargar usuario recordado:', error);
+                }
+            }
+            
+            // Cargar usuario recordado al iniciar
+            loadRememberedUser();
+            
+            // Función para mostrar información de contraseña olvidada
+            window.showForgotPasswordInfo = function() {
+                alert(`Para recuperar tu contraseña:
+
+ADMINISTRADOR:
+- Contacta al soporte técnico del sistema
+
+RESIDENTE:
+- Contacta a la administración del edificio
+- Las contraseñas son generadas automáticamente
+- Formato: [primera parte del email] + [número de departamento]
+
+Ejemplo: usuario@email.com + 101 = usuario101`);
+            };
+            
+            // Función para mostrar información del sistema
+            window.showSystemInfo = function() {
+                const buildingConfig = JSON.parse(localStorage.getItem('edificioConfig') || '{}');
+                const buildingName = buildingConfig.nombreEdificio || 'Sistema de Gestión de Paquetes';
+                
+                alert(`${buildingName}
+
+✓ Panel de Administración para gestión completa
+✓ Panel de Residente para seguimiento personal
+✓ Sistema de notificaciones automáticas
+✓ Gestión de paquetes y encomiendas
+✓ Seguimiento en tiempo real
+
+Versión: 1.0
+Año: 2025`);
+            };
+            
+            // Función para mostrar información de contacto
+            window.showContactInfo = function() {
+                const buildingConfig = JSON.parse(localStorage.getItem('edificioConfig') || '{}');
+                
+                alert(`Información de Contacto:
+
+📧 Email: ${buildingConfig.email || 'admin@edificio.cl'}
+📞 Teléfono: ${buildingConfig.telefono || '+56 2 2345 6789'}
+📍 Dirección: ${buildingConfig.direccion || 'No especificada'}
+
+Para soporte técnico, contacta al administrador del sistema.`);
+            };
         });
     </script>
 </body>
