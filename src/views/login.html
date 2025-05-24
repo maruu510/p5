@@ -22,6 +22,7 @@
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
             --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15), 0 10px 10px rgba(0, 0, 0, 0.04);
             --radius: 5px;
             --radius-lg: 10px;
         }
@@ -45,7 +46,7 @@
             overflow: hidden;
         }
         
-        /* Fondo multicolor con formas y colores del dashboard */
+        /* Fondo multicolor con formas y colores del dashboard mejoradas */
         .bg-shapes {
             position: fixed;
             top: 0;
@@ -59,49 +60,67 @@
         .shape {
             position: absolute;
             border-radius: 50%;
-            opacity: 0.5;
-            filter: blur(60px);
+            opacity: 0.4;
+            filter: blur(80px);
+            animation: float 8s ease-in-out infinite;
         }
         
         .shape-1 {
             background-color: var(--primary);
-            width: 300px;
-            height: 300px;
-            top: -50px;
-            left: -100px;
+            width: 350px;
+            height: 350px;
+            top: -100px;
+            left: -150px;
+            animation-delay: 0s;
         }
         
         .shape-2 {
             background-color: var(--primary-light);
-            width: 350px;
-            height: 350px;
-            bottom: -100px;
-            right: -100px;
+            width: 400px;
+            height: 400px;
+            bottom: -150px;
+            right: -150px;
+            animation-delay: 2s;
         }
         
         .shape-3 {
             background-color: var(--warning);
-            width: 250px;
-            height: 250px;
+            width: 280px;
+            height: 280px;
             top: 60%;
-            left: 20%;
+            left: 15%;
+            animation-delay: 4s;
         }
         
         .shape-4 {
             background-color: var(--accent);
-            width: 200px;
-            height: 200px;
-            top: 20%;
-            right: 10%;
+            width: 220px;
+            height: 220px;
+            top: 15%;
+            right: 8%;
+            animation-delay: 1s;
         }
         
         .shape-5 {
             background-color: var(--danger);
-            width: 180px;
-            height: 180px;
-            bottom: 10%;
-            left: 10%;
-            opacity: 0.3;
+            width: 200px;
+            height: 200px;
+            bottom: 15%;
+            left: 8%;
+            opacity: 0.25;
+            animation-delay: 3s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) scale(1);
+            }
+            33% {
+                transform: translateY(-30px) scale(1.05);
+            }
+            66% {
+                transform: translateY(20px) scale(0.95);
+            }
         }
         
         .top-bar {
@@ -111,17 +130,19 @@
             right: 0;
             background-color: var(--secondary);
             color: white;
-            padding: 10px 20px;
+            padding: 12px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-shadow: var(--shadow-md);
             z-index: 100;
+            backdrop-filter: blur(10px);
         }
         
         .top-bar-left {
             display: flex;
             align-items: center;
+            font-weight: 600;
         }
         
         .top-bar-left img {
@@ -137,47 +158,74 @@
         }
         
         .login-container {
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
             border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-xl);
             width: 100%;
             max-width: 450px;
-            padding: 30px;
-            margin-top: 60px;
+            padding: 40px;
+            margin-top: 80px;
             text-align: center;
-            position: center;
+            position: relative;
             z-index: 10;
-            background-color: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .login-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(30, 58, 138, 0.15);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .login-logo {
-            margin-bottom: 30px;
+            margin-bottom: 35px;
             display: flex;
             justify-content: center;
             align-items: center;
-            display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
         
         .login-logo img {
             height: 100px;
             width: auto;
             object-fit: contain;
-            margin: 30 auto;
+            margin: 0 auto;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+            transition: transform 0.3s ease;
+        }
+        
+        .login-logo img:hover {
+            transform: scale(1.05);
         }
         
         .login-title {
             color: var(--primary);
-            font-size: 1.8rem;
-            margin-bottom: 10px;
+            font-size: 2rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(30, 58, 138, 0.1);
         }
         
         .login-subtitle {
             color: var(--gray);
-            margin-bottom: 30px;
+            margin-bottom: 35px;
+            font-size: 1.1rem;
+            font-weight: 400;
         }
         
         .login-form {
@@ -185,18 +233,18 @@
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 600;
             color: var(--secondary);
             font-size: 0.95rem;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
         
         .form-group label i {
@@ -206,25 +254,27 @@
         
         .form-input {
             width: 100%;
-            padding: 14px 15px;
+            padding: 16px 18px;
             border: 2px solid #e1e5e9;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1rem;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             background-color: rgba(255, 255, 255, 0.9);
             font-family: inherit;
+            color: var(--dark);
         }
         
         .form-input:focus {
             border-color: var(--primary);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+            box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
             background-color: white;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
         }
         
-        .form-input:hover {
+        .form-input:hover:not(:focus) {
             border-color: #c1c7cd;
+            background-color: rgba(255, 255, 255, 0.95);
         }
         
         .form-input::placeholder {
@@ -243,50 +293,55 @@
         .input-icon i {
             position: absolute;
             top: 50%;
-            left: 15px;
+            left: 18px;
             transform: translateY(-50%);
             color: var(--gray);
+            transition: color 0.3s ease;
         }
         
         .input-icon input {
-            padding-left: 40px;
+            padding-left: 50px;
+        }
+        
+        .input-icon input:focus + i {
+            color: var(--primary);
         }
         
         .input-icon input[type="password"],
         .input-icon input[type="text"]:not(#username) {
-            padding-right: 55px;
+            padding-right: 60px;
         }
         
         /* Específico para el campo de contraseña */
         #password {
-            padding-right: 55px !important;
+            padding-right: 60px !important;
         }
         
-        <!-- Botón para mostrar/ocultar contraseña */
         .toggle-password {
             position: absolute;
             top: 50%;
-            right: 12px;
+            right: 15px;
             transform: translateY(-50%);
             background: none;
             border: none;
             color: var(--gray);
             cursor: pointer;
-            padding: 8px;
+            padding: 10px;
             font-size: 16px;
-            transition: color 0.3s ease;
-            border-radius: 4px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 6px;
             z-index: 10;
         }
         
         .toggle-password:hover {
             color: var(--primary);
-            background-color: rgba(0, 0, 0, 0.05);
+            background-color: rgba(30, 58, 138, 0.1);
+            transform: translateY(-50%) scale(1.1);
         }
         
         .toggle-password:focus {
             outline: 2px solid var(--primary);
-            outline-offset: 1px;
+            outline-offset: 2px;
         }
         
         .toggle-password:active {
@@ -297,99 +352,128 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         
         .remember-me {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .remember-me:hover {
+            color: var(--primary);
         }
         
         .remember-me input {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             accent-color: var(--primary);
+            cursor: pointer;
         }
         
         .forgot-password {
             color: var(--primary);
             text-decoration: none;
             font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
         
         .forgot-password:hover {
             text-decoration: underline;
+            color: var(--primary-dark);
         }
         
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 16px;
             border: none;
             border-radius: var(--radius);
-            font-size: 1rem;
-            font-weight: 500;
+            font-size: 1.05rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             justify-content: center;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
         }
         
         .btn-primary {
             background-color: var(--primary);
             color: white;
+            box-shadow: var(--shadow-md);
         }
         
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             background-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(-1px);
         }
         
         .btn-primary:disabled {
             background-color: var(--gray);
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
         
         .user-type-selector {
             display: flex;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             border-radius: var(--radius);
             overflow: hidden;
             border: 1px solid #ddd;
+            background-color: #f8f9fa;
         }
         
         .user-type-option {
             flex: 1;
-            padding: 12px;
+            padding: 14px 16px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
-            background-color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: transparent;
             color: var(--gray);
+            font-weight: 500;
+            position: relative;
         }
         
         .user-type-option.active {
             background-color: var(--primary);
             color: white;
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-1px);
         }
         
         .user-type-option:first-child {
             border-right: 1px solid #ddd;
         }
         
+        .user-type-option:hover:not(.active) {
+            background-color: rgba(30, 58, 138, 0.1);
+            color: var(--primary);
+        }
+        
         .error-message {
             color: var(--danger);
             font-size: 0.9rem;
-            margin-top: 5px;
+            margin-top: 8px;
             display: none;
-            padding: 8px;
+            padding: 12px;
             background-color: rgba(231, 76, 60, 0.1);
             border-radius: var(--radius);
-            border-left: 3px solid var(--danger);
+            border-left: 4px solid var(--danger);
+            animation: slideIn 0.3s ease;
         }
         
         .error-message.show {
@@ -399,41 +483,53 @@
         .success-message {
             color: var(--primary-light);
             font-size: 0.9rem;
-            margin-top: 5px;
+            margin-top: 8px;
             display: none;
-            padding: 8px;
+            padding: 12px;
             background-color: rgba(46, 204, 113, 0.1);
             border-radius: var(--radius);
-            border-left: 3px solid var(--primary-light);
+            border-left: 4px solid var(--primary-light);
+            animation: slideIn 0.3s ease;
         }
         
         .success-message.show {
             display: block;
         }
         
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
         .info-message {
             background-color: rgba(52, 152, 219, 0.1);
-            border-left: 3px solid var(--info);
-            padding: 10px 15px;
+            border-left: 4px solid var(--info);
+            padding: 15px 18px;
             border-radius: var(--radius);
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             font-size: 0.9rem;
             color: var(--info);
         }
         
         .credentials-hint {
             background-color: rgba(243, 156, 18, 0.1);
-            border-left: 3px solid var(--warning);
-            padding: 10px 15px;
+            border-left: 4px solid var(--warning);
+            padding: 15px 18px;
             border-radius: var(--radius);
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             font-size: 0.85rem;
             color: #b7950b;
         }
         
         .credentials-hint strong {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
         
         .loader-container {
@@ -442,14 +538,15 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
             visibility: hidden;
             opacity: 0;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
         
         .loader-container.show {
@@ -472,20 +569,8 @@
             }
         }
         
-        @keyframes float {
-            0% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-20px);
-            }
-            100% {
-                transform: translateY(0px);
-            }
-        }
-        
         footer {
-            margin-top: 30px;
+            margin-top: 40px;
             text-align: center;
             font-size: 14px;
             color: var(--secondary);
@@ -496,9 +581,9 @@
         footer a {
             color: var(--primary);
             text-decoration: none;
-            margin: 0 10px;
+            margin: 0 12px;
             font-weight: 500;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
         
         footer a:hover {
@@ -508,27 +593,53 @@
         
         @media (max-width: 480px) {
             .login-container {
-                padding: 30px;
+                padding: 30px 25px;
+                margin-top: 100px;
             }
             
             .login-title {
-                font-size: 1.5rem;
+                font-size: 1.7rem;
             }
             
             .form-options {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 10px;
+                gap: 12px;
             }
             
             .top-bar {
-                padding: 8px 15px;
+                padding: 10px 18px;
             }
             
             .bg-shapes .shape {
-                opacity: 0.3;
-                filter: blur(40px);
+                opacity: 0.25;
+                filter: blur(60px);
             }
+        }
+        
+        /* Mejoras adicionales de micro-interacciones */
+        .form-input:focus {
+            box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1), 0 8px 16px rgba(30, 58, 138, 0.1);
+        }
+        
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
         }
     </style>
 </head>
@@ -589,8 +700,8 @@
                     Usuario / Email
                 </label>
                 <div class="input-icon">
-                    <i class="fas fa-envelope"></i>
                     <input type="text" id="username" class="form-input" placeholder="Ingresa tu email o nombre de usuario" required>
+                    <i class="fas fa-envelope"></i>
                 </div>
                 <div class="error-message" id="usernameError">Por favor ingresa un nombre de usuario válido</div>
             </div>
@@ -601,8 +712,8 @@
                     Contraseña
                 </label>
                 <div class="input-icon">
-                    <i class="fas fa-lock"></i>
                     <input type="password" id="password" class="form-input" placeholder="Ingresa tu contraseña" required>
+                    <i class="fas fa-lock"></i>
                     <button type="button" id="togglePassword" class="toggle-password" aria-label="Mostrar contraseña" title="Mostrar contraseña">
                         <i class="fas fa-eye"></i>
                     </button>
@@ -641,13 +752,6 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Animación de formas de fondo
-            const shapes = document.querySelectorAll('.shape');
-            shapes.forEach((shape, index) => {
-                shape.style.animation = `float ${3 + index * 0.5}s ease-in-out infinite`;
-                shape.style.animationDelay = `${index * 0.2}s`;
-            });
-            
             // Limpiar datos de sesión anteriores
             clearSessionData();
             
@@ -729,35 +833,18 @@
                 const infoText = document.getElementById('infoText');
                 
                 dynamicInfo.style.display = 'block';
-                credentialsHint.style.display = 'block';
                 
                 if (type === 'admin') {
                     infoText.textContent = 'Modo Administrador: Acceso completo al sistema de gestión.';
-                    hintContent.innerHTML = `
-                        <div>🔧 <strong>Panel de Administración</strong></div>
-                        <div>Gestión completa de paquetes, residentes y configuración del sistema.</div>
-                    `;
+                    credentialsHint.style.display = 'none';
                 } else {
                     const residents = getAvailableResidents();
                     if (residents.length > 0) {
-                        const example = residents[0];
                         infoText.textContent = 'Modo Residente: Acceso a tu panel personal de paquetes.';
-                        hintContent.innerHTML = `
-                            <div><strong>Ejemplo de credenciales creadas:</strong></div>
-                            <div>📧 <strong>Email:</strong> ${example.email}</div>
-                            <div>🔑 <strong>Contraseña:</strong> ${example.passwordHint}</div>
-                            <div style="margin-top: 5px; font-size: 0.8rem;">
-                                <i class="fas fa-info-circle"></i> 
-                                Las credenciales son generadas automáticamente desde Configuración
-                            </div>
-                        `;
                     } else {
                         infoText.textContent = 'No hay residentes registrados. Contacta al administrador.';
-                        hintContent.innerHTML = `
-                            <div>❌ <strong>No hay residentes registrados</strong></div>
-                            <div>Solicita al administrador crear tu cuenta desde el panel de configuración.</div>
-                        `;
                     }
+                    credentialsHint.style.display = 'none';
                 }
             }
             
