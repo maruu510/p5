@@ -949,7 +949,7 @@
             </div>
             <div class="credential-item">
               <span class="credential-label">Panel de Acceso:</span>
-              <span class="credential-value">residente.html</span>
+              <span class="credential-value">/resident/dashboard_resident.html</span>
             </div>
             <small style="color: var(--warning); margin-top: 10px; display: block;">
               <i class="fas fa-exclamation-triangle"></i>
@@ -1004,8 +1004,8 @@
             <div class="credential-item">
               <span class="credential-label">URL de Acceso:</span>
               <span class="credential-value">
-                <a href="residente.html" target="_blank" style="color: var(--primary);">
-                  residente.html
+                <a href="/resident/dashboard_resident.html" target="_blank" style="color: var(--primary);">
+                  /resident/dashboard_resident.html
                 </a>
               </span>
             </div>
@@ -1498,7 +1498,7 @@
         }));
         
         // Abrir panel de residente en nueva pestaña
-        window.open('residente.html', '_blank');
+        window.open('/resident/dashboard_resident.html', '_blank');
         
         showToast('success', 'Abriendo panel de residente...');
         closeLoginCredentialsModal();
@@ -1525,7 +1525,7 @@
         Teléfono: ${resident.phone || 'No especificado'}
         Estado: ${resident.status === 'active' ? 'Activo' : 'Inactivo'}
         Usuario: ${resident.email}
-        Acceso: Panel de Residente (residente.html)
+        Acceso: Panel de Residente (/resident/dashboard_resident.html)
       `);
     }
     

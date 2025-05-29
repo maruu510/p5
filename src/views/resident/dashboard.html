@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Residente - Sistema de Gestión de Paquetes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #27ae60;
+            --primary-dark: #145a32;
+            --primary-light: #2ecc71;
+            --secondary: #2c3e50;
+            --accent: #3498db;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --success: #27ae60;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .welcome-banner {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .packages-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .packages-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .packages-table th,
+        .packages-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .packages-table th {
+            background-color: var(--light);
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar .logo span {
+                display: none;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="logo">
+                    <img src="../images/favicon1.svg" alt="Logo">
+                    <span>PackTrack</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="header">
+                <h1 class="page-title">Panel de Residente</h1>
+                <div class="user-info">
+                    <span id="userName">Cargando...</span>
+                </div>
+            </div>
+            
+            <div class="welcome-banner">
+                <h2>Bienvenido a tu Panel de Residente</h2>
+                <p>Aquí podrás ver todos tus paquetes y notificaciones.</p>
+            </div>
+            
+            <div class="packages-section">
+                <h3>Mis Paquetes</h3>
+                <table class="packages-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Remitente</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="packagesTableBody">
+                        <!-- Los paquetes se cargarán dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Cargar información del usuario
+        document.addEventListener('DOMContentLoaded', function() {
+            const storedUser = localStorage.getItem('currentResident');
+            if (storedUser) {
+                const user = JSON.parse(storedUser);
+                document.getElementById('userName').textContent = user.name;
+            }
+        });
+    </script>
+</body>
+</html>

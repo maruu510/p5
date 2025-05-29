@@ -12,6 +12,49 @@ import { MultiNotifier } from "../services/notifications/MultiNotifier.ts";
 import { getUserByUsername } from "../auth/models/user.ts";
 
 const notificationService = new NotificationService(new MultiNotifier());
+let clients = new Set<any>();
+
+export async function handlePackageEvents(ctx: RouterContext) {
+  const target = ctx.request.serverRequest.target;
+  if (target === '/api/packages/events') {
+    const headers = new Headers({
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    });
+
+    const body = new ReadableStream({
+      start(controller) {
+        // Guardar el controlador para enviar eventos
+        const client = { controller };
+        clients.add(client);
+
+        // Eliminar cliente cuando se cierra la conexión
+        ctx.request.serverRequest.raw.on('close', () => {
+          clients.delete(client);
+        });
+      }
+    });
+
+    ctx.response.body = body;
+    ctx.response.headers = headers;
+  }
+}
+
+// Función para enviar eventos a todos los clientes conectados
+export function sendEventToClients(data: any) {
+  const eventData = `data: ${JSON.stringify(data)}\n\n`;
+  for (const client of clients) {
+    try {
+      client.controller.enqueue(new TextEncoder().encode(eventData));
+    } catch (error) {
+      console.error('Error enviando evento:', error);
+      clients.delete(client);
+    }
+  }
+}
+
+// Modificar la función registerPackage para enviar eventos
 export async function registerPackage(ctx: RouterContext) {
   try {
     const body = await ctx.request.body().value;
@@ -21,20 +64,22 @@ export async function registerPackage(ctx: RouterContext) {
     const user = await getUserByUsername(body.apartment_number);
     if (user) {
       await notificationService.notifyPackageArrival(user, result.id.toString());
+      
+      // Enviar evento SSE
+      sendEventToClients({
+        type: 'new_package',
+        package: result,
+        residentId: user.id
+      });
     }
-    
-    ctx.response.body = result;
+
     ctx.response.status = 201;
+    ctx.response.body = result;
   } catch (error) {
-    ctx.response.status = error.name === "ValidationError" ? 400 : 500;
-    ctx.response.body = { 
-      error: error.message,
-      type: error.name
-    };
+    ctx.response.status = 500;
+    ctx.response.body = { error: error.message };
   }
 }
-
-
 
 export async function updatePackageStatus(ctx: RouterContext) {
   try {
@@ -74,7 +119,16 @@ export async function updatePackageStatus(ctx: RouterContext) {
 }
 export async function getPackages(ctx: RouterContext) {
   try {
-    const packages = await getAllPackages();
+    let packages;
+    const userRole = ctx.state.user?.role;
+    const userApartment = ctx.state.user?.username; // El username es el número de apartamento
+
+    if (userRole === "resident") {
+      packages = await getPackagesByApartment(userApartment);
+    } else {
+      packages = await getAllPackages(); // Administradores ven todos los paquetes
+    }
+
     ctx.response.body = packages;
     ctx.response.status = 200;
   } catch (error) {

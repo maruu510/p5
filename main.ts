@@ -42,7 +42,7 @@ app.use(async (ctx, next) => {
 // Middleware para servir archivos estáticos
 app.use(async (ctx, next) => {
   const path = ctx.request.url.pathname;
-  if (path.startsWith("/styles") || path.startsWith("/images") || path.endsWith(".html")) {
+  if (path.startsWith("/styles") || path.startsWith("/images") || path.endsWith(".html") || path.startsWith("/resident/")) {
     await send(ctx, path, {
       root: join(Deno.cwd(), "src", "views"),
     });

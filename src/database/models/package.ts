@@ -113,11 +113,26 @@ export async function updateStatusById(id: number, status: string, pickup_date: 
   }
 }
 
+// Función para obtener paquetes por número de apartamento
+async function getPackagesByApartment(apartment_number: string): Promise<Package[]> {
+  const client = await pool.connect();
+  try {
+    const result = await client.queryObject<Package>(
+      "SELECT * FROM packages WHERE apartment_number = $1 ORDER BY delivery_date DESC",
+      [apartment_number]
+    );
+    return result.rows;
+  } finally {
+    client.release();
+  }
+}
+
 export {
   createPackagesTable,
   insertPackage,
   getAllPackages,
   getPackageById,
+  getPackagesByApartment,  // Exportar la nueva función
 };
 
 export type { Package };

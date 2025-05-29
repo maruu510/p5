@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Iniciar Sesión - Sistema de Gestión de Paquetes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -591,29 +591,83 @@
             text-decoration: underline;
         }
         
-        @media (max-width: 480px) {
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                min-height: 100vh;
+                min-height: -webkit-fill-available;
+            }
+
             .login-container {
-                padding: 30px 25px;
-                margin-top: 100px;
+                width: 100%;
+                margin: 50px auto 20px;
+                padding: 20px;
+                max-width: none;
             }
             
-            .login-title {
-                font-size: 1.7rem;
+            .form-input {
+                font-size: 16px;
+                min-height: 44px;
+                padding: 12px 14px;
             }
-            
+
             .form-options {
                 flex-direction: column;
+                gap: 15px;
                 align-items: flex-start;
-                gap: 12px;
             }
-            
+
+            .user-type-selector {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .user-type-option {
+                width: 100%;
+                padding: 15px;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+            }
+
             .top-bar {
-                padding: 10px 18px;
+                position: absolute;
+                padding: 8px 15px;
             }
-            
+
             .bg-shapes .shape {
-                opacity: 0.25;
-                filter: blur(60px);
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            .login-container {
+                margin-top: 40px;
+                padding: 15px;
+            }
+
+            .login-logo img {
+                height: 50px;
+            }
+
+            .login-title {
+                font-size: 1.5rem;
+            }
+
+            .login-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .form-group label {
+                font-size: 0.9rem;
+            }
+
+            .btn {
+                padding: 12px;
+                font-size: 1rem;
             }
         }
         
@@ -970,7 +1024,7 @@
                         success: true,
                         user: user,
                         resident: resident,
-                        redirectUrl: 'residente.html'
+                        redirectUrl: '/resident/dashboard_resident.html'
                     };
                     
                 } catch (error) {
