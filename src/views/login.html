@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - Sistema de Gestión de Paquetes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -23,8 +23,8 @@
             --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
             --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15), 0 10px 10px rgba(0, 0, 0, 0.04);
-            --radius: 5px;
-            --radius-lg: 10px;
+            --radius: 8px;
+            --radius-lg: 16px;
         }
         
         * {
@@ -39,11 +39,12 @@
             background-color: #f5f7fb;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             padding: 20px;
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
         
         /* Fondo multicolor con formas y colores del dashboard mejoradas */
@@ -130,31 +131,33 @@
             right: 0;
             background-color: var(--secondary);
             color: white;
-            padding: 12px 24px;
+            padding: 16px 28px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-shadow: var(--shadow-md);
             z-index: 100;
             backdrop-filter: blur(10px);
+            height: 72px;
         }
         
         .top-bar-left {
             display: flex;
             align-items: center;
             font-weight: 600;
+            font-size: 1.1rem;
         }
         
         .top-bar-left img {
-            height: 40px;
-            margin-right: 20px;
+            height: 48px;
+            margin-right: 24px;
             width: auto;
         }
          
         .top-bar-right {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 18px;
         }
         
         .login-container {
@@ -163,9 +166,11 @@
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-xl);
             width: 100%;
-            max-width: 450px;
-            padding: 40px;
-            margin-top: 80px;
+            max-width: 800px;
+            min-width: 600px;
+            padding: 40px 60px;
+            margin-top: 100px;
+            margin-bottom: 40px;
             text-align: center;
             position: relative;
             z-index: 10;
@@ -191,7 +196,7 @@
         }
         
         .login-logo {
-            margin-bottom: 35px;
+            margin-bottom: 30px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -214,7 +219,7 @@
         
         .login-title {
             color: var(--primary);
-            font-size: 2rem;
+            font-size: 2.4rem;
             margin-bottom: 12px;
             font-weight: 700;
             letter-spacing: -0.5px;
@@ -223,51 +228,54 @@
         
         .login-subtitle {
             color: var(--gray);
-            margin-bottom: 35px;
-            font-size: 1.1rem;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
             font-weight: 400;
         }
         
         .login-form {
             text-align: left;
+            max-width: 500px;
+            margin: 0 auto;
         }
         
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 28px;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-weight: 600;
             color: var(--secondary);
-            font-size: 0.95rem;
+            font-size: 1rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
         
         .form-group label i {
             color: var(--primary);
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
         
         .form-input {
             width: 100%;
-            padding: 16px 18px;
+            padding: 20px 22px;
             border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 1rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             background-color: rgba(255, 255, 255, 0.9);
             font-family: inherit;
             color: var(--dark);
+            line-height: 1.4;
         }
         
         .form-input:focus {
             border-color: var(--primary);
             outline: none;
-            box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
+            box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1), 0 8px 16px rgba(30, 58, 138, 0.1);
             background-color: white;
             transform: translateY(-2px);
         }
@@ -293,14 +301,15 @@
         .input-icon i {
             position: absolute;
             top: 50%;
-            left: 18px;
+            left: 20px;
             transform: translateY(-50%);
             color: var(--gray);
             transition: color 0.3s ease;
+            font-size: 1.1rem;
         }
         
         .input-icon input {
-            padding-left: 50px;
+            padding-left: 58px;
         }
         
         .input-icon input:focus + i {
@@ -309,28 +318,33 @@
         
         .input-icon input[type="password"],
         .input-icon input[type="text"]:not(#username) {
-            padding-right: 60px;
+            padding-right: 70px;
         }
         
         /* Específico para el campo de contraseña */
         #password {
-            padding-right: 60px !important;
+            padding-right: 70px !important;
         }
         
         .toggle-password {
             position: absolute;
             top: 50%;
-            right: 15px;
+            right: 18px;
             transform: translateY(-50%);
             background: none;
             border: none;
             color: var(--gray);
             cursor: pointer;
-            padding: 10px;
-            font-size: 16px;
+            padding: 12px;
+            font-size: 18px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 6px;
+            border-radius: 8px;
             z-index: 10;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .toggle-password:hover {
@@ -352,15 +366,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
         }
         
         .remember-me {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             cursor: pointer;
             transition: color 0.3s ease;
+            font-size: 1rem;
         }
         
         .remember-me:hover {
@@ -368,8 +385,8 @@
         }
         
         .remember-me input {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             accent-color: var(--primary);
             cursor: pointer;
         }
@@ -377,7 +394,7 @@
         .forgot-password {
             color: var(--primary);
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 500;
             transition: all 0.3s ease;
         }
@@ -389,19 +406,20 @@
         
         .btn {
             width: 100%;
-            padding: 16px;
+            padding: 20px 24px;
             border: none;
-            border-radius: var(--radius);
-            font-size: 1.05rem;
+            border-radius: 12px;
+            font-size: 1.15rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             justify-content: center;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             position: relative;
             overflow: hidden;
+            min-height: 56px;
         }
         
         .btn-primary {
@@ -429,23 +447,32 @@
         
         .user-type-selector {
             display: flex;
-            margin-bottom: 25px;
-            border-radius: var(--radius);
+            margin-bottom: 28px;
+            border-radius: 12px;
             overflow: hidden;
-            border: 1px solid #ddd;
+            border: 2px solid #e1e5e9;
             background-color: #f8f9fa;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .user-type-option {
             flex: 1;
-            padding: 14px 16px;
+            padding: 18px 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             background-color: transparent;
             color: var(--gray);
-            font-weight: 500;
+            font-weight: 600;
             position: relative;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-height: 60px;
         }
         
         .user-type-option.active {
@@ -466,10 +493,10 @@
         
         .error-message {
             color: var(--danger);
-            font-size: 0.9rem;
-            margin-top: 8px;
+            font-size: 1rem;
+            margin-top: 10px;
             display: none;
-            padding: 12px;
+            padding: 14px 16px;
             background-color: rgba(231, 76, 60, 0.1);
             border-radius: var(--radius);
             border-left: 4px solid var(--danger);
@@ -482,10 +509,10 @@
         
         .success-message {
             color: var(--primary-light);
-            font-size: 0.9rem;
-            margin-top: 8px;
+            font-size: 1rem;
+            margin-top: 10px;
             display: none;
-            padding: 12px;
+            padding: 14px 16px;
             background-color: rgba(46, 204, 113, 0.1);
             border-radius: var(--radius);
             border-left: 4px solid var(--primary-light);
@@ -510,26 +537,44 @@
         .info-message {
             background-color: rgba(52, 152, 219, 0.1);
             border-left: 4px solid var(--info);
-            padding: 15px 18px;
+            padding: 16px 18px;
             border-radius: var(--radius);
-            margin-bottom: 25px;
-            font-size: 0.9rem;
+            margin-bottom: 24px;
+            font-size: 1rem;
             color: var(--info);
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .credentials-hint {
             background-color: rgba(243, 156, 18, 0.1);
             border-left: 4px solid var(--warning);
-            padding: 15px 18px;
+            padding: 16px 18px;
             border-radius: var(--radius);
-            margin-bottom: 25px;
-            font-size: 0.85rem;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
             color: #b7950b;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.5;
         }
         
         .credentials-hint strong {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            color: #8e7706;
+        }
+        
+        .credentials-hint code {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #7a6b05;
+            font-weight: 600;
         }
         
         .loader-container {
@@ -555,9 +600,9 @@
         }
         
         .loader {
-            width: 50px;
-            height: 50px;
-            border: 5px solid var(--info);
+            width: 56px;
+            height: 56px;
+            border: 6px solid var(--info);
             border-radius: 50%;
             border-top-color: var(--primary);
             animation: spin 1s linear infinite;
@@ -570,18 +615,19 @@
         }
         
         footer {
-            margin-top: 40px;
+            margin-top: 30px;
             text-align: center;
-            font-size: 14px;
+            font-size: 15px;
             color: var(--secondary);
             position: relative;
             z-index: 10;
+            line-height: 1.6;
         }
         
         footer a {
             color: var(--primary);
             text-decoration: none;
-            margin: 0 12px;
+            margin: 0 14px;
             font-weight: 500;
             transition: all 0.3s ease;
         }
@@ -591,91 +637,116 @@
             text-decoration: underline;
         }
         
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-                min-height: 100vh;
-                min-height: -webkit-fill-available;
-            }
-
+        @media (max-width: 1024px) {
             .login-container {
-                width: 100%;
-                margin: 50px auto 20px;
-                padding: 20px;
-                max-width: none;
+                max-width: 600px;
+                min-width: 500px;
+                padding: 36px 48px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .login-container {
+                max-width: 500px;
+                min-width: 400px;
+                padding: 32px 36px;
+            }
+            
+            .login-title {
+                font-size: 2.1rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .login-container {
+                padding: 28px 24px;
+                margin-top: 100px;
+                max-width: 420px;
+                min-width: 300px;
+            }
+            
+            .login-title {
+                font-size: 1.9rem;
+            }
+            
+            .form-options {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .top-bar {
+                padding: 12px 20px;
+                height: 64px;
+            }
+            
+            .top-bar-left img {
+                height: 40px;
+                margin-right: 16px;
+            }
+            
+            .top-bar-left {
+                font-size: 1rem;
+            }
+            
+            .bg-shapes .shape {
+                opacity: 0.25;
+                filter: blur(60px);
+            }
+            
+            .user-type-option {
+                flex-direction: column;
+                gap: 6px;
+                font-size: 0.95rem;
+                padding: 16px 12px;
             }
             
             .form-input {
-                font-size: 16px;
-                min-height: 44px;
-                padding: 12px 14px;
+                padding: 18px 20px;
+                font-size: 1.05rem;
             }
-
-            .form-options {
-                flex-direction: column;
-                gap: 15px;
-                align-items: flex-start;
+            
+            .input-icon input {
+                padding-left: 54px;
             }
-
-            .user-type-selector {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            .user-type-option {
-                width: 100%;
-                padding: 15px;
-                border-right: none;
-                border-bottom: 1px solid #ddd;
-            }
-
-            .top-bar {
-                position: absolute;
-                padding: 8px 15px;
-            }
-
-            .bg-shapes .shape {
-                display: none;
+            
+            .btn {
+                padding: 18px 20px;
+                font-size: 1.1rem;
             }
         }
-
+        
         @media (max-width: 480px) {
-            body {
-                padding: 5px;
-            }
-
             .login-container {
-                margin-top: 40px;
-                padding: 15px;
+                padding: 24px 20px;
+                max-width: 380px;
+                min-width: 280px;
             }
-
+            
             .login-logo img {
-                height: 50px;
+                height: 80px;
             }
-
+            
             .login-title {
-                font-size: 1.5rem;
+                font-size: 1.7rem;
             }
-
-            .login-subtitle {
-                font-size: 0.9rem;
-            }
-
-            .form-group label {
-                font-size: 0.9rem;
-            }
-
-            .btn {
-                padding: 12px;
+            
+            .form-input {
+                padding: 16px 18px;
                 font-size: 1rem;
+            }
+            
+            .input-icon input {
+                padding-left: 50px;
+            }
+            
+            .btn {
+                padding: 16px 18px;
+                font-size: 1.05rem;
             }
         }
         
         /* Mejoras adicionales de micro-interacciones */
-        .form-input:focus {
-            box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1), 0 8px 16px rgba(30, 58, 138, 0.1);
-        }
-        
         .btn-primary {
             position: relative;
             overflow: hidden;
@@ -726,10 +797,12 @@
         <!-- Selector de tipo de usuario -->
         <div class="user-type-selector">
             <div class="user-type-option active" data-type="admin">
-                <i class="fas fa-user-shield"></i> Administrador
+                <i class="fas fa-user-shield"></i> 
+                <span>Administrador</span>
             </div>
             <div class="user-type-option" data-type="resident">
-                <i class="fas fa-user"></i> Residente
+                <i class="fas fa-user"></i> 
+                <span>Residente</span>
             </div>
         </div>
         
@@ -895,10 +968,19 @@
                     const residents = getAvailableResidents();
                     if (residents.length > 0) {
                         infoText.textContent = 'Modo Residente: Acceso a tu panel personal de paquetes.';
+                        credentialsHint.style.display = 'block';
+                        hintContent.innerHTML = `
+                            <strong>Residentes de prueba disponibles:</strong><br>
+                            📧 <strong>test@email.com</strong> - Contraseña: <code>test123</code> (Depto 404)<br>
+                            📧 <strong>maria.gonzalez@email.com</strong> - Contraseña: <code>maria101</code> (Depto 101)<br>
+                            📧 <strong>carlos.rodriguez@email.com</strong> - Contraseña: <code>carlos202</code> (Depto 202)<br>
+                            📧 <strong>ana.martinez@email.com</strong> - Contraseña: <code>ana303</code> (Depto 303)<br><br>
+                            <small>💡 Si tienes problemas, abre la consola del navegador (F12) para ver logs de debug.</small>
+                        `;
                     } else {
                         infoText.textContent = 'No hay residentes registrados. Contacta al administrador.';
+                        credentialsHint.style.display = 'none';
                     }
-                    credentialsHint.style.display = 'none';
                 }
             }
             
@@ -950,19 +1032,188 @@
                     };
                     localStorage.setItem('currentUser', JSON.stringify(adminUser));
                 }
+                
+                // Verificar si existen residentes de prueba específicos
+                const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+                const testUserExists = existingUsers.some(u => u.email === 'test@email.com' || u.email === 'maria.gonzalez@email.com');
+                
+                if (!testUserExists) {
+                    console.log('🔧 Creando residentes de prueba...');
+                    
+                    const testUsers = [
+                        {
+                            id: 'resident_001',
+                            email: 'maria.gonzalez@email.com',
+                            username: 'maria.gonzalez',
+                            password: btoa('maria101'), // contraseña: maria101
+                            role: 'resident',
+                            active: true,
+                            name: 'María',
+                            lastname: 'González',
+                            department: '101',
+                            phone: '+56 9 8765 4321',
+                            created_at: new Date().toISOString()
+                        },
+                        {
+                            id: 'resident_002',
+                            email: 'carlos.rodriguez@email.com',
+                            username: 'carlos.rodriguez',
+                            password: btoa('carlos202'), // contraseña: carlos202
+                            role: 'resident',
+                            active: true,
+                            name: 'Carlos',
+                            lastname: 'Rodríguez',
+                            department: '202',
+                            phone: '+56 9 7654 3210',
+                            created_at: new Date().toISOString()
+                        },
+                        {
+                            id: 'resident_003',
+                            email: 'ana.martinez@email.com',
+                            username: 'ana.martinez',
+                            password: btoa('ana303'), // contraseña: ana303
+                            role: 'resident',
+                            active: true,
+                            name: 'Ana',
+                            lastname: 'Martínez',
+                            department: '303',
+                            phone: '+56 9 6543 2109',
+                            created_at: new Date().toISOString()
+                        },
+                        {
+                            id: 'resident_004',
+                            email: 'test@email.com',
+                            username: 'test',
+                            password: btoa('test123'), // contraseña: test123
+                            role: 'resident',
+                            active: true,
+                            name: 'Usuario',
+                            lastname: 'Prueba',
+                            department: '404',
+                            phone: '+56 9 1234 5678',
+                            created_at: new Date().toISOString()
+                        }
+                    ];
+                    
+                    const testResidents = [
+                        {
+                            id: 'resident_001',
+                            name: 'María',
+                            lastname: 'González',
+                            email: 'maria.gonzalez@email.com',
+                            phone: '+56 9 8765 4321',
+                            department: '101',
+                            tower: 'A',
+                            building_id: 'edificio_001',
+                            active: true,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        },
+                        {
+                            id: 'resident_002',
+                            name: 'Carlos',
+                            lastname: 'Rodríguez',
+                            email: 'carlos.rodriguez@email.com',
+                            phone: '+56 9 7654 3210',
+                            department: '202',
+                            tower: 'A',
+                            building_id: 'edificio_001',
+                            active: true,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        },
+                        {
+                            id: 'resident_003',
+                            name: 'Ana',
+                            lastname: 'Martínez',
+                            email: 'ana.martinez@email.com',
+                            phone: '+56 9 6543 2109',
+                            department: '303',
+                            tower: 'B',
+                            building_id: 'edificio_001',
+                            active: true,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        },
+                        {
+                            id: 'resident_004',
+                            name: 'Usuario',
+                            lastname: 'Prueba',
+                            email: 'test@email.com',
+                            phone: '+56 9 1234 5678',
+                            department: '404',
+                            tower: 'B',
+                            building_id: 'edificio_001',
+                            active: true,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        }
+                    ];
+                    
+                    // Combinar usuarios existentes con usuarios de prueba
+                    const allUsers = [...existingUsers, ...testUsers];
+                    const existingResidents = JSON.parse(localStorage.getItem('residents') || '[]');
+                    const allResidents = [...existingResidents, ...testResidents];
+                    
+                    // Guardar todos los usuarios y residentes
+                    localStorage.setItem('users', JSON.stringify(allUsers));
+                    localStorage.setItem('residents', JSON.stringify(allResidents));
+                    
+                    console.log('✅ Residentes de prueba creados automáticamente');
+                    console.log('📊 Total usuarios:', allUsers.length);
+                    console.log('📊 Total residentes:', allResidents.length);
+                } else {
+                    console.log('✅ Residentes de prueba ya existen');
+                }
+                
+                // Debug: Mostrar usuarios disponibles
+                const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+                const residents = allUsers.filter(u => u.role === 'resident' && u.active);
+                console.log('🏠 Residentes activos disponibles:', residents.map(r => ({
+                    email: r.email,
+                    name: r.name,
+                    department: r.department
+                })));
             }
             
             // Función principal de autenticación
-            function authenticateUser(username, password, type) {
+            async function authenticateUser(username, password, type) {
                 if (type === 'admin') {
-                    return authenticateAdmin(username, password);
+                    return await authenticateAdmin(username, password);
                 } else {
-                    return authenticateResident(username, password);
+                    return await authenticateResident(username, password);
                 }
             }
             
             // Función para autenticar administrador
-            function authenticateAdmin(username, password) {
+            async function authenticateAdmin(username, password) {
+                try {
+                    // Intentar autenticación con el backend
+                    const response = await fetch('http://localhost:8003/api/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            username: username,
+                            password: password,
+                            role: 'admin'
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        return {
+                            success: true,
+                            user: data.user,
+                            redirectUrl: 'dashboard.html'
+                        };
+                    }
+                } catch (error) {
+                    console.log('🔄 API no disponible, usando autenticación local');
+                }
+
+                // Fallback a autenticación local si la API no está disponible
                 const validCredentials = {
                     username: 'Admin@gmail.com',
                     password: 'admin12345'
@@ -985,10 +1236,43 @@
             }
             
             // Función para autenticar residente
-            function authenticateResident(username, password) {
+            async function authenticateResident(username, password) {
+                try {
+                    // Intentar autenticación con el backend
+                    const response = await fetch('http://localhost:8003/api/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            username: username,
+                            password: password,
+                            role: 'resident'
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        return {
+                            success: true,
+                            user: data.user,
+                            resident: data.resident || data.user,
+                            redirectUrl: 'residente.html'
+                        };
+                    } else {
+                        const errorData = await response.json();
+                        console.log('❌ Error de API:', errorData.message);
+                    }
+                } catch (error) {
+                    console.log('🔄 API no disponible, usando autenticación local:', error.message);
+                }
+
+                // Fallback a autenticación local
                 try {
                     const users = JSON.parse(localStorage.getItem('users') || '[]');
                     const residents = JSON.parse(localStorage.getItem('residents') || '[]');
+                    
+                    console.log('🔍 Buscando usuario en localStorage:', username);
                     
                     // Buscar usuario por email o username
                     const user = users.find(u => 
@@ -999,6 +1283,7 @@
                     );
                     
                     if (!user) {
+                        console.log('❌ Usuario no encontrado en localStorage');
                         return { success: false, message: 'Usuario no encontrado o cuenta inactiva' };
                     }
                     
@@ -1007,7 +1292,7 @@
                     try {
                         storedPassword = atob(user.password);
                     } catch (e) {
-                        storedPassword = user.password; // Si no está en base64
+                        storedPassword = user.password;
                     }
                     
                     if (password !== storedPassword) {
@@ -1024,11 +1309,11 @@
                         success: true,
                         user: user,
                         resident: resident,
-                        redirectUrl: '/resident/dashboard_resident.html'
+                        redirectUrl: 'residente.html'
                     };
                     
                 } catch (error) {
-                    console.error('Error en autenticación de residente:', error);
+                    console.error('💥 Error en autenticación local:', error);
                     return { success: false, message: 'Error interno de autenticación' };
                 }
             }
@@ -1075,7 +1360,7 @@
             }
             
             // Manejar envío del formulario
-            loginForm.addEventListener('submit', function(e) {
+            loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 // Resetear mensajes
@@ -1100,9 +1385,9 @@
                 loginBtn.disabled = true;
                 loader.classList.add('show');
                 
-                // Simular tiempo de autenticación
-                setTimeout(() => {
-                    const authResult = authenticateUser(username, password, userType);
+                try {
+                    // Autenticación con la base de datos/API
+                    const authResult = await authenticateUser(username, password, userType);
                     
                     loader.classList.remove('show');
                     loginBtn.disabled = false;
@@ -1125,7 +1410,12 @@
                         passwordInput.value = '';
                         passwordInput.focus();
                     }
-                }, 1200);
+                } catch (error) {
+                    console.error('Error en autenticación:', error);
+                    loader.classList.remove('show');
+                    loginBtn.disabled = false;
+                    showError(loginError, 'Error de conexión. Inténtalo de nuevo.');
+                }
             });
             
             // Funciones auxiliares para mostrar/ocultar mensajes
@@ -1211,12 +1501,35 @@ Año: 2025`);
                 
                 alert(`Información de Contacto:
 
-📧 Email: ${buildingConfig.email || 'admin@edificio.cl'}
-📞 Teléfono: ${buildingConfig.telefono || '+56 2 2345 6789'}
-📍 Dirección: ${buildingConfig.direccion || 'No especificada'}
+ Email: ${buildingConfig.email || 'admin@edificio.cl'}
+ Teléfono: ${buildingConfig.telefono || '+56 2 2345 6789'}
+ Dirección: ${buildingConfig.direccion || 'No especificada'}
 
 Para soporte técnico, contacta al administrador del sistema.`);
             };
+            
+            // Función para resetear datos de prueba (para debug)
+            window.resetTestData = function() {
+                if (confirm('¿Estás seguro de que quieres resetear todos los datos de prueba?\n\nEsto eliminará todos los usuarios y residentes actuales y recreará los datos de prueba.')) {
+                    // Limpiar datos existentes
+                    localStorage.removeItem('users');
+                    localStorage.removeItem('residents');
+                    localStorage.removeItem('currentUser');
+                    localStorage.removeItem('currentResident');
+                    localStorage.removeItem('currentResidentId');
+                    
+                    console.log('🧹 Datos limpiados');
+                    
+                    // Recrear datos de prueba
+                    initializeTestData();
+                    
+                    alert('✅ Datos de prueba recreados exitosamente!\n\nYa puedes usar las credenciales de residentes.');
+                }
+            };
+            
+            // Agregar función de debug al final del script
+            console.log(' Sistema de login inicializado');
+            console.log(' Para resetear datos de prueba, ejecuta: resetTestData()');
         });
     </script>
 </body>
