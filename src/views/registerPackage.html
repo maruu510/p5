@@ -1436,87 +1436,41 @@
       },
       
       // FUNCIÓN MODIFICADA: Usar el ID generado del QR
-      handleFormSubmit(e) {
+      async handleFormSubmit(e) {
         e.preventDefault();
         try {
-          // Validar formulario
           if (!this.validateForm()) {
             showToast('error', 'Por favor complete todos los campos requeridos');
             return;
           }
 
-          // Si no hay código QR generado, preguntar si desea continuar
-          if (!currentPackageId) {
-            if (!confirm('No has generado un código QR para este paquete. ¿Deseas continuar sin código QR?')) {
-              return;
-            }
-            // Si decide continuar sin QR, generar ID básico
-            const deptValue = this.elements.departmentSelect.value;
-            currentPackageId = generatePackageId(deptValue);
-          }
-          
-          // Mostrar loading
           this.showLoading(true);
-          
-          try {
-            const packageData = this.getFormData();
-            
-            // USAR EL ID GENERADO PARA EL QR COMO ID DEL PAQUETE
-            packageData.id = currentPackageId;
-            packageData.created_at = new Date().toISOString();
-            packageData.qr_code = currentPackageId; // El código QR es el mismo que el ID
-            
-            console.log('Registrando paquete con ID unificado:', packageData);
-            
-            // Guardar en localStorage para persistencia
-            try {
-              const existingPackages = JSON.parse(localStorage.getItem('paquetesPrueba')) || [];
-              existingPackages.push(packageData);
-              localStorage.setItem('paquetesPrueba', JSON.stringify(existingPackages));
-              console.log('Paquete guardado en localStorage. Total:', existingPackages.length);
-              
-              // También guardar en el específico del departamento
-              if (packageData.apartment_number) {
-                  const deptKey = `packages_${packageData.apartment_number}`;
-                  const deptPackages = JSON.parse(localStorage.getItem(deptKey)) || [];
-                  deptPackages.push(packageData);
-                  localStorage.setItem(deptKey, JSON.stringify(deptPackages));
-              }
-              
-              // Actualizar contador de paquetes pendientes para el dashboard
-              const pendingCount = existingPackages.filter(pkg => pkg.status === 'pendiente').length;
-              localStorage.setItem('pendingPackagesCount', pendingCount.toString());
-            } catch (storageError) {
-              console.error('Error al guardar en localStorage:', storageError);
-              throw new Error('No se pudo guardar el paquete en el almacenamiento local');
-            }
-            
-            showToast('success', `¡Paquete registrado exitosamente! ID: ${packageData.id}`);
-            
-            // Mostrar resumen del registro
-            const resumenRegistro = `
-              Paquete Registrado:
-              - ID: ${packageData.id}
-              - Departamento: ${packageData.apartment_number}
-              - Remitente: ${packageData.sender}
-              - Fecha: ${formatDate(packageData.delivery_date)}
-              - Estado: ${packageData.status}
-            `;
-            console.log(resumenRegistro);
-            
-            // Redirigir a la lista de paquetes después de un momento
-            setTimeout(() => {
-              window.location.href = 'listPackages.html';
-            }, 2000);
-          } catch (error) {
-            console.error('Error al procesar el formulario:', error);
-            showToast('error', error.message || 'Ocurrió un error al registrar el paquete');
-          } finally {
-            this.showLoading(false);
+          const packageData = this.getFormData();
+
+          // Enviar datos a la API
+          const response = await fetch('/api/packages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(packageData)
+          });
+
+          if (!response.ok) {
+            throw new Error('Error al registrar el paquete');
           }
+
+          const result = await response.json();
+          showToast('success', `¡Paquete registrado exitosamente! ID: ${result.id}`);
+          
+          setTimeout(() => {
+            window.location.href = 'listPackages.html';
+          }, 2000);
+
         } catch (error) {
           console.error('Error en manejador de formulario:', error);
           showToast('error', 'Error: ' + error.message);
+        } finally {
           this.showLoading(false);
         }
       },
