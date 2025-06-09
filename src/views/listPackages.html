@@ -1017,6 +1017,48 @@
         // Variables globales
         let allPackages = [];
         let currentPackageId = null;
+
+        // Función para crear una fila de la tabla de paquetes
+        function createPackageRow(pkg) {
+            const row = document.createElement('tr');
+            
+            // Formatear fecha
+            let formattedDate = 'No disponible';
+            if (pkg.delivery_date) {
+                try {
+                    const date = new Date(pkg.delivery_date);
+                    formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+                } catch (e) {
+                    formattedDate = pkg.delivery_date;
+                }
+            }
+            
+            // Determinar clase de estado
+            const statusClass = pkg.status === 'pendiente' ? 'status-pending' : 'status-delivered';
+            const statusText = pkg.status.charAt(0).toUpperCase() + pkg.status.slice(1);
+            
+            row.innerHTML = `
+                <td>${pkg.id}</td>
+                <td>${pkg.apartment_number}</td>
+                <td>${pkg.sender || 'No especificado'}</td>
+                <td>${formattedDate}</td>
+                <td>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                </td>
+                <td>
+                    <button class="table-action view" onclick="showPackageDetails('${pkg.id}')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    ${pkg.status === 'pendiente' ? `
+                        <button class="table-action" onclick="openModal('${pkg.id}')">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    ` : ''}
+                </td>
+            `;
+            
+            return row;
+        }
         
         // Función para mostrar alertas
         function showAlert(message, type = 'info', duration = 5000) {
@@ -1046,116 +1088,81 @@
             }, duration);
         }
         
-        // FUNCIÓN CORREGIDA: Obtener todos los paquetes desde localStorage
-        function getAllPackages() {
+        async function getAllPackages() {
             try {
-                console.log('Obteniendo paquetes desde localStorage...');
-                const packagesData = localStorage.getItem('paquetesPrueba'); // MISMA CLAVE que registerPackage.html
-                if (!packagesData) {
-                    console.log('No se encontraron paquetes en localStorage');
-                    return [];
+                const response = await fetch('/api/packages');
+                if (!response.ok) {
+                    throw new Error('Error al obtener paquetes');
                 }
-                
-                const packages = JSON.parse(packagesData);
-                console.log('Paquetes encontrados:', packages.length);
-                return Array.isArray(packages) ? packages : [];
+                const packages = await response.json();
+                return packages;
             } catch (error) {
                 console.error('Error al cargar paquetes:', error);
+                showAlert('Error al cargar paquetes: ' + error.message, 'danger');
                 return [];
-            } 
+            }
         }
 
-        // FUNCIÓN CORREGIDA: Obtener departamentos desde localStorage
-        function getAllDepartments() {
+        async function getAllDepartments() {
             try {
-                console.log("Obteniendo departamentos desde localStorage...");
-                const departmentsString = localStorage.getItem('departments');
-                
-                if (!departmentsString) {
-                    console.log("No se encontraron departamentos en localStorage");
-                    return [];
+                console.log("Obteniendo departamentos desde los paquetes...");
+                const response = await fetch('/api/packages');
+                if (!response.ok) {
+                    throw new Error('Error al obtener paquetes');
                 }
+                const packages = await response.json();
                 
-                let departments;
-                try {
-                    departments = JSON.parse(departmentsString);
-                    console.log("Departamentos parseados:", departments);
-                } catch (parseError) {
-                    console.error("Error al parsear departamentos:", parseError);
-                    return [];
-                }
+                // Extraer números de apartamento únicos
+                const uniqueDepartments = [...new Set(packages.map(pkg => pkg.apartment_number))];
+                const sortedDepartments = uniqueDepartments.sort((a, b) => a - b);
                 
-                if (!Array.isArray(departments)) {
-                    console.warn("Los departamentos no están en formato array:", departments);
-                    if (departments) {
-                        return [departments];
-                    }
-                    return [];
-                }
-                
-                const normalizedDepts = departments.map(dept => {
-                    if (dept === null || dept === undefined) {
-                        return null;
-                    }
-                    
-                    if (typeof dept === 'object' && dept !== null) {
-                        const deptNumber = dept.number || dept.deptNumber || dept.numero;
-                        if (deptNumber) {
-                            return { number: deptNumber.toString() };
-                        }
-                        return null;
-                    }
-                    
-                    return { number: dept.toString() };
-                });
-                
-                const validDepts = normalizedDepts.filter(dept => dept !== null);
-                console.log("Departamentos normalizados:", validDepts);
-                
-                return validDepts;
+                console.log("Departamentos únicos encontrados:", sortedDepartments);
+                return sortedDepartments;
             } catch (error) {
-                console.error("Error general al obtener departamentos:", error);
+                console.error("Error al obtener departamentos:", error);
                 return [];
             }
         }
         
         // Función para obtener estadísticas
-        function getStats() {
-            const packages = getAllPackages();
-            const departments = getAllDepartments();
-            
-            const stats = {
-                totalPackages: packages.length,
-                departmentsCount: departments.length,
-                pendingPackages: packages.filter(pkg => pkg.status === 'pendiente').length,
-                deliveredPackages: packages.filter(pkg => pkg.status === 'entregado' || pkg.status === 'retirado').length
-            };
-            
-            // Actualizar DOM
-            document.getElementById('totalPackages').textContent = stats.totalPackages;
-            document.getElementById('departmentsCount').textContent = stats.departmentsCount;
-            document.getElementById('pendingPackages').textContent = stats.pendingPackages;
-            document.getElementById('deliveredPackages').textContent = stats.deliveredPackages;
-            
-            // Actualizar contador de notificaciones
-            document.getElementById('notificationCount').textContent = stats.pendingPackages;
-            
-            return stats;
+        async function getStats() {
+            try {
+                const packages = await getAllPackages();
+                
+                const stats = {
+                    totalPackages: packages.length,
+                    pendingPackages: packages.filter(pkg => pkg.status === 'pendiente').length,
+                    deliveredPackages: packages.filter(pkg => 
+                        pkg.status === 'entregado' || pkg.status === 'retirado'
+                    ).length
+                };
+                
+                // Actualizar DOM
+                document.getElementById('totalPackages').textContent = stats.totalPackages;
+                document.getElementById('pendingPackages').textContent = stats.pendingPackages;
+                document.getElementById('deliveredPackages').textContent = stats.deliveredPackages;
+                
+                // Actualizar contador de notificaciones
+                document.getElementById('notificationCount').textContent = stats.pendingPackages;
+                
+                return stats;
+            } catch (error) {
+                console.error('Error al obtener estadísticas:', error);
+                showAlert('Error al cargar estadísticas', 'danger');
+            }
         }
         
         // Cargar departamentos en el selector
-        function loadDepartments() {
+        async function loadDepartments() {
             const departmentFilter = document.getElementById('departmentFilter');
-            const departments = getAllDepartments();
+            const departments = await getAllDepartments();
             
             // Limpiar opciones excepto la primera
             departmentFilter.innerHTML = '<option value="all">Todos los departamentos</option>';
             
             // Agregar departamentos al selector
             if (departments && departments.length > 0) {
-                departments.forEach(dept => {
-                    const deptNumber = dept.number || dept.id || dept.deptNumber || dept;
-                    
+                departments.forEach(deptNumber => {
                     const option = document.createElement('option');
                     option.value = deptNumber;
                     option.textContent = `Departamento ${deptNumber}`;
@@ -1167,7 +1174,7 @@
         }
         
         // FUNCIÓN CORREGIDA: Cargar paquetes en la tabla
-        function loadPackages() {
+        async function loadPackages() {
             console.log('Cargando paquetes...');
             const tableBody = document.querySelector('#packagesTable tbody');
             const departmentFilter = document.getElementById('departmentFilter');
@@ -1189,155 +1196,68 @@
                 </tr>
             `;
             
-            // Ocultar mensajes de error anteriores
-            document.getElementById('errorMessage').style.display = 'none';
-            
             try {
-                // Obtener todos los paquetes
-                let packages = getAllPackages();
-                console.log('Paquetes obtenidos:', packages.length);
+                // Obtener paquetes desde la API
+                let packages = await getAllPackages();
                 
                 // Aplicar filtros
                 if (selectedDepartment !== 'all') {
                     packages = packages.filter(pkg => pkg.apartment_number === selectedDepartment);
-                    console.log('Filtrado por departamento:', selectedDepartment, 'Resultado:', packages.length);
                 }
-                
                 if (selectedStatus !== 'all') {
                     packages = packages.filter(pkg => pkg.status === selectedStatus);
-                    console.log('Filtrado por estado:', selectedStatus, 'Resultado:', packages.length);
                 }
-                
-                // Guardar referencia a todos los paquetes filtrados
-                allPackages = packages;
-                
-                // Actualizar título según filtros
-                let titleText = 'Lista de Paquetes';
-                if (selectedDepartment !== 'all' && selectedStatus !== 'all') {
-                    titleText = `Paquetes ${selectedStatus} del Departamento ${selectedDepartment}`;
-                } else if (selectedDepartment !== 'all') {
-                    titleText = `Paquetes del Departamento ${selectedDepartment}`;
-                } else if (selectedStatus !== 'all') {
-                    titleText = `Paquetes ${selectedStatus}`;
-                }
-                packageListTitle.textContent = titleText;
                 
                 // Actualizar contador
-                packageCount.textContent = `${packages.length} paquete${packages.length !== 1 ? 's' : ''}`;
+                packageCount.textContent = packages.length;
                 
-                // Verificar si hay paquetes
-                if (!packages || packages.length === 0) {
+                // Actualizar título
+                packageListTitle.textContent = selectedDepartment === 'all' 
+                    ? 'Todos los paquetes' 
+                    : `Paquetes del Departamento ${selectedDepartment}`;
+                
+                // Limpiar tabla
+                tableBody.innerHTML = '';
+                
+                // Renderizar paquetes
+                if (packages.length === 0) {
                     tableBody.innerHTML = `
                         <tr>
-                            <td colspan="6">
-                                <div class="empty-state">
-                                    <i class="fas fa-box-open"></i>
-                                    <p>No hay paquetes que coincidan con los filtros seleccionados</p>
-                                    <a href="registerPackage.html" class="btn btn-primary">
-                                        <i class="fas fa-plus"></i>
-                                        Registrar Nuevo Paquete
-                                    </a>
-                                </div>
+                            <td colspan="6" class="no-data">
+                                <i class="fas fa-box-open"></i>
+                                No hay paquetes para mostrar
                             </td>
                         </tr>
                     `;
-                    return;
+                } else {
+                    packages.forEach(pkg => {
+                        const row = createPackageRow(pkg);
+                        tableBody.appendChild(row);
+                    });
                 }
-                
-                // Ordenar paquetes por fecha (más recientes primero)
-                packages.sort((a, b) => {
-                    const dateA = new Date(a.created_at || a.delivery_date || 0);
-                    const dateB = new Date(b.created_at || b.delivery_date || 0);
-                    return dateB - dateA;
-                });
-                
-                // Construir filas de la tabla
-                let tableContent = '';
-                packages.forEach(pkg => {
-                    // Formatear fecha
-                    let formattedDate = 'Fecha no disponible';
-                    if (pkg.delivery_date) {
-                        try {
-                            const date = new Date(pkg.delivery_date);
-                            formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-                        } catch (e) {
-                            console.warn('Error al formatear fecha:', pkg.delivery_date);
-                        }
-                    }
-                    
-                    // Determinar estado
-                    const status = pkg.status || 'pendiente';
-                    const statusClass = status === 'pendiente' ? 'status-pending' : 'status-delivered';
-                    const statusText = status.charAt(0).toUpperCase() + status.slice(1);
-                    
-                    // Mostrar ID completo o versión corta si es muy largo
-                    const displayId = pkg.id && pkg.id.length > 20 ? 
-                        pkg.id.substring(0, 20) + '...' : 
-                        (pkg.id || 'Sin ID');
-                    
-                    tableContent += `
-                        <tr>
-                            <td title="${pkg.id || 'Sin ID'}">${displayId}</td>
-                            <td>${pkg.apartment_number || '-'}</td>
-                            <td>${pkg.sender || 'No especificado'}</td>
-                            <td>${formattedDate}</td>
-                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                            <td>
-                                <button class="table-action view" onclick="showPackageDetails('${pkg.id}')">
-                                    <i class="fas fa-eye"></i> Ver
-                                </button>
-                                ${status === 'pendiente' ? 
-                                    `<button class="table-action" onclick="openModal('${pkg.id}')">
-                                        <i class="fas fa-check"></i> Entregar
-                                    </button>` : 
-                                    `<button class="table-action disabled">
-                                        <i class="fas fa-check"></i> ${statusText}
-                                    </button>`
-                                }
-                            </td>
-                        </tr>
-                    `;
-                });
-                
-                tableBody.innerHTML = tableContent;
                 
                 // Actualizar estadísticas
                 getStats();
                 
-                console.log('Paquetes cargados correctamente:', packages.length);
-                
             } catch (error) {
-                console.error('Error al cargar paquetes:', error);
+                console.error('Error:', error);
                 document.getElementById('errorMessage').style.display = 'block';
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6">
-                            <div class="empty-state">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <p>Ocurrió un error al cargar los paquetes</p>
-                                <button class="btn btn-primary" onclick="loadPackages()">
-                                    <i class="fas fa-sync-alt"></i>
-                                    Intentar de nuevo
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                document.getElementById('errorMessage').textContent = 
+                    'Error al cargar los paquetes: ' + error.message;
             }
         }
         
         // NUEVA FUNCIÓN: Mostrar detalles del paquete
-        function showPackageDetails(packageId) {
-            const packages = getAllPackages();
-            const packageData = packages.find(pkg => pkg.id === packageId);
-            
-            if (!packageData) {
-                alert('No se encontró el paquete especificado');
-                return;
-            }
-            
-            const modal = document.getElementById('packageModal');
-            const detailsContainer = document.getElementById('packageDetails');
+        async function showPackageDetails(packageId) {
+            try {
+                const response = await fetch(`/api/packages/${packageId}`);
+                if (!response.ok) {
+                    throw new Error('No se encontró el paquete especificado');
+                }
+                const packageData = await response.json();
+                
+                const modal = document.getElementById('packageModal');
+                const detailsContainer = document.getElementById('packageDetails');
             
             // Formatear fecha
             let formattedDate = 'No disponible';
@@ -1414,6 +1334,10 @@
             
             // Mostrar el modal
             modal.classList.add('show');
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert('Error al cargar los detalles del paquete', 'danger');
+        }
         }
         
         // Función para cerrar modal de detalles
@@ -1435,29 +1359,30 @@
         }
         
         // FUNCIÓN CORREGIDA: Actualizar estado de un paquete
-        function updatePackageStatus(packageId, newStatus) {
+        async function updatePackageStatus(packageId, newStatus) {
             try {
                 console.log('Actualizando paquete:', packageId, 'a estado:', newStatus);
-                const packages = getAllPackages();
-                const packageIndex = packages.findIndex(pkg => pkg.id === packageId);
                 
-                if (packageIndex === -1) {
-                    throw new Error('Paquete no encontrado');
+                const response = await fetch(`/api/packages/${packageId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus,
+                        delivery_date: new Date().toISOString()
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al actualizar el paquete');
                 }
-                
-                // Actualizar el estado y la fecha de entrega
-                packages[packageIndex].status = newStatus;
-                packages[packageIndex].delivered_date = new Date().toISOString();
-                packages[packageIndex].delivery_time = new Date().toLocaleString('es-ES');
-                
-                // Guardar en localStorage
-                localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
                 
                 console.log('Paquete actualizado correctamente');
                 showAlert('Paquete actualizado correctamente', 'success');
                 
                 // Recargar tabla
-                loadPackages();
+                await loadPackages();
                 
                 return true;
             } catch (error) {
@@ -1515,63 +1440,14 @@
         }
         
         // Event listeners
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('Inicializando Lista de Paquetes...');
-            
-            // Verificar autenticación
-            const token = localStorage.getItem('authToken');
-            if (!token) {
-                window.location.href = 'login.html';
-                return;
-            }
-            
+        document.addEventListener('DOMContentLoaded', async () => {
             try {
-                // Configurar interfaz
-                setupUserProfile();
-                setupUserDropdown();
-                
-                // Cargar datos
-                loadDepartments();
-                loadPackages();
-                
-                // Event listeners para filtros
-                document.getElementById('departmentFilter').addEventListener('change', loadPackages);
-                document.getElementById('statusFilter').addEventListener('change', loadPackages);
-                
-                // Configurar botón de confirmación
-                document.getElementById('confirmButton').addEventListener('click', function() {
-                    if (currentPackageId) {
-                        closeModal();
-                        updatePackageStatus(currentPackageId, 'entregado');
-                    }
-                });
-                
-                // Cerrar modales con Escape
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape') {
-                        closeModal();
-                        closePackageModal();
-                    }
-                });
-                
-                // Cerrar modales al hacer clic fuera
-                document.getElementById('confirmModal').addEventListener('click', (e) => {
-                    if (e.target === document.getElementById('confirmModal')) {
-                        closeModal();
-                    }
-                });
-
-                document.getElementById('packageModal').addEventListener('click', (e) => {
-                    if (e.target === document.getElementById('packageModal')) {
-                        closePackageModal();
-                    }
-                });
-                
-                console.log('Lista de Paquetes inicializada correctamente');
-                
+                await loadDepartments();
+                await loadPackages();
+                await getStats();
             } catch (error) {
-                console.error('Error al inicializar la página:', error);
-                showAlert('Error al cargar la página: ' + error.message, 'danger');
+                console.error('Error al inicializar:', error);
+                showAlert('Error al cargar la página', 'danger');
             }
         });
     </script>
