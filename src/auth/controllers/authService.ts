@@ -29,11 +29,11 @@ export async function generateJwt(userId: string, username: string): Promise<str
 }
 
 // Función para verificar el JWT
-export async function verifyJwt(token: string): Promise<boolean> {
+export async function verifyJwt(token: string): Promise<any> {
   try {
     const secretKey = await getCryptoKey(JWT_SECRET); // Convertir el secreto a CryptoKey
-    await verify(token, secretKey);
-    return true;
+    const payload = await verify(token, secretKey);
+    return payload; // Devolver el payload decodificado
   } catch {
     return false;
   }

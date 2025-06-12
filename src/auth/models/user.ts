@@ -1,53 +1,40 @@
-// user.ts
-import { pool } from "../../database/connection.ts";
+import { client } from "../../database/connection.ts";
 
 export interface User {
-  id: number;
+  _id?: string;
   email: string;
-  password_hash: string; 
+  password_hash: string;
+  role: string;
 }
 
-async function createUsersTable() {
-  const client = await pool.connect();
+const getCollection = () => {
+  return client.db().collection<User>("users");
+};
+
+export async function createUsersCollection() {
   try {
-    await client.queryObject(`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        email TEXT NOT NULL UNIQUE,
-        password_hash TEXT NOT NULL
-      );
-    `);
-  } finally {
-    client.release();
+    const db = client.db();
+    await db.createCollection("users");
+    await db.collection("users").createIndex({ email: 1 }, { unique: true });
+    console.log("✅ Colección de usuarios creada correctamente");
+  } catch (error) {
+    if (error.code !== 48) { // Ignorar error si la colección ya existe
+      console.error("❌ Error al crear colección de usuarios:", error);
+      throw error;
+    }
   }
 }
 
-async function insertUser(user: { email: string, password_hash: string }): Promise<number> {
-  const client = await pool.connect();
-  try {
-    const result = await client.queryObject<{ id: number }>(
-      `INSERT INTO users (email, password_hash) 
-       VALUES ($1, $2) 
-       RETURNING id`,
-      [user.email, user.password_hash]
-    );
-    return result.rows[0].id;
-  } finally {
-    client.release();
-  }
+// ✅ Insertar usuario con email en minúsculas
+export async function insertUser(user: { email: string; password_hash: string; role: string }) {
+  const collection = getCollection();
+  user.email = user.email.toLowerCase();
+  const result = await collection.insertOne(user);
+  return result.insertedId;
 }
 
-async function getUserByUsername(username: string): Promise<User | null> {
-  const client = await pool.connect();
-  try {
-    const result = await client.queryObject<User>(
-      "SELECT * FROM users WHERE email = $1",  // Cambiado de username a email
-      [username]
-    );
-    return result.rows[0] || null;
-  } finally {
-    client.release();
-  }
+// ✅ Buscar por email en minúsculas
+export async function getUserByUsername(username: string) {
+  const collection = getCollection();
+  return await collection.findOne({ email: username.toLowerCase() });
 }
-
-export { createUsersTable, insertUser, getUserByUsername };

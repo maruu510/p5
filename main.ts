@@ -1,14 +1,13 @@
 import { Application, Router, send } from "./deps.ts";
 import { createPackagesTable } from "./src/database/models/package.ts";
-import { createUsersTable } from "./src/auth/models/user.ts";
-import { testConnection } from "./src/database/connection.ts"; // Importar función de prueba
+import { createUsersCollection } from "./src/auth/models/user.ts";
+import { connectDB } from "./src/database/connection.ts";
 import packageRouter from "./src/routes/packages.ts";
 import authRouter from "./src/routes/routes.ts";
 import { oakCors } from "./deps.ts";
 import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
 import "https://deno.land/std@0.204.0/dotenv/load.ts";
 
-// Verificar variables de entorno
 console.log("=== VERIFICACIÓN DE VARIABLES DE ENTORNO ===");
 console.log("DB_USER:", Deno.env.get("DB_USER"));
 console.log("DB_DATABASE:", Deno.env.get("DB_NAME"));
@@ -20,15 +19,17 @@ console.log("===========================================");
 const app = new Application();
 const port = 8003;
 
-// Configuración de CORS
-app.use(oakCors({
-  origin: /http:\/\/localhost(:\d+)?/,
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization", "Accept"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-}));
+// CORS
+app.use(
+  oakCors({
+    origin: /http:\/\/localhost(:\d+)?/,
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  }),
+);
 
-// Middleware para parsear JSON
+// Manejo global de errores
 app.use(async (ctx, next) => {
   try {
     await next();
@@ -39,10 +40,37 @@ app.use(async (ctx, next) => {
   }
 });
 
-// Middleware para servir archivos estáticos
+// Middleware para autenticación JWT
+app.use(async (ctx, next) => {
+  const authHeader = ctx.request.headers.get("Authorization");
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.split(" ")[1];
+    try {
+      const { verifyJwt } = await import("./src/auth/controllers/authService.ts");
+      const { getUserByUsername } = await import("./src/auth/models/user.ts");
+      const payload = await verifyJwt(token);
+      if (payload && payload.username) {
+        const user = await getUserByUsername(payload.username.toLowerCase());
+        if (user) ctx.state.user = user;
+      }
+    } catch (error) {
+      console.error("Error al verificar token:", error);
+      // continuar sin bloquear
+    }
+  }
+  await next();
+});
+
+// Servir archivos estáticos (estilos, imágenes, vistas)
 app.use(async (ctx, next) => {
   const path = ctx.request.url.pathname;
-  if (path.startsWith("/styles") || path.startsWith("/images") || path.endsWith(".html") || path.startsWith("/resident/")) {
+  if (
+    path.startsWith("/styles") ||
+    path.startsWith("/images") ||
+    path.endsWith(".html") ||
+    path.startsWith("/resident/") ||
+    path.startsWith("/admin/")
+  ) {
     await send(ctx, path, {
       root: join(Deno.cwd(), "src", "views"),
     });
@@ -51,48 +79,32 @@ app.use(async (ctx, next) => {
   }
 });
 
-// Router para redirigir la raíz "/" hacia "login.html"
+// Router para raíz que redirige a login
 const router = new Router();
 router.get("/", (ctx) => {
   ctx.response.redirect("/login.html");
 });
-
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-// API REST para autenticación
+// Rutas del proyecto
 app.use(authRouter.routes());
 app.use(authRouter.allowedMethods());
 
-// API REST para paquetes
 app.use(packageRouter.routes());
 app.use(packageRouter.allowedMethods());
 
-// PROBAR CONEXIÓN ANTES DE CREAR TABLAS
+// Conexión a BD y creación de tablas
 console.log("\n=== PRUEBA DE CONEXIÓN A BASE DE DATOS ===");
-const connectionSuccess = await testConnection();
-
-if (!connectionSuccess) {
-  console.error("❌ No se pudo establecer conexión con la base de datos");
-  console.error("Verifica que:");
-  console.error("1. PostgreSQL esté corriendo");
-  console.error("2. La base de datos 'packages_db' exista");
-  console.error("3. Las credenciales sean correctas");
-  console.error("4. El archivo .env esté en la raíz del proyecto");
-  Deno.exit(1);
-}
-
-console.log("✅ Conexión establecida, creando tablas...");
-
 try {
-  // Crear tablas si no existen
-  await createUsersTable();
+  const _db = await connectDB(); // '_' para no avisar variable sin usar
+  console.log("✅ Conexión establecida, creando tablas...");
+  await createUsersCollection();
   await createPackagesTable();
   console.log("✅ Tablas creadas correctamente");
+  console.log(`🚀 Servidor web corriendo en http://localhost:${port}`);
+  await app.listen({ port });
 } catch (error) {
-  console.error("❌ Error al crear tablas:", error);
+  console.error("❌ Error al inicializar la aplicación:", error);
   Deno.exit(1);
 }
-
-console.log(`🚀 Servidor web corriendo en http://localhost:${port}`);
-await app.listen({ port });

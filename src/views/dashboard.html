@@ -992,6 +992,28 @@
             } 
         }
         
+        // Función para obtener paquetes desde la API
+        async function fetchPackages() {
+            try {
+                const authToken = localStorage.getItem('authToken');
+                const response = await fetch('/api/packages', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al obtener paquetes');
+                }
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error:', error);
+                return [];
+            }
+        }
+        
         function getDepartmentNumber(dept) {
             // Para manejar diferentes formatos de departamento (objeto o valor simple)
             if (typeof dept === 'object' && dept !== null) {

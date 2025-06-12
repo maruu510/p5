@@ -952,36 +952,28 @@
                 }
             }
             
-            // Función principal de autenticación
-            function authenticateUser(username, password, type) {
-                if (type === 'admin') {
-                    return authenticateAdmin(username, password);
-                } else {
-                    return authenticateResident(username, password);
-                }
-            }
-            
             // Función para autenticar administrador
-            function authenticateAdmin(username, password) {
-                const validCredentials = {
-                    username: 'Admin@gmail.com',
-                    password: 'admin12345'
-                };
-                
-                if (username === validCredentials.username && password === validCredentials.password) {
-                    return {
-                        success: true,
-                        user: {
-                            username: username,
-                            email: username,
-                            role: 'admin',
-                            name: 'Administrador'
-                        },
-                        redirectUrl: 'dashboard.html'
-                    };
+            async function authenticateAdmin(username, password) {
+                try {
+                    const response = await fetch('http://localhost:8003/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    const data = await response.json();
+                    if (response.ok && data.user && data.user.role === 'admin') {
+                        return {
+                            success: true,
+                            user: data.user,
+                            redirectUrl: 'dashboard.html',
+                            token: data.token
+                        };
+                    }
+                    return { success: false, message: data.error || 'Credenciales de administrador incorrectas' };
+                } catch (error) {
+                    console.error('Error:', error);
+                    return { success: false, message: 'Error al conectar con el servidor' };
                 }
-                
-                return { success: false, message: 'Credenciales de administrador incorrectas' };
             }
             
             // Función para autenticar residente
@@ -1036,7 +1028,7 @@
             // Función para establecer datos de sesión
             function setSessionData(authResult, userType, rememberMe) {
                 const sessionData = {
-                    authToken: 'token-' + Date.now() + '-' + Math.random().toString(36).substring(2),
+                    authToken: authResult.token,
                     userType: userType,
                     isLoggedIn: 'true',
                     userName: authResult.user.name || authResult.user.username,
@@ -1075,52 +1067,41 @@
             }
             
             // Manejar envío del formulario
-            loginForm.addEventListener('submit', function(e) {
+            loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                
-                // Resetear mensajes
                 hideAllMessages();
-                
                 const username = usernameInput.value.trim();
                 const password = passwordInput.value;
+                const userType = document.querySelector('.user-type-option.active').dataset.type;
                 const rememberMe = document.getElementById('remember').checked;
-                
-                // Validaciones básicas
                 if (!username) {
                     showError(usernameError, 'El campo usuario es requerido');
                     return;
                 }
-                
                 if (!password) {
                     showError(passwordError, 'El campo contraseña es requerido');
                     return;
                 }
-                
-                // Deshabilitar botón y mostrar loader
                 loginBtn.disabled = true;
                 loader.classList.add('show');
-                
-                // Simular tiempo de autenticación
-                setTimeout(() => {
-                    const authResult = authenticateUser(username, password, userType);
-                    
+                setTimeout(async () => {
+                    let authResult;
+                    if (userType === 'admin') {
+                        authResult = await authenticateAdmin(username, password);
+                    } else {
+                        authResult = authenticateResident(username, password);
+                    }
                     loader.classList.remove('show');
                     loginBtn.disabled = false;
-                    
                     if (authResult.success) {
-                        // Login exitoso
                         showSuccess(loginSuccess, '¡Login exitoso! Redirigiendo...');
-                        
-                        // Establecer datos de sesión
                         setSessionData(authResult, userType, rememberMe);
-                        
-                        // Redirigir después de un breve delay
                         setTimeout(() => {
+                            // Redirigir directamente después de establecer los datos de sesión
+                            // El middleware en el backend verificará el token del localStorage
                             window.location.href = authResult.redirectUrl;
                         }, 1500);
-                        
                     } else {
-                        // Login fallido
                         showError(loginError, authResult.message || 'Credenciales incorrectas');
                         passwordInput.value = '';
                         passwordInput.focus();

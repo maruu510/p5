@@ -143,7 +143,7 @@ export async function getPackages(ctx: RouterContext) {
 export async function getPackage(ctx: RouterContext) {
   try {
     const id = ctx.params.id;
-    if (!id || isNaN(Number(id))) {
+    if (!id) {
       ctx.response.status = 400;
       ctx.response.body = { 
         error: "ID de paquete inválido",
@@ -152,7 +152,7 @@ export async function getPackage(ctx: RouterContext) {
       return;
     }
 
-    const packageData = await getPackageById(Number(id));
+    const packageData = await getPackageById(id);
     if (!packageData) {
       ctx.response.status = 404;
       ctx.response.body = { 

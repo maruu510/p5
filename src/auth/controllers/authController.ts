@@ -1,11 +1,10 @@
-// authController.ts
-import { RouterContext } from "./../../../deps.ts";  // Importa el RouterContext
+import type { RouterContext } from "../../../deps.ts";
 import { insertUser, getUserByUsername } from "../models/user.ts";
 import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
-import { generateJwt } from "../controllers/authService.ts";
+import { generateJwt } from "./authService.ts";
+import { setCookie } from "../../../deps.ts";
 
-// Definir los tipos de RouterContext
-export async function signup(ctx: RouterContext<"/signup", Record<string, string>, Record<string, any>>) {
+export async function signup(ctx: RouterContext<string>) {
   try {
     if (!ctx.request.hasBody) {
       ctx.response.status = 400;
@@ -21,17 +20,19 @@ export async function signup(ctx: RouterContext<"/signup", Record<string, string
       return;
     }
 
-    const existingUser = await getUserByUsername(username);
+    const normalizedUsername = username.toLowerCase();
+    const existingUser = await getUserByUsername(normalizedUsername);
     if (existingUser) {
-      ctx.response.status = 409; // 409 Conflict
+      ctx.response.status = 409;
       ctx.response.body = { error: "El correo electrónico ya está registrado" };
       return;
     }
 
     const hashedPassword = await bcrypt.hash(password);
     const newUser = {
-      email: username,
-      password_hash: hashedPassword
+      email: normalizedUsername,
+      password_hash: hashedPassword,
+      role: "admin",
     };
 
     const userId = await insertUser(newUser);
@@ -39,16 +40,15 @@ export async function signup(ctx: RouterContext<"/signup", Record<string, string
     ctx.response.status = 201;
     ctx.response.body = {
       message: "Usuario creado con éxito",
-      userId
+      userId,
     };
-
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error en registro:", error.message);
       ctx.response.status = 500;
       ctx.response.body = {
         error: "Error al crear el usuario",
-        details: error.message
+        details: error.message,
       };
     } else {
       ctx.response.status = 500;
@@ -57,9 +57,9 @@ export async function signup(ctx: RouterContext<"/signup", Record<string, string
   }
 }
 
-export async function login(ctx: RouterContext<"/login", Record<string, string>, Record<string, any>>) {
+export async function login(ctx: RouterContext<string>) {
   try {
-    const body = await ctx.request.body({ type: 'json' }).value;
+    const body = await ctx.request.body({ type: "json" }).value;
     const { username, password } = body;
 
     if (!username || !password) {
@@ -68,33 +68,50 @@ export async function login(ctx: RouterContext<"/login", Record<string, string>,
       return;
     }
 
-    const user = await getUserByUsername(username);
+    const normalizedUsername = username.toLowerCase();
+    const user = await getUserByUsername(normalizedUsername);
     if (!user) {
       ctx.response.status = 404;
       ctx.response.body = { error: "Usuario no encontrado" };
       return;
     }
 
-    const isValid = await bcrypt.compare(password, user.password_hash); 
+    const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) {
       ctx.response.status = 400;
       ctx.response.body = { error: "Contraseña incorrecta" };
       return;
     }
 
-    const token = await generateJwt(user.id!.toString(), user.email);
+    const token = await generateJwt(user._id!.toString(), normalizedUsername);
+
+    setCookie(ctx.response.headers, {
+      name: "jwt",
+      value: token,
+      httpOnly: true,
+      secure: true,
+      sameSite: "Lax",
+      maxAge: 60 * 60 * 24 * 7,
+      path: "/",
+    });
 
     ctx.response.status = 200;
-    ctx.response.body = { message: "Login exitoso", token, userId: user.id };
+    ctx.response.body = {
+      message: "Login exitoso",
+      userId: user._id,
+      user,
+    };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error en login:", error.message);
       ctx.response.status = 500;
-      ctx.response.body = { error: "Error al iniciar sesión", details: error.message };
+      ctx.response.body = {
+        error: "Error al iniciar sesión",
+        details: error.message,
+      };
     } else {
       ctx.response.status = 500;
       ctx.response.body = { error: "Error desconocido" };
     }
   }
 }
-
