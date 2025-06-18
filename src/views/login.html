@@ -24,7 +24,7 @@
             --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
             --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15), 0 10px 10px rgba(0, 0, 0, 0.04);
             --radius: 8px;
-            --radius-lg: 16px;
+            --radius-lg: 12px;
         }
         
         * {
@@ -131,26 +131,26 @@
             right: 0;
             background-color: var(--secondary);
             color: white;
-            padding: 16px 28px;
+            padding: 12px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-shadow: var(--shadow-md);
             z-index: 100;
             backdrop-filter: blur(10px);
-            height: 72px;
+            height: 60px;
         }
         
         .top-bar-left {
             display: flex;
             align-items: center;
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         
         .top-bar-left img {
-            height: 48px;
-            margin-right: 24px;
+            height: 36px;
+            margin-right: 16px;
             width: auto;
         }
          
@@ -166,11 +166,11 @@
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-xl);
             width: 100%;
-            max-width: 800px;
-            min-width: 600px;
-            padding: 40px 60px;
-            margin-top: 100px;
-            margin-bottom: 40px;
+            max-width: 480px;
+            min-width: 320px;
+            padding: 32px 40px;
+            margin-top: 80px;
+            margin-bottom: 30px;
             text-align: center;
             position: relative;
             z-index: 10;
@@ -196,16 +196,16 @@
         }
         
         .login-logo {
-            margin-bottom: 30px;
+            margin-bottom: 24px;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
         
         .login-logo img {
-            height: 100px;
+            height: 70px;
             width: auto;
             object-fit: contain;
             margin: 0 auto;
@@ -219,8 +219,8 @@
         
         .login-title {
             color: var(--primary);
-            font-size: 2.4rem;
-            margin-bottom: 12px;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
             font-weight: 700;
             letter-spacing: -0.5px;
             text-shadow: 0 2px 4px rgba(30, 58, 138, 0.1);
@@ -228,43 +228,43 @@
         
         .login-subtitle {
             color: var(--gray);
-            margin-bottom: 30px;
-            font-size: 1.2rem;
+            margin-bottom: 24px;
+            font-size: 1rem;
             font-weight: 400;
         }
         
         .login-form {
             text-align: left;
-            max-width: 500px;
+            max-width: 100%;
             margin: 0 auto;
         }
         
         .form-group {
-            margin-bottom: 28px;
+            margin-bottom: 20px;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             font-weight: 600;
             color: var(--secondary);
-            font-size: 1rem;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
         
         .form-group label i {
             color: var(--primary);
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         
         .form-input {
             width: 100%;
-            padding: 20px 22px;
+            padding: 14px 16px;
             border: 2px solid #e1e5e9;
-            border-radius: 12px;
-            font-size: 1.1rem;
+            border-radius: 10px;
+            font-size: 1rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             background-color: rgba(255, 255, 255, 0.9);
             font-family: inherit;
@@ -275,9 +275,9 @@
         .form-input:focus {
             border-color: var(--primary);
             outline: none;
-            box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1), 0 8px 16px rgba(30, 58, 138, 0.1);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1), 0 6px 12px rgba(30, 58, 138, 0.1);
             background-color: white;
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
         
         .form-input:hover:not(:focus) {
@@ -301,15 +301,15 @@
         .input-icon i {
             position: absolute;
             top: 50%;
-            left: 20px;
+            left: 16px;
             transform: translateY(-50%);
             color: var(--gray);
             transition: color 0.3s ease;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         
         .input-icon input {
-            padding-left: 58px;
+            padding-left: 46px;
         }
         
         .input-icon input:focus + i {
@@ -318,30 +318,30 @@
         
         .input-icon input[type="password"],
         .input-icon input[type="text"]:not(#username) {
-            padding-right: 70px;
+            padding-right: 50px;
         }
         
         /* Específico para el campo de contraseña */
         #password {
-            padding-right: 70px !important;
+            padding-right: 50px !important;
         }
         
         .toggle-password {
             position: absolute;
             top: 50%;
-            right: 18px;
+            right: 12px;
             transform: translateY(-50%);
             background: none;
             border: none;
             color: var(--gray);
             cursor: pointer;
-            padding: 12px;
-            font-size: 18px;
+            padding: 8px;
+            font-size: 16px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 8px;
+            border-radius: 6px;
             z-index: 10;
-            width: 44px;
-            height: 44px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -366,18 +366,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 28px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
-            gap: 16px;
+            gap: 12px;
         }
         
         .remember-me {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             cursor: pointer;
             transition: color 0.3s ease;
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
         
         .remember-me:hover {
@@ -385,8 +385,8 @@
         }
         
         .remember-me input {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             accent-color: var(--primary);
             cursor: pointer;
         }
@@ -394,7 +394,7 @@
         .forgot-password {
             color: var(--primary);
             text-decoration: none;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 500;
             transition: all 0.3s ease;
         }
@@ -406,20 +406,20 @@
         
         .btn {
             width: 100%;
-            padding: 20px 24px;
+            padding: 14px 20px;
             border: none;
-            border-radius: 12px;
-            font-size: 1.15rem;
+            border-radius: 10px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             justify-content: center;
             align-items: center;
-            gap: 14px;
+            gap: 10px;
             position: relative;
             overflow: hidden;
-            min-height: 56px;
+            min-height: 48px;
         }
         
         .btn-primary {
@@ -430,7 +430,7 @@
         
         .btn-primary:hover:not(:disabled) {
             background-color: var(--primary-dark);
-            transform: translateY(-3px);
+            transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
         
@@ -447,19 +447,19 @@
         
         .user-type-selector {
             display: flex;
-            margin-bottom: 28px;
-            border-radius: 12px;
+            margin-bottom: 20px;
+            border-radius: 10px;
             overflow: hidden;
             border: 2px solid #e1e5e9;
             background-color: #f8f9fa;
-            max-width: 500px;
+            max-width: 100%;
             margin-left: auto;
             margin-right: auto;
         }
         
         .user-type-option {
             flex: 1;
-            padding: 18px 20px;
+            padding: 12px 16px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -467,12 +467,12 @@
             color: var(--gray);
             font-weight: 600;
             position: relative;
-            font-size: 1.05rem;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            min-height: 60px;
+            gap: 8px;
+            min-height: 48px;
         }
         
         .user-type-option.active {
@@ -493,10 +493,10 @@
         
         .error-message {
             color: var(--danger);
-            font-size: 1rem;
-            margin-top: 10px;
+            font-size: 0.85rem;
+            margin-top: 8px;
             display: none;
-            padding: 14px 16px;
+            padding: 10px 12px;
             background-color: rgba(231, 76, 60, 0.1);
             border-radius: var(--radius);
             border-left: 4px solid var(--danger);
@@ -509,10 +509,10 @@
         
         .success-message {
             color: var(--primary-light);
-            font-size: 1rem;
-            margin-top: 10px;
+            font-size: 0.85rem;
+            margin-top: 8px;
             display: none;
-            padding: 14px 16px;
+            padding: 10px 12px;
             background-color: rgba(46, 204, 113, 0.1);
             border-radius: var(--radius);
             border-left: 4px solid var(--primary-light);
@@ -537,12 +537,12 @@
         .info-message {
             background-color: rgba(52, 152, 219, 0.1);
             border-left: 4px solid var(--info);
-            padding: 16px 18px;
+            padding: 12px 14px;
             border-radius: var(--radius);
-            margin-bottom: 24px;
-            font-size: 1rem;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
             color: var(--info);
-            max-width: 500px;
+            max-width: 100%;
             margin-left: auto;
             margin-right: auto;
         }
@@ -550,29 +550,29 @@
         .credentials-hint {
             background-color: rgba(243, 156, 18, 0.1);
             border-left: 4px solid var(--warning);
-            padding: 16px 18px;
+            padding: 12px 14px;
             border-radius: var(--radius);
-            margin-bottom: 24px;
-            font-size: 0.9rem;
+            margin-bottom: 16px;
+            font-size: 0.8rem;
             color: #b7950b;
-            max-width: 500px;
+            max-width: 100%;
             margin-left: auto;
             margin-right: auto;
-            line-height: 1.5;
+            line-height: 1.4;
         }
         
         .credentials-hint strong {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             color: #8e7706;
         }
         
         .credentials-hint code {
             background-color: rgba(0, 0, 0, 0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 2px 4px;
+            border-radius: 3px;
             font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: #7a6b05;
             font-weight: 600;
         }
@@ -600,9 +600,9 @@
         }
         
         .loader {
-            width: 56px;
-            height: 56px;
-            border: 6px solid var(--info);
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--info);
             border-radius: 50%;
             border-top-color: var(--primary);
             animation: spin 1s linear infinite;
@@ -615,19 +615,19 @@
         }
         
         footer {
-            margin-top: 30px;
+            margin-top: 24px;
             text-align: center;
-            font-size: 15px;
+            font-size: 0.85rem;
             color: var(--secondary);
             position: relative;
             z-index: 10;
-            line-height: 1.6;
+            line-height: 1.5;
         }
         
         footer a {
             color: var(--primary);
             text-decoration: none;
-            margin: 0 14px;
+            margin: 0 12px;
             font-weight: 500;
             transition: all 0.3s ease;
         }
@@ -639,54 +639,54 @@
         
         @media (max-width: 1024px) {
             .login-container {
-                max-width: 600px;
-                min-width: 500px;
-                padding: 36px 48px;
+                max-width: 440px;
+                min-width: 320px;
+                padding: 28px 36px;
             }
         }
         
         @media (max-width: 768px) {
             .login-container {
-                max-width: 500px;
-                min-width: 400px;
-                padding: 32px 36px;
+                max-width: 400px;
+                min-width: 300px;
+                padding: 24px 32px;
             }
             
             .login-title {
-                font-size: 2.1rem;
+                font-size: 1.6rem;
             }
         }
         
         @media (max-width: 640px) {
             .login-container {
-                padding: 28px 24px;
-                margin-top: 100px;
-                max-width: 420px;
-                min-width: 300px;
+                padding: 20px 24px;
+                margin-top: 80px;
+                max-width: 360px;
+                min-width: 280px;
             }
             
             .login-title {
-                font-size: 1.9rem;
+                font-size: 1.5rem;
             }
             
             .form-options {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 16px;
+                gap: 12px;
             }
             
             .top-bar {
-                padding: 12px 20px;
-                height: 64px;
+                padding: 10px 16px;
+                height: 56px;
             }
             
             .top-bar-left img {
-                height: 40px;
-                margin-right: 16px;
+                height: 32px;
+                margin-right: 12px;
             }
             
             .top-bar-left {
-                font-size: 1rem;
+                font-size: 0.9rem;
             }
             
             .bg-shapes .shape {
@@ -696,53 +696,53 @@
             
             .user-type-option {
                 flex-direction: column;
-                gap: 6px;
-                font-size: 0.95rem;
-                padding: 16px 12px;
+                gap: 4px;
+                font-size: 0.85rem;
+                padding: 10px 8px;
             }
             
             .form-input {
-                padding: 18px 20px;
-                font-size: 1.05rem;
+                padding: 12px 14px;
+                font-size: 0.9rem;
             }
             
             .input-icon input {
-                padding-left: 54px;
+                padding-left: 40px;
             }
             
             .btn {
-                padding: 18px 20px;
-                font-size: 1.1rem;
+                padding: 12px 16px;
+                font-size: 0.95rem;
             }
         }
         
         @media (max-width: 480px) {
             .login-container {
-                padding: 24px 20px;
-                max-width: 380px;
-                min-width: 280px;
+                padding: 18px 20px;
+                max-width: 320px;
+                min-width: 260px;
             }
             
             .login-logo img {
-                height: 80px;
+                height: 60px;
             }
             
             .login-title {
-                font-size: 1.7rem;
+                font-size: 1.4rem;
             }
             
             .form-input {
-                padding: 16px 18px;
-                font-size: 1rem;
+                padding: 11px 12px;
+                font-size: 0.9rem;
             }
             
             .input-icon input {
-                padding-left: 50px;
+                padding-left: 38px;
             }
             
             .btn {
-                padding: 16px 18px;
-                font-size: 1.05rem;
+                padding: 11px 14px;
+                font-size: 0.9rem;
             }
         }
         
@@ -971,11 +971,11 @@
                         credentialsHint.style.display = 'block';
                         hintContent.innerHTML = `
                             <strong>Residentes de prueba disponibles:</strong><br>
-                            📧 <strong>test@email.com</strong> - Contraseña: <code>test123</code> (Depto 404)<br>
-                            📧 <strong>maria.gonzalez@email.com</strong> - Contraseña: <code>maria101</code> (Depto 101)<br>
-                            📧 <strong>carlos.rodriguez@email.com</strong> - Contraseña: <code>carlos202</code> (Depto 202)<br>
-                            📧 <strong>ana.martinez@email.com</strong> - Contraseña: <code>ana303</code> (Depto 303)<br><br>
-                            <small>💡 Si tienes problemas, abre la consola del navegador (F12) para ver logs de debug.</small>
+                            <strong>test@email.com</strong> - Contraseña: <code>test123</code> (Depto 404)<br>
+                            <strong>maria.gonzalez@email.com</strong> - Contraseña: <code>maria101</code> (Depto 101)<br>
+                            <strong>carlos.rodriguez@email.com</strong> - Contraseña: <code>carlos202</code> (Depto 202)<br>
+                            <strong>ana.martinez@email.com</strong> - Contraseña: <code>ana303</code> (Depto 303)<br><br>
+                            <small>Si tienes problemas, abre la consola del navegador (F12) para ver logs de debug.</small>
                         `;
                     } else {
                         infoText.textContent = 'No hay residentes registrados. Contacta al administrador.';
@@ -1038,7 +1038,7 @@
                 const testUserExists = existingUsers.some(u => u.email === 'test@email.com' || u.email === 'maria.gonzalez@email.com');
                 
                 if (!testUserExists) {
-                    console.log('🔧 Creando residentes de prueba...');
+                    console.log('Creando residentes de prueba...');
                     
                     const testUsers = [
                         {
@@ -1159,17 +1159,17 @@
                     localStorage.setItem('users', JSON.stringify(allUsers));
                     localStorage.setItem('residents', JSON.stringify(allResidents));
                     
-                    console.log('✅ Residentes de prueba creados automáticamente');
-                    console.log('📊 Total usuarios:', allUsers.length);
-                    console.log('📊 Total residentes:', allResidents.length);
+                    console.log('Residentes de prueba creados automáticamente');
+                    console.log('Total usuarios:', allUsers.length);
+                    console.log('Total residentes:', allResidents.length);
                 } else {
-                    console.log('✅ Residentes de prueba ya existen');
+                    console.log('Residentes de prueba ya existen');
                 }
                 
                 // Debug: Mostrar usuarios disponibles
                 const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
                 const residents = allUsers.filter(u => u.role === 'resident' && u.active);
-                console.log('🏠 Residentes activos disponibles:', residents.map(r => ({
+                console.log('Residentes activos disponibles:', residents.map(r => ({
                     email: r.email,
                     name: r.name,
                     department: r.department
@@ -1210,7 +1210,7 @@
                         };
                     }
                 } catch (error) {
-                    console.log('🔄 API no disponible, usando autenticación local');
+                    console.log('API no disponible, usando autenticación local');
                 }
 
                 // Fallback a autenticación local si la API no está disponible
@@ -1261,10 +1261,10 @@
                         };
                     } else {
                         const errorData = await response.json();
-                        console.log('❌ Error de API:', errorData.message);
+                        console.log('Error de API:', errorData.message);
                     }
                 } catch (error) {
-                    console.log('🔄 API no disponible, usando autenticación local:', error.message);
+                    console.log('API no disponible, usando autenticación local:', error.message);
                 }
 
                 // Fallback a autenticación local
@@ -1272,7 +1272,7 @@
                     const users = JSON.parse(localStorage.getItem('users') || '[]');
                     const residents = JSON.parse(localStorage.getItem('residents') || '[]');
                     
-                    console.log('🔍 Buscando usuario en localStorage:', username);
+                    console.log('Buscando usuario en localStorage:', username);
                     
                     // Buscar usuario por email o username
                     const user = users.find(u => 
@@ -1283,7 +1283,7 @@
                     );
                     
                     if (!user) {
-                        console.log('❌ Usuario no encontrado en localStorage');
+                        console.log('Usuario no encontrado en localStorage');
                         return { success: false, message: 'Usuario no encontrado o cuenta inactiva' };
                     }
                     
@@ -1313,7 +1313,7 @@
                     };
                     
                 } catch (error) {
-                    console.error('💥 Error en autenticación local:', error);
+                    console.error('Error en autenticación local:', error);
                     return { success: false, message: 'Error interno de autenticación' };
                 }
             }
@@ -1485,11 +1485,11 @@ Ejemplo: usuario@email.com + 101 = usuario101`);
                 
                 alert(`${buildingName}
 
-✓ Panel de Administración para gestión completa
-✓ Panel de Residente para seguimiento personal
-✓ Sistema de notificaciones automáticas
-✓ Gestión de paquetes y encomiendas
-✓ Seguimiento en tiempo real
+Panel de Administración para gestión completa
+Panel de Residente para seguimiento personal
+Sistema de notificaciones automáticas
+Gestión de paquetes y encomiendas
+Seguimiento en tiempo real
 
 Versión: 1.0
 Año: 2025`);
@@ -1501,9 +1501,9 @@ Año: 2025`);
                 
                 alert(`Información de Contacto:
 
- Email: ${buildingConfig.email || 'admin@edificio.cl'}
- Teléfono: ${buildingConfig.telefono || '+56 2 2345 6789'}
- Dirección: ${buildingConfig.direccion || 'No especificada'}
+Email: ${buildingConfig.email || 'admin@edificio.cl'}
+Teléfono: ${buildingConfig.telefono || '+56 2 2345 6789'}
+Dirección: ${buildingConfig.direccion || 'No especificada'}
 
 Para soporte técnico, contacta al administrador del sistema.`);
             };
@@ -1518,12 +1518,12 @@ Para soporte técnico, contacta al administrador del sistema.`);
                     localStorage.removeItem('currentResident');
                     localStorage.removeItem('currentResidentId');
                     
-                    console.log('🧹 Datos limpiados');
+                    console.log('Datos limpiados');
                     
                     // Recrear datos de prueba
                     initializeTestData();
                     
-                    alert('✅ Datos de prueba recreados exitosamente!\n\nYa puedes usar las credenciales de residentes.');
+                    alert('Datos de prueba recreados exitosamente!\n\nYa puedes usar las credenciales de residentes.');
                 }
             };
             
