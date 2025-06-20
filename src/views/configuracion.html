@@ -283,6 +283,7 @@
         display: flex;
         border-bottom: 1px solid var(--gray-light);
         margin-bottom: 20px;
+        overflow-x: auto;
     }
     
     .tab {
@@ -291,6 +292,7 @@
         border-bottom: 2px solid transparent;
         font-weight: 500;
         transition: all 0.3s ease;
+        white-space: nowrap;
     }
     
     .tab:hover {
@@ -392,6 +394,16 @@
         color: #c0392b;
     }
     
+    .badge-warning {
+        background-color: rgba(243, 156, 18, 0.2);
+        color: #d68910;
+    }
+    
+    .badge-info {
+        background-color: rgba(52, 152, 219, 0.2);
+        color: #2980b9;
+    }
+    
     .action-buttons {
         display: flex;
         gap: 5px;
@@ -466,7 +478,7 @@
         color: var(--danger);
     }
     
-    /* Estilos para el modal de residentes */
+    /* Estilos para los modales */
     .modal {
         display: none;
         position: fixed;
@@ -491,6 +503,10 @@
         max-width: 500px;
         margin: auto;
         pointer-events: none;
+    }
+    
+    .modal-dialog.large {
+        max-width: 700px;
     }
     
     .modal-content {
@@ -584,6 +600,153 @@
         border: 1px solid #dee2e6;
         font-size: 0.9rem;
     }
+
+    /* Estilos específicos para reclamos */
+    .complaint-filters {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .filter-group select {
+        padding: 8px 12px;
+        border: 1px solid var(--gray-light);
+        border-radius: 5px;
+        font-size: 0.9rem;
+    }
+
+    .complaint-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .summary-card {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .summary-card.pending {
+        background: linear-gradient(135deg, var(--warning), #e67e22);
+    }
+
+    .summary-card.processing {
+        background: linear-gradient(135deg, var(--info), #2980b9);
+    }
+
+    .summary-card.resolved {
+        background: linear-gradient(135deg, var(--success), #229954);
+    }
+
+    .summary-number {
+        font-size: 2rem;
+        font-weight: bold;
+        display: block;
+    }
+
+    .summary-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .complaint-details {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .complaint-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+    }
+
+    .complaint-description {
+        background-color: white;
+        border: 1px solid #e9ecef;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .response-section {
+        margin-top: 20px;
+    }
+
+    .response-history {
+        max-height: 300px;
+        overflow-y: auto;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .response-item {
+        background-color: white;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-left: 3px solid var(--primary);
+    }
+
+    .response-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .response-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+
+    .response-author {
+        font-weight: 600;
+        color: var(--primary);
+    }
+
+    .response-date {
+        color: var(--gray);
+        font-size: 0.8rem;
+    }
+
+    .priority-high {
+        color: var(--danger);
+        font-weight: bold;
+    }
+
+    .priority-medium {
+        color: var(--warning);
+        font-weight: bold;
+    }
+
+    .priority-low {
+        color: var(--success);
+        font-weight: bold;
+    }
     
     @media (max-width: 992px) {
         .main-content {
@@ -597,6 +760,15 @@
         
         .profile-details {
             width: 100%;
+        }
+
+        .complaint-filters {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-group {
+            justify-content: space-between;
         }
     }
     
@@ -642,11 +814,19 @@
             white-space: nowrap;
             padding-bottom: 5px;
         }
+
+        .complaint-summary {
+            grid-template-columns: repeat(2, 1fr);
+        }
     }
     
     @media (max-width: 576px) {
         .main-content {
             padding: 10px;
+        }
+
+        .complaint-summary {
+            grid-template-columns: 1fr;
         }
     }
   </style>
@@ -715,6 +895,7 @@
         <div class="tabs">
             <div class="tab active" data-tab="profile">Perfil de Administrador</div>
             <div class="tab" data-tab="residents">Gestión de Residentes</div>
+            <div class="tab" data-tab="complaints">Gestión de Reclamos</div>
             <div class="tab" data-tab="system">Configuración del Sistema</div>
         </div>
 
@@ -801,6 +982,97 @@
                                 </tr>
                             </thead>
                             <tbody id="residentsTableBody">
+                                <!-- El contenido se cargará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido de Gestión de Reclamos -->
+        <div class="tab-content" id="complaints-tab">
+            <div class="card">
+                <div class="card-header">
+                    Gestión de Reclamos
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" id="refreshComplaintsBtn">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Resumen de reclamos -->
+                    <div class="complaint-summary">
+                        <div class="summary-card">
+                            <span class="summary-number" id="totalComplaints">0</span>
+                            <span class="summary-label">Total Reclamos</span>
+                        </div>
+                        <div class="summary-card pending">
+                            <span class="summary-number" id="pendingComplaints">0</span>
+                            <span class="summary-label">Pendientes</span>
+                        </div>
+                        <div class="summary-card processing">
+                            <span class="summary-number" id="processingComplaints">0</span>
+                            <span class="summary-label">En Proceso</span>
+                        </div>
+                        <div class="summary-card resolved">
+                            <span class="summary-number" id="resolvedComplaints">0</span>
+                            <span class="summary-label">Resueltos</span>
+                        </div>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="complaint-filters">
+                        <div class="filter-group">
+                            <label for="statusFilter">Estado:</label>
+                            <select id="statusFilter" onchange="filterComplaints()">
+                                <option value="">Todos</option>
+                                <option value="pending">Pendientes</option>
+                                <option value="processing">En Proceso</option>
+                                <option value="resolved">Resueltos</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="categoryFilter">Categoría:</label>
+                            <select id="categoryFilter" onchange="filterComplaints()">
+                                <option value="">Todas</option>
+                                <option value="maintenance">Mantenimiento</option>
+                                <option value="noise">Ruidos</option>
+                                <option value="security">Seguridad</option>
+                                <option value="services">Servicios</option>
+                                <option value="packages">Paquetes</option>
+                                <option value="common_areas">Áreas Comunes</option>
+                                <option value="other">Otros</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="priorityFilter">Prioridad:</label>
+                            <select id="priorityFilter" onchange="filterComplaints()">
+                                <option value="">Todas</option>
+                                <option value="high">Alta</option>
+                                <option value="medium">Media</option>
+                                <option value="low">Baja</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de reclamos -->
+                    <div class="table-container">
+                        <table class="data-table" id="complaintsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Residente</th>
+                                    <th>Categoría</th>
+                                    <th>Asunto</th>
+                                    <th>Prioridad</th>
+                                    <th>Estado</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="complaintsTableBody">
                                 <!-- El contenido se cargará dinámicamente -->
                             </tbody>
                         </table>
@@ -1031,6 +1303,92 @@
     </div>
   </div>
 
+  <!-- Modal para Ver/Responder Reclamo -->
+  <div id="complaintModal" class="modal">
+    <div class="modal-dialog large">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" id="complaintModalTitle">Detalle del Reclamo</h3>
+          <button type="button" class="close-button" onclick="closeComplaintModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="complaint-details">
+            <div class="complaint-meta">
+              <div class="meta-item">
+                <i class="fas fa-hashtag"></i>
+                <span><strong>ID:</strong> <span id="modalComplaintId">-</span></span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-user"></i>
+                <span><strong>Residente:</strong> <span id="modalComplaintResident">-</span></span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-building"></i>
+                <span><strong>Departamento:</strong> <span id="modalComplaintDepartment">-</span></span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-calendar"></i>
+                <span><strong>Fecha:</strong> <span id="modalComplaintDate">-</span></span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-tag"></i>
+                <span><strong>Categoría:</strong> <span id="modalComplaintCategory">-</span></span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span><strong>Prioridad:</strong> <span id="modalComplaintPriority">-</span></span>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label><strong>Asunto:</strong></label>
+              <div id="modalComplaintSubject" style="padding: 10px; background-color: white; border-radius: 5px; border: 1px solid #e9ecef;">-</div>
+            </div>
+            
+            <div class="form-group">
+              <label><strong>Descripción:</strong></label>
+              <div class="complaint-description" id="modalComplaintDescription">-</div>
+            </div>
+            
+            <div class="form-group">
+              <label for="modalComplaintStatus"><strong>Estado:</strong></label>
+              <select id="modalComplaintStatus" class="form-input">
+                <option value="pending">Pendiente</option>
+                <option value="processing">En Proceso</option>
+                <option value="resolved">Resuelto</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="response-section">
+            <h4 style="margin-bottom: 15px; color: var(--secondary);">
+              <i class="fas fa-comments"></i> Historial de Respuestas
+            </h4>
+            
+            <div class="response-history" id="responseHistory">
+              <!-- Las respuestas se cargarán dinámicamente -->
+            </div>
+            
+            <div class="form-group">
+              <label for="newResponse"><strong>Nueva Respuesta:</strong></label>
+              <textarea id="newResponse" class="form-input" rows="4" placeholder="Escribe tu respuesta aquí..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" onclick="closeComplaintModal()">
+            <i class="fas fa-times"></i> Cerrar
+          </button>
+          <button type="button" class="btn btn-primary" onclick="saveComplaintResponse()">
+            <i class="fas fa-reply"></i> Responder
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast notifications -->
   <div id="toastSuccess" class="toast toast-success">
     <div class="toast-icon">
@@ -1049,6 +1407,8 @@
   <script>
     // Variables globales
     let residents = [];
+    let complaints = [];
+    let currentComplaint = null;
     
     // Verificar autenticación al cargar la página
     function checkAuth() {
@@ -1081,6 +1441,11 @@
           
           const tabId = tab.getAttribute('data-tab');
           document.getElementById(`${tabId}-tab`).classList.add('active');
+          
+          // Si es la pestaña de reclamos, cargar datos
+          if (tabId === 'complaints') {
+            loadComplaints();
+          }
         });
       });
     }
@@ -1732,6 +2097,350 @@
         console.error('Error al actualizar lista de departamentos:', error);
       }
     }
+
+    // ======= FUNCIONALIDAD DE GESTIÓN DE RECLAMOS =======
+
+    // Función para inicializar reclamos con datos de ejemplo
+    function initializeComplaints() {
+      const savedComplaints = localStorage.getItem('complaints');
+      if (!savedComplaints) {
+        complaints = [
+          {
+            id: 'REC001',
+            residentId: residents.length > 0 ? residents[0].id : 'temp1',
+            residentName: residents.length > 0 ? residents[0].name : 'Juan Pérez',
+            department: residents.length > 0 ? residents[0].apartment : '101',
+            category: 'maintenance',
+            subject: 'Goteras en el baño',
+            description: 'Hay goteras en el techo del baño que están ocasionando problemas de humedad. El problema se presenta principalmente durante las lluvias.',
+            priority: 'high',
+            status: 'pending',
+            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // Hace 2 días
+            responses: [
+              {
+                id: 'resp1',
+                author: 'Residente',
+                message: 'El problema se ha agravado desde ayer. Por favor, necesito una solución urgente.',
+                timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+              }
+            ]
+          },
+          {
+            id: 'REC002',
+            residentId: residents.length > 1 ? residents[1].id : 'temp2',
+            residentName: residents.length > 1 ? residents[1].name : 'María González',
+            department: residents.length > 1 ? residents[1].apartment : '202',
+            category: 'noise',
+            subject: 'Ruidos molestos en horas de descanso',
+            description: 'El departamento de arriba hace ruidos excesivos durante las noches, especialmente después de las 22:00 hrs.',
+            priority: 'medium',
+            status: 'processing',
+            createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // Hace 5 días
+            responses: [
+              {
+                id: 'resp2',
+                author: 'Administración',
+                message: 'Hemos contactado a los residentes del departamento superior para conversar sobre el tema.',
+                timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+              },
+              {
+                id: 'resp3',
+                author: 'Residente',
+                message: 'Gracias por la gestión. Esperaré a ver si mejora la situación.',
+                timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+              }
+            ]
+          },
+          {
+            id: 'REC003',
+            residentId: residents.length > 0 ? residents[0].id : 'temp1',
+            residentName: residents.length > 0 ? residents[0].name : 'Juan Pérez',
+            department: residents.length > 0 ? residents[0].apartment : '101',
+            category: 'security',
+            subject: 'Problema con cerradura principal',
+            description: 'La cerradura del acceso principal del edificio no está funcionando correctamente con mi llave.',
+            priority: 'low',
+            status: 'resolved',
+            createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // Hace 10 días
+            responses: [
+              {
+                id: 'resp4',
+                author: 'Administración',
+                message: 'Hemos solicitado al cerrajero que revise y ajuste la cerradura.',
+                timestamp: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString()
+              },
+              {
+                id: 'resp5',
+                author: 'Administración',
+                message: 'Problema resuelto. La cerradura ha sido reparada y todas las llaves funcionan correctamente.',
+                timestamp: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString()
+              }
+            ]
+          }
+        ];
+        localStorage.setItem('complaints', JSON.stringify(complaints));
+      } else {
+        complaints = JSON.parse(savedComplaints);
+      }
+    }
+
+    // Función para cargar reclamos
+    function loadComplaints() {
+      initializeComplaints();
+      updateComplaintsSummary();
+      updateComplaintsTable();
+    }
+
+    // Función para actualizar el resumen de reclamos
+    function updateComplaintsSummary() {
+      const total = complaints.length;
+      const pending = complaints.filter(c => c.status === 'pending').length;
+      const processing = complaints.filter(c => c.status === 'processing').length;
+      const resolved = complaints.filter(c => c.status === 'resolved').length;
+
+      document.getElementById('totalComplaints').textContent = total;
+      document.getElementById('pendingComplaints').textContent = pending;
+      document.getElementById('processingComplaints').textContent = processing;
+      document.getElementById('resolvedComplaints').textContent = resolved;
+    }
+
+    // Función para obtener el nombre de la categoría
+    function getCategoryName(category) {
+      const categories = {
+        'maintenance': 'Mantenimiento',
+        'noise': 'Ruidos',
+        'security': 'Seguridad',
+        'services': 'Servicios',
+        'packages': 'Paquetes',
+        'common_areas': 'Áreas Comunes',
+        'other': 'Otros'
+      };
+      return categories[category] || category;
+    }
+
+    // Función para obtener el nombre del estado
+    function getStatusName(status) {
+      const statuses = {
+        'pending': 'Pendiente',
+        'processing': 'En Proceso',
+        'resolved': 'Resuelto'
+      };
+      return statuses[status] || status;
+    }
+
+    // Función para obtener el nombre de la prioridad
+    function getPriorityName(priority) {
+      const priorities = {
+        'high': 'Alta',
+        'medium': 'Media',
+        'low': 'Baja'
+      };
+      return priorities[priority] || priority;
+    }
+
+    // Función para actualizar la tabla de reclamos
+    function updateComplaintsTable() {
+      const tableBody = document.getElementById('complaintsTableBody');
+      if (!tableBody) return;
+
+      // Limpiar tabla
+      tableBody.innerHTML = '';
+
+      // Obtener filtros activos
+      const statusFilter = document.getElementById('statusFilter').value;
+      const categoryFilter = document.getElementById('categoryFilter').value;
+      const priorityFilter = document.getElementById('priorityFilter').value;
+
+      // Filtrar reclamos
+      let filteredComplaints = complaints.filter(complaint => {
+        return (!statusFilter || complaint.status === statusFilter) &&
+               (!categoryFilter || complaint.category === categoryFilter) &&
+               (!priorityFilter || complaint.priority === priorityFilter);
+      });
+
+      // Si no hay reclamos, mostrar mensaje
+      if (filteredComplaints.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td colspan="8" style="text-align: center; padding: 30px;">
+            <i class="fas fa-comments" style="font-size: 3rem; color: #ddd; margin-bottom: 10px; display: block;"></i>
+            <p>No hay reclamos que coincidan con los filtros seleccionados</p>
+          </td>
+        `;
+        tableBody.appendChild(row);
+        return;
+      }
+
+      // Agregar reclamos a la tabla
+      filteredComplaints.forEach(complaint => {
+        const row = document.createElement('tr');
+        row.dataset.id = complaint.id;
+
+        const date = new Date(complaint.createdAt).toLocaleDateString('es-CL');
+        const statusBadge = `badge-${complaint.status === 'pending' ? 'warning' : complaint.status === 'processing' ? 'info' : 'primary'}`;
+        const priorityClass = `priority-${complaint.priority}`;
+
+        row.innerHTML = `
+          <td>${complaint.id}</td>
+          <td>${complaint.residentName}<br><small style="color: #666;">Depto. ${complaint.department}</small></td>
+          <td>${getCategoryName(complaint.category)}</td>
+          <td>${complaint.subject}</td>
+          <td><span class="${priorityClass}">${getPriorityName(complaint.priority)}</span></td>
+          <td><span class="badge ${statusBadge}">${getStatusName(complaint.status)}</span></td>
+          <td>${date}</td>
+          <td class="action-buttons">
+            <button class="btn-icon btn-view" onclick="viewComplaint('${complaint.id}')" title="Ver detalles">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn-icon btn-edit" onclick="respondToComplaint('${complaint.id}')" title="Responder">
+              <i class="fas fa-reply"></i>
+            </button>
+          </td>
+        `;
+
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Función para filtrar reclamos
+    function filterComplaints() {
+      updateComplaintsTable();
+    }
+
+    // Función para ver detalle de un reclamo
+    function viewComplaint(complaintId) {
+      const complaint = complaints.find(c => c.id === complaintId);
+      if (!complaint) {
+        showToast('error', 'No se encontró el reclamo');
+        return;
+      }
+
+      // Mostrar información del reclamo en un alert
+      const date = new Date(complaint.createdAt).toLocaleDateString('es-CL');
+      alert(`
+        Detalle del Reclamo ${complaint.id}:
+        
+        Residente: ${complaint.residentName} - Depto. ${complaint.department}
+        Categoría: ${getCategoryName(complaint.category)}
+        Prioridad: ${getPriorityName(complaint.priority)}
+        Estado: ${getStatusName(complaint.status)}
+        Fecha: ${date}
+        
+        Asunto: ${complaint.subject}
+        
+        Descripción: ${complaint.description}
+        
+        Respuestas: ${complaint.responses.length}
+      `);
+    }
+
+    // Función para responder a un reclamo
+    function respondToComplaint(complaintId) {
+      const complaint = complaints.find(c => c.id === complaintId);
+      if (!complaint) {
+        showToast('error', 'No se encontró el reclamo');
+        return;
+      }
+
+      currentComplaint = complaint;
+
+      // Llenar datos del modal
+      document.getElementById('modalComplaintId').textContent = complaint.id;
+      document.getElementById('modalComplaintResident').textContent = complaint.residentName;
+      document.getElementById('modalComplaintDepartment').textContent = complaint.department;
+      document.getElementById('modalComplaintDate').textContent = new Date(complaint.createdAt).toLocaleDateString('es-CL');
+      document.getElementById('modalComplaintCategory').textContent = getCategoryName(complaint.category);
+      document.getElementById('modalComplaintPriority').textContent = getPriorityName(complaint.priority);
+      document.getElementById('modalComplaintSubject').textContent = complaint.subject;
+      document.getElementById('modalComplaintDescription').textContent = complaint.description;
+      document.getElementById('modalComplaintStatus').value = complaint.status;
+
+      // Llenar historial de respuestas
+      const responseHistory = document.getElementById('responseHistory');
+      responseHistory.innerHTML = '';
+
+      if (complaint.responses.length === 0) {
+        responseHistory.innerHTML = '<p style="text-align: center; color: #666;">No hay respuestas aún.</p>';
+      } else {
+        complaint.responses.forEach(response => {
+          const responseDiv = document.createElement('div');
+          responseDiv.className = 'response-item';
+          responseDiv.innerHTML = `
+            <div class="response-header">
+              <span class="response-author">${response.author}</span>
+              <span class="response-date">${new Date(response.timestamp).toLocaleString('es-CL')}</span>
+            </div>
+            <div>${response.message}</div>
+          `;
+          responseHistory.appendChild(responseDiv);
+        });
+      }
+
+      // Limpiar campo de nueva respuesta
+      document.getElementById('newResponse').value = '';
+
+      // Mostrar modal
+      document.getElementById('complaintModal').classList.add('show');
+    }
+
+    // Función para cerrar modal de reclamo
+    function closeComplaintModal() {
+      document.getElementById('complaintModal').classList.remove('show');
+      currentComplaint = null;
+    }
+
+    // Función para guardar respuesta del reclamo
+    function saveComplaintResponse() {
+      if (!currentComplaint) {
+        showToast('error', 'No hay reclamo seleccionado');
+        return;
+      }
+
+      const newResponse = document.getElementById('newResponse').value.trim();
+      const newStatus = document.getElementById('modalComplaintStatus').value;
+
+      if (!newResponse && newStatus === currentComplaint.status) {
+        showToast('error', 'Debes escribir una respuesta o cambiar el estado');
+        return;
+      }
+
+      // Actualizar estado si cambió
+      if (newStatus !== currentComplaint.status) {
+        currentComplaint.status = newStatus;
+      }
+
+      // Agregar nueva respuesta si hay texto
+      if (newResponse) {
+        const response = {
+          id: generateUniqueId(),
+          author: 'Administración',
+          message: newResponse,
+          timestamp: new Date().toISOString()
+        };
+        currentComplaint.responses.push(response);
+      }
+
+      // Actualizar fecha de última modificación
+      currentComplaint.updatedAt = new Date().toISOString();
+
+      // Guardar en localStorage
+      localStorage.setItem('complaints', JSON.stringify(complaints));
+
+      // Actualizar interfaz
+      updateComplaintsSummary();
+      updateComplaintsTable();
+
+      // Cerrar modal
+      closeComplaintModal();
+
+      showToast('success', 'Respuesta enviada correctamente');
+    }
+
+    // Función para actualizar reclamos (refrescar)
+    function refreshComplaints() {
+      loadComplaints();
+      showToast('success', 'Reclamos actualizados');
+    }
     
     // ======= CONFIGURACIÓN DEL SISTEMA =======
     
@@ -1816,6 +2525,7 @@
           users: JSON.parse(localStorage.getItem('users')) || [],
           departments: JSON.parse(localStorage.getItem('departments')) || [],
           packages: JSON.parse(localStorage.getItem('paquetesPrueba')) || [],
+          complaints: complaints,
           systemSettings: JSON.parse(localStorage.getItem('systemSettings')) || {},
           buildingConfig: JSON.parse(localStorage.getItem('edificioConfig')) || {},
           exportDate: new Date().toISOString(),
@@ -1895,6 +2605,11 @@
                 localStorage.setItem('paquetesPrueba', JSON.stringify(data.packages));
               }
               
+              if (data.complaints) {
+                localStorage.setItem('complaints', JSON.stringify(data.complaints));
+                complaints = data.complaints;
+              }
+              
               if (data.systemSettings) {
                 localStorage.setItem('systemSettings', JSON.stringify(data.systemSettings));
               }
@@ -1907,6 +2622,7 @@
               updateResidentsTable();
               updateUsersList(residents);
               loadSystemSettings();
+              loadComplaints();
               
               showToast('success', 'Datos importados correctamente');
               
@@ -1978,6 +2694,16 @@
           closeLoginCredentialsModal();
         }
       });
+
+      // Configurar eventos para cerrar modal de reclamos con clic fuera
+      document.getElementById('complaintModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeComplaintModal();
+        }
+      });
+      
+      // Configurar eventos para reclamos
+      document.getElementById('refreshComplaintsBtn').addEventListener('click', refreshComplaints);
       
       // Configurar eventos para configuración del sistema
       document.getElementById('saveSystemSettingsBtn').addEventListener('click', saveSystemSettings);
@@ -1989,6 +2715,11 @@
     window.showLoginCredentials = showLoginCredentials;
     window.closeLoginCredentialsModal = closeLoginCredentialsModal;
     window.testResidentLogin = testResidentLogin;
+    window.viewComplaint = viewComplaint;
+    window.respondToComplaint = respondToComplaint;
+    window.closeComplaintModal = closeComplaintModal;
+    window.saveComplaintResponse = saveComplaintResponse;
+    window.filterComplaints = filterComplaints;
   </script>
 </body> 
 </html>
