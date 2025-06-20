@@ -2,25 +2,32 @@ import { User } from "../../auth/models/user.ts";
 import { NotificationStrategy } from "./notification.strategy.interface.ts";
 import { NotificationLogger } from "./NotificationLogger.ts";
 
+interface TemplateParams {
+  to_name: string;
+  subject: string;
+  package_id?: string;
+  message: string;
+  type: string;
+  to_email?: string;
+}
+
 export class EmailNotifier implements NotificationStrategy {
   private logger: NotificationLogger;
-  private readonly PUBLIC_KEY = "TU_PUBLIC_KEY"; // Reemplazar con tu clave pública de EmailJS
-  private readonly TEMPLATE_ID = "TU_TEMPLATE_ID"; // Reemplazar con tu ID de plantilla
-  private readonly SERVICE_ID = "TU_SERVICE_ID"; // Reemplazar con tu ID de servicio
+  private readonly PUBLIC_KEY = "CfvZkAoNd3dmanVEl";
+  private readonly TEMPLATE_ID = "template_bct2j24";
+  private readonly SERVICE_ID = "service_pp";
 
   constructor() {
     this.logger = new NotificationLogger();
   }
 
-  private async sendEmail(to: string, templateParams: any): Promise<void> {
+  private async sendEmail(to: string, templateParams: TemplateParams): Promise<void> {
     try {
-      // Simulación de EmailJS para pruebas
       console.log("\n=== Simulación de EmailJS ===");
       console.log("Destinatario:", to);
       console.log("Parámetros de plantilla:", JSON.stringify(templateParams, null, 2));
       console.log("===========================\n");
 
-  
       await fetch("https://api.emailjs.com/api/v1.0/email/send", {
         method: "POST",
         headers: {
@@ -36,22 +43,22 @@ export class EmailNotifier implements NotificationStrategy {
           },
         }),
       });
-    
 
       this.logger.logNotification({
         userId: to,
-        type: 'email',
-        status: 'success',
+        type: "email",
+        status: "success",
         message: `Email simulado enviado: ${templateParams.subject}`,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       this.logger.logNotification({
         userId: to,
-        type: 'email',
-        status: 'failed',
-        message: `Error al enviar email: ${error.message}`,
-        timestamp: new Date()
+        type: "email",
+        status: "failed",
+        message: `Error al enviar email: ${errorMessage}`,
+        timestamp: new Date(),
       });
       throw error;
     }
@@ -59,21 +66,30 @@ export class EmailNotifier implements NotificationStrategy {
 
   public async notifyPackageArrival(user: User, packageId: string): Promise<void> {
     await this.sendEmail(user.email, {
-      to_name: user.name,
+      to_name: user.fullName || "Usuario",
       subject: "Nuevo paquete recibido",
       package_id: packageId,
       message: `Se ha recibido un nuevo paquete con ID: ${packageId} para ti.`,
-      type: "arrival"
+      type: "arrival",
     });
   }
 
   public async notifyPickupReminder(user: User, packageId: string): Promise<void> {
     await this.sendEmail(user.email, {
-      to_name: user.name,
+      to_name: user.fullName || "Usuario",
       subject: "Recordatorio de retiro de paquete",
       package_id: packageId,
       message: `Te recordamos que tienes un paquete pendiente de retirar (ID: ${packageId}).`,
-      type: "reminder"
+      type: "reminder",
+    });
+  }
+
+  public async notifyCustom(user: User, title: string, message: string): Promise<void> {
+    await this.sendEmail(user.email, {
+      to_name: user.fullName || "Usuario",
+      subject: title,
+      message,
+      type: "custom",
     });
   }
 }

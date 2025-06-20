@@ -1,12 +1,15 @@
 import { Application, Router, send } from "./deps.ts";
+import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { oakCors } from "./deps.ts";
+import "https://deno.land/std@0.204.0/dotenv/load.ts";
+
 import { createPackagesTable } from "./src/database/models/package.ts";
 import { createUsersTable } from "./src/auth/models/user.ts";
-import { testConnection } from "./src/database/connection.ts"; // Importar función de prueba
+import { testConnection } from "./src/database/connection.ts";
+
 import packageRouter from "./src/routes/packages.ts";
 import authRouter from "./src/routes/routes.ts";
-import { oakCors } from "./deps.ts";
-import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
-import "https://deno.land/std@0.204.0/dotenv/load.ts";
+import notificationRouter from "./src/services/notifications/notifications.routes.ts";
 
 // Verificar variables de entorno
 console.log("=== VERIFICACIÓN DE VARIABLES DE ENTORNO ===");
@@ -20,7 +23,7 @@ console.log("===========================================");
 const app = new Application();
 const port = 8003;
 
-// Configuración de CORS
+// CORS
 app.use(oakCors({
   origin: /http:\/\/localhost(:\d+)?/,
   credentials: true,
@@ -28,7 +31,7 @@ app.use(oakCors({
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }));
 
-// Middleware para parsear JSON
+// Middleware de errores
 app.use(async (ctx, next) => {
   try {
     await next();
@@ -42,7 +45,12 @@ app.use(async (ctx, next) => {
 // Middleware para servir archivos estáticos
 app.use(async (ctx, next) => {
   const path = ctx.request.url.pathname;
-  if (path.startsWith("/styles") || path.startsWith("/images") || path.endsWith(".html") || path.startsWith("/resident/")) {
+  if (
+    path.startsWith("/styles") ||
+    path.startsWith("/images") ||
+    path.endsWith(".html") ||
+    path.startsWith("/resident/")
+  ) {
     await send(ctx, path, {
       root: join(Deno.cwd(), "src", "views"),
     });
@@ -51,41 +59,34 @@ app.use(async (ctx, next) => {
   }
 });
 
-// Router para redirigir la raíz "/" hacia "login.html"
+// Ruta base redirige a login
 const router = new Router();
 router.get("/", (ctx) => {
   ctx.response.redirect("/login.html");
 });
-
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-// API REST para autenticación
+// Rutas de APIs
 app.use(authRouter.routes());
 app.use(authRouter.allowedMethods());
 
-// API REST para paquetes
 app.use(packageRouter.routes());
 app.use(packageRouter.allowedMethods());
 
-// PROBAR CONEXIÓN ANTES DE CREAR TABLAS
+app.use(notificationRouter.routes()); 
+app.use(notificationRouter.allowedMethods());
+
+// Conexión a DB
 console.log("\n=== PRUEBA DE CONEXIÓN A BASE DE DATOS ===");
 const connectionSuccess = await testConnection();
-
 if (!connectionSuccess) {
   console.error("❌ No se pudo establecer conexión con la base de datos");
-  console.error("Verifica que:");
-  console.error("1. PostgreSQL esté corriendo");
-  console.error("2. La base de datos 'packages_db' exista");
-  console.error("3. Las credenciales sean correctas");
-  console.error("4. El archivo .env esté en la raíz del proyecto");
   Deno.exit(1);
 }
 
 console.log("✅ Conexión establecida, creando tablas...");
-
 try {
-  // Crear tablas si no existen
   await createUsersTable();
   await createPackagesTable();
   console.log("✅ Tablas creadas correctamente");
@@ -94,5 +95,5 @@ try {
   Deno.exit(1);
 }
 
-console.log(`🚀 Servidor web corriendo en http://localhost:${port}`);
+console.log(`🚀 Servidor corriendo en http://localhost:${port}`);
 await app.listen({ port });

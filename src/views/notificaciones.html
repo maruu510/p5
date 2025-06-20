@@ -319,6 +319,7 @@
       }
     }
   </style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
   <div class="container">
@@ -526,6 +527,7 @@
 
   <!-- Scripts -->
   <script>
+    emailjs.init('CfvZkAoNd3dmanVEl');
     function refreshNotificationList() {
   // Hacer una petición real al backend
   fetch('/api/notifications')
@@ -570,69 +572,115 @@
     }
     
     // Función para enviar notificación
-    function sendNotification() {
-      // Obtener valores del formulario
-      const resident = document.getElementById('residentSelect').value;
-      const title = document.getElementById('notificationTitle').value;
-      const message = document.getElementById('notificationMessage').value;
-      const sendEmail = document.getElementById('sendByEmail').checked;
-      const sendSMS = document.getElementById('sendBySMS').checked;
-      
-      // Validar campos
-      if (!resident || !title || !message) {
-        showToast('error', 'Por favor, complete todos los campos obligatorios');
-        return;
-      }
-      
-      if (!sendEmail && !sendSMS) {
-        showToast('error', 'Debe seleccionar al menos un método de envío');
-        return;
-      }
-      
-      // Simular envío exitoso
-      showToast('success', 'Notificación enviada correctamente');
-      
-      // Reiniciar formulario
-      document.getElementById('notificationForm').reset();
-      
-      // Actualizar tabla
-      refreshNotificationList();
+   async function sendNotification() {
+  const select = document.getElementById('residentSelect');
+  const residentEmail = select.value;
+  const title = document.getElementById('notificationTitle').value;
+  const message = document.getElementById('notificationMessage').value;
+
+  if (!residentEmail || !title || !message) {
+    showToast('error', 'Por favor, completa todos los campos obligatorios');
+    return;
+  }
+
+  // Aquí usas EmailJS para enviar el correo
+  emailjs.send('service_pp', 'template_bct2j24', {
+    to_email: residentEmail,
+    subject: title,
+    message: message
+  })
+  .then(function(response) {
+    showToast('success', 'Notificación enviada correctamente');
+    document.getElementById('notificationForm').reset();
+  }, function(error) {
+    showToast('error', 'Error al enviar la notificación');
+    console.error(error);
+  });
+}
+  function loadTemplate() {
+    const template = document.getElementById('templateSelect').value;
+    const titleInput = document.getElementById('notificationTitle');
+    const messageInput = document.getElementById('notificationMessage');
+
+    switch(template) {
+      case 'package':
+        titleInput.value = 'Nuevo paquete disponible para retirar';
+        messageInput.value = 'Estimado/a residente,\n\nLe informamos que ha llegado un paquete a su nombre. Puede pasar a recogerlo en la administración del edificio en horario de oficina.\n\nSaludos cordiales,\nAdministración del Edificio';
+        break;
+      case 'reminder':
+        titleInput.value = 'Recordatorio: Paquete pendiente por retirar';
+        messageInput.value = 'Estimado/a residente,\n\nLe recordamos que tiene un paquete pendiente por retirar. Por favor, pase por la administración del edificio a la brevedad posible.\n\nSaludos cordiales,\nAdministración del Edificio';
+        break;
+      case 'welcome':
+        titleInput.value = 'Bienvenido/a al Edificio';
+        messageInput.value = 'Estimado/a residente,\n\nLe damos la más cordial bienvenida al edificio. Estamos a su disposición para cualquier consulta o solicitud que pueda tener.\n\nSaludos cordiales,\nAdministración del Edificio';
+        break;
+      case 'custom':
+        titleInput.value = '';
+        messageInput.value = '';
+        break;
     }
-    
-    // Función para ver notificación
-    function viewNotification(id) {
-      // En una aplicación real, aquí se mostraría un modal con los detalles
-      alert(`Ver detalles de la notificación #${id}`);
-    }
-    
-    // Función para reenviar notificación
-    function resendNotification(id) {
-      showToast('success', `Notificación #${id} reenviada correctamente`);
-    }
-    
-    // Función para actualizar lista de notificaciones
-    function refreshNotificationList() {
-      // En una aplicación real, aquí se cargarían los datos desde el servidor
+  }
+
+  async function refreshNotificationList() {
+    try {
+      const response = await fetch('/api/notifications');
+      const data = await response.json();
+
+      // Aquí deberías llenar tu tabla con data
+      console.log("Notificaciones:", data);
+
       showToast('success', 'Lista de notificaciones actualizada');
+    } catch (error) {
+      console.error('Error al cargar notificaciones:', error);
+      showToast('error', 'Error al cargar notificaciones');
     }
+  }
+
+  function viewNotification(id) {
+    alert(`Ver detalles de la notificación #${id}`);
+  }
+
+  function resendNotification(id) {
+    showToast('success', `Notificación #${id} reenviada correctamente`);
+  }
+
+  function showToast(type, message) {
+    const toast = document.getElementById(type === 'success' ? 'toastSuccess' : 'toastError');
+    const messageElement = document.getElementById(type === 'success' ? 'successMessage' : 'errorMessage');
     
-    // Función para mostrar toast
-    function showToast(type, message) {
-      const toast = document.getElementById(type === 'success' ? 'toastSuccess' : 'toastError');
-      const messageElement = document.getElementById(type === 'success' ? 'successMessage' : 'errorMessage');
-      
-      messageElement.textContent = message;
-      toast.classList.add('show');
-      
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3000);
+    messageElement.textContent = message;
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
+  }
+
+ document.addEventListener('DOMContentLoaded', function() {
+  // Poblar select de residentes dinámicamente desde localStorage
+  const select = document.getElementById('residentSelect');
+  // Elimina las opciones actuales excepto la de "Elegir residente" y "Todos"
+  for (let i = select.options.length - 1; i >= 0; i--) {
+    if (select.options[i].value !== "" && select.options[i].value !== "all") {
+      select.remove(i);
     }
-    
-    // Inicializar página
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('Página de notificaciones cargada correctamente');
+  }
+  // Leer usuarios del localStorage
+  const users = JSON.parse(localStorage.getItem('users') || '[]');
+  users
+    .filter(u => u.role === 'resident' && u.active)
+    .forEach(user => {
+      const option = document.createElement('option');
+      option.value = user.username; // username = email, lo que espera getUserByUsername
+      option.textContent = `${user.name} ${user.lastname} (Depto ${user.department})`;
+      // Insertar antes de la opción "Todos los residentes"
+      select.insertBefore(option, select.querySelector('option[value="all"]'));
     });
-  </script>
+
+  console.log('Página de notificaciones cargada correctamente');
+});
+   
+</script>
 </body>
 </html>  
