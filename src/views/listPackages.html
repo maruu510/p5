@@ -772,14 +772,7 @@ grid-template-columns: 1fr;
 <i class="fas fa-sync-alt"></i>
  Actualizar
 </button>
-<button class="btn btn-secondary" onclick="navigateTo('registerPackage.html')">
-<i class="fas fa-plus"></i>
- Registrar Nuevo
-</button>
-<button class="btn" style="background-color: #6c5ce7; color: white;" onclick="navigateTo('codigoqr.html')">
-<i class="fas fa-qrcode"></i>
- Lector QR
-</button>
+
 </div>
 </div>
 <!-- Filtro de Departamentos -->
@@ -797,14 +790,11 @@ grid-template-columns: 1fr;
 <option value="all">Todos los estados</option>
 <option value="pendiente">Pendientes</option>
 <option value="entregado">Entregados</option>
-<option value="retirado">Retirados</option>
+
 </select>
 </div>
 <div>
-<button class="btn btn-warning" onclick="navigateTo('departaments.html')">
-<i class="fas fa-building"></i>
- Administrar Departamentos
-</button>
+
 </div>
 </div>
 <!-- Tabla de Paquetes -->
@@ -1196,14 +1186,7 @@ function loadPackages() {
                             <button class="table-action view" onclick="showPackageDetails('${safeId}')">
                                 <i class="fas fa-eye"></i> Ver
                             </button>
-                            ${status === 'pendiente' ?
-                                `<button class="table-action" onclick="openModal('${safeId}')">
-                                    <i class="fas fa-check"></i> Entregar
-                                </button>` :
-                                `<button class="table-action disabled">
-                                    <i class="fas fa-check"></i> ${statusText}
-                                </button>`
-                            }
+                            
                         </td>
                     </tr>
                 `;
