@@ -653,9 +653,13 @@ transform: translateY(-60px);
 <i class="fas fa-sync-alt"></i>
 <span>Cambiar Cámara</span>
 </button>
-<button id="debug-toggle" class="btn btn-gray">
+                <button id="debug-toggle" class="btn btn-gray">
 <i class="fas fa-bug"></i>
 <span>Debug</span>
+</button>
+<button id="test-codes" class="btn btn-accent">
+<i class="fas fa-vial"></i>
+<span>Test</span>
 </button>
 </div>
 <p style="text-align: center; margin-top: 10px; color: var(--gray); font-size: 0.9rem;">
@@ -692,16 +696,76 @@ transform: translateY(-60px);
 <i class="fas fa-check-circle"></i>
 <span id="notification-message">Paquete procesado correctamente</span>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<!-- Cargar jsQR con múltiples fallbacks -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+// Función para cargar jsQR con múltiples CDN como respaldo
+function loadJsQR() {
+return new Promise((resolve, reject) => {
+// Lista de CDNs a probar en orden
+const cdnUrls = [
+'https://unpkg.com/jsqr@1.4.0/dist/jsQR.js',
+'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js',
+'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js'
+];
+
+let currentIndex = 0;
+
+function tryLoadScript() {
+if (currentIndex >= cdnUrls.length) {
+reject(new Error('No se pudo cargar jsQR desde ningún CDN'));
+return;
+}
+
+const script = document.createElement('script');
+script.src = cdnUrls[currentIndex];
+script.onload = () => {
+console.log(`jsQR cargado exitosamente desde: ${cdnUrls[currentIndex]}`);
+resolve();
+};
+script.onerror = () => {
+console.warn(`Fallo al cargar desde: ${cdnUrls[currentIndex]}`);
+currentIndex++;
+tryLoadScript();
+};
+document.head.appendChild(script);
+}
+
+tryLoadScript();
+});
+}
+
+// Iniciar la aplicación después de cargar jsQR
+loadJsQR().then(() => {
+console.log('jsQR cargado correctamente, iniciando aplicación...');
+initializeQRReader();
+}).catch(error => {
+console.error('Error crítico:', error);
+document.body.innerHTML = `
+<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
+<h2 style="color: #e74c3c;">Error al cargar la biblioteca QR</h2>
+<p>No se pudo cargar la biblioteca jsQR necesaria para escanear códigos QR.</p>
+<p><strong>Posibles soluciones:</strong></p>
+<ul style="text-align: left; display: inline-block;">
+<li>Verifique su conexión a internet</li>
+<li>Recargue la página (F5)</li>
+<li>Intente más tarde</li>
+<li>Contacte al administrador si el problema persiste</li>
+</ul>
+<button onclick="location.reload()" style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">
+Reintentar
+</button>
+</div>
+`;
+});
+
+function initializeQRReader() {
 // Verificar autenticación
 const authToken = localStorage.getItem('authToken');
 const isLoggedIn = localStorage.getItem('isLoggedIn');
 if (!authToken || !isLoggedIn) {
 window.location.href = 'login.html';
 return;
- }
+}
 
 // Variables para debugging
 let debugMode = false;
@@ -719,6 +783,7 @@ const processButton = document.getElementById('process-btn');
 const notification = document.getElementById('notification');
 const notificationMessage = document.getElementById('notification-message');
 const debugToggle = document.getElementById('debug-toggle');
+const testCodesBtn = document.getElementById('test-codes');
 
 // Elementos para ingreso manual
 const toggleManualButton = document.getElementById('toggle-manual');
@@ -738,10 +803,10 @@ let currentCameraIndex = 0;
 let cameraPermissionGranted = false;
 let currentPackageData = null;
 
-// FUNCIÓN MEJORADA: Obtener todos los paquetes con múltiples fuentes
+// FUNCIÓN COMPLETAMENTE REESCRITA: Obtener todos los paquetes con logging detallado
 function getAllPackages() {
 try {
-console.log("=== OBTENIENDO TODOS LOS PAQUETES ===");
+console.log("=== OBTENIENDO TODOS LOS PAQUETES PARA QR ===");
         
 let allPackages = [];
         
@@ -756,26 +821,50 @@ const packages = JSON.parse(data);
 if (Array.isArray(packages)) {
 console.log(`Encontrados ${packages.length} paquetes en '${source}'`);
                     
-// Evitar duplicados
+// Agregar todos los paquetes, evitando duplicados
 packages.forEach(pkg => {
-const exists = allPackages.some(existing => 
-(existing.id && pkg.id && existing.id === pkg.id) ||
-(existing.qr_code && pkg.qr_code && existing.qr_code === pkg.qr_code)
-);
-if (!exists) {
-allPackages.push(pkg);
+// Verificar múltiples formas de identificar paquetes
+const packageId = pkg.id || pkg.qr_code || pkg.package_id;
+const exists = allPackages.some(existing => {
+const existingId = existing.id || existing.qr_code || existing.package_id;
+return existingId && packageId && existingId === packageId;
+});
+                        
+if (!exists && packageId) {
+// Normalizar el formato del paquete
+const normalizedPkg = {
+...pkg,
+id: packageId, // Asegurar que tenga ID
+qr_code: pkg.qr_code || packageId, // Asegurar que tenga qr_code
+search_terms: [
+packageId,
+pkg.qr_code,
+pkg.package_id,
+pkg.id
+].filter(Boolean) // Términos de búsqueda múltiples
+};
+allPackages.push(normalizedPkg);
+console.log(`Agregado paquete: ${packageId}`);
 }
 });
+} else {
+console.log(`'${source}' no contiene un array válido`);
 }
 } catch (e) {
 console.error(`Error al parsear '${source}':`, e);
 }
+} else {
+console.log(`No se encontraron datos en '${source}'`);
 }
 });
         
 console.log(`Total de paquetes únicos encontrados: ${allPackages.length}`);
+        
 if (debugMode) {
-console.log("Paquetes detallados:", allPackages);
+console.log("Detalles de todos los paquetes:");
+allPackages.forEach((pkg, index) => {
+console.log(`${index + 1}. ID: ${pkg.id}, QR: ${pkg.qr_code}, Depto: ${pkg.apartment_number}, Estado: ${pkg.status}`);
+});
 }
         
 return allPackages;
@@ -785,115 +874,232 @@ return [];
 }
 }
 
-// FUNCIÓN MEJORADA: Actualizar estado del paquete
+// FUNCIÓN MEJORADA: Actualizar estado del paquete con logging detallado
 function updatePackageStatus(packageId, newStatus) {
 try {
-console.log(`=== ACTUALIZANDO PAQUETE ${packageId} A ${newStatus} ===`);
+console.log(`=== ACTUALIZANDO ESTADO DE PAQUETE ===`);
+console.log(`ID del paquete: "${packageId}"`);
+console.log(`Nuevo estado: "${newStatus}"`);
         
 const packages = getAllPackages();
+console.log(`Total de paquetes en sistema: ${packages.length}`);
+        
 const packageIndex = packages.findIndex(pkg => 
 (pkg.id && pkg.id === packageId) ||
 (pkg.qr_code && pkg.qr_code === packageId)
 );
         
 if (packageIndex === -1) {
-console.error('Paquete no encontrado:', packageId);
+console.error('Paquete no encontrado para actualizar');
+console.log('IDs disponibles:', packages.map(p => p.id || p.qr_code));
 return false;
 }
         
 const originalPackage = packages[packageIndex];
-console.log('Paquete original:', originalPackage);
+console.log('Paquete original encontrado:', {
+id: originalPackage.id,
+qr_code: originalPackage.qr_code,
+apartment_number: originalPackage.apartment_number,
+status: originalPackage.status
+});
         
-// Actualizar el estado y la fecha de entrega
-packages[packageIndex] = {
+// Actualizar el estado y metadatos
+const updatedPackage = {
 ...originalPackage,
 status: newStatus,
 delivered_date: new Date().toISOString(),
 delivery_time: new Date().toLocaleString('es-ES'),
-updated_at: new Date().toISOString()
+updated_at: new Date().toISOString(),
+delivered_by_qr: true // Marcar que fue entregado via QR
 };
         
-console.log('Paquete actualizado:', packages[packageIndex]);
+packages[packageIndex] = updatedPackage;
         
-// Guardar en múltiples ubicaciones para compatibilidad
+console.log('Paquete actualizado:', {
+id: updatedPackage.id,
+status: updatedPackage.status,
+delivered_date: updatedPackage.delivered_date
+});
+        
+// Guardar en múltiples ubicaciones para máxima compatibilidad
 const sources = ['paquetesPrueba', 'packages'];
+let saveSuccess = true;
+        
 sources.forEach(source => {
 try {
 localStorage.setItem(source, JSON.stringify(packages));
-console.log(`Guardado en '${source}' exitosamente`);
-} catch (e) {
-console.error(`Error al guardar en '${source}':`, e);
+console.log(`Guardado exitoso en '${source}'`);
+} catch (saveError) {
+console.error(`Error al guardar en '${source}':`, saveError);
+saveSuccess = false;
 }
 });
         
-return true;
+if (saveSuccess) {
+console.log('Actualización completada exitosamente');
+// Sincronizar datos después de la actualización
+setTimeout(() => {
+syncPackageData();
+}, 100);
+} else {
+console.error('Algunos errores durante el guardado');
+}
+        
+return saveSuccess;
 } catch (error) {
-console.error('Error al actualizar paquete:', error);
+console.error('Error crítico al actualizar paquete:', error);
 return false;
 }
 }
 
-// FUNCIÓN COMPLETAMENTE REESCRITA: Buscar paquete por código
+// FUNCIÓN COMPLETAMENTE REESCRITA: Buscar paquete por código con múltiples estrategias
 function findPackageByCode(code) {
-console.log(`=== BUSCANDO PAQUETE CON CÓDIGO: "${code}" ===`);
+console.log(`=== BÚSQUEDA INTENSIVA DE PAQUETE ===`);
+console.log(`Código a buscar: "${code}"`);
+console.log(`Longitud del código: ${code.length}`);
+console.log(`Tipo: ${typeof code}`);
     
 const packages = getAllPackages();
-console.log(`Buscando en ${packages.length} paquetes`);
+console.log(`Total de paquetes disponibles para búsqueda: ${packages.length}`);
     
 if (packages.length === 0) {
-console.log("No hay paquetes para buscar");
+console.log("No hay paquetes disponibles para buscar");
 return null;
 }
     
-// Estrategia 1: Buscar por ID exacto
+// Limpiar el código de búsqueda
+const cleanCode = code.trim();
+console.log(`Código limpio: "${cleanCode}"`);
+    
+// ESTRATEGIA 1: Búsqueda exacta por ID principal
+console.log("ESTRATEGIA 1: Búsqueda exacta por ID...");
 let foundPackage = packages.find(pkg => {
-const match = (pkg.id && pkg.id === code) || (pkg.qr_code && pkg.qr_code === code);
+const match = pkg.id === cleanCode;
 if (match) {
-console.log("Encontrado por ID exacto:", pkg);
+console.log(`ENCONTRADO por ID exacto! Paquete:`, pkg);
 }
 return match;
 });
     
 if (foundPackage) return foundPackage;
     
-// Estrategia 2: Buscar por coincidencia parcial en el ID
+// ESTRATEGIA 2: Búsqueda exacta por qr_code
+console.log("ESTRATEGIA 2: Búsqueda exacta por qr_code...");
 foundPackage = packages.find(pkg => {
-const idMatch = pkg.id && pkg.id.toString().includes(code);
-const qrMatch = pkg.qr_code && pkg.qr_code.toString().includes(code);
-if (idMatch || qrMatch) {
-console.log("Encontrado por coincidencia parcial:", pkg);
+const match = pkg.qr_code === cleanCode;
+if (match) {
+console.log(`ENCONTRADO por qr_code exacto! Paquete:`, pkg);
 }
-return idMatch || qrMatch;
+return match;
 });
     
 if (foundPackage) return foundPackage;
     
-// Estrategia 3: Si el código es tipo PKG-, extraer departamento
-if (code.startsWith('PKG-')) {
-console.log("Código tipo PKG detectado, extrayendo departamento...");
-const parts = code.split('-');
+// ESTRATEGIA 3: Búsqueda en términos de búsqueda múltiples
+console.log("ESTRATEGIA 3: Búsqueda en términos múltiples...");
+foundPackage = packages.find(pkg => {
+if (pkg.search_terms && Array.isArray(pkg.search_terms)) {
+const match = pkg.search_terms.some(term => term === cleanCode);
+if (match) {
+console.log(`ENCONTRADO en términos de búsqueda! Paquete:`, pkg);
+}
+return match;
+}
+return false;
+});
+    
+if (foundPackage) return foundPackage;
+    
+// ESTRATEGIA 4: Búsqueda por formato PKG específico
+if (cleanCode.startsWith('PKG-')) {
+console.log("ESTRATEGIA 4: Código PKG detectado, analizando formato...");
+const parts = cleanCode.split('-');
+console.log(`Partes del código PKG: [${parts.join(', ')}]`);
+        
 if (parts.length >= 2) {
 const deptNumber = parts[1];
-console.log(`Buscando paquetes pendientes en departamento: ${deptNumber}`);
+console.log(`Número de departamento extraído: ${deptNumber}`);
             
+// Buscar por departamento y estado pendiente
 foundPackage = packages.find(pkg => {
 const deptMatch = pkg.apartment_number === deptNumber;
 const statusMatch = pkg.status === 'pendiente';
-const match = deptMatch && statusMatch;
+const combinedMatch = deptMatch && statusMatch;
+                
+if (combinedMatch) {
+console.log(`ENCONTRADO por departamento y estado! Paquete:`, pkg);
+} else if (deptMatch) {
+console.log(`Encontrado por departamento pero estado: ${pkg.status}`);
+}
+                
+return combinedMatch;
+});
+            
+if (!foundPackage) {
+// Intentar buscar cualquier paquete en ese departamento
+foundPackage = packages.find(pkg => pkg.apartment_number === deptNumber);
+if (foundPackage) {
+console.log(`Encontrado paquete en departamento pero con estado: ${foundPackage.status}`);
+}
+}
+        
+// ESTRATEGIA 4.5: Buscar por coincidencia exacta del código completo
+if (!foundPackage) {
+console.log("ESTRATEGIA 4.5: Búsqueda por código PKG completo...");
+foundPackage = packages.find(pkg => {
+const match = (pkg.id && pkg.id.includes(cleanCode)) || 
+                             (pkg.qr_code && pkg.qr_code.includes(cleanCode));
 if (match) {
-console.log("Encontrado por departamento y estado:", pkg);
+console.log(`ENCONTRADO por coincidencia de código completo! Paquete:`, pkg);
 }
 return match;
 });
 }
 }
+}
     
+// ESTRATEGIA 5: Búsqueda parcial como último recurso
 if (!foundPackage) {
-console.log("Paquete no encontrado con ninguna estrategia");
-// Mostrar IDs disponibles para debugging
+console.log("ESTRATEGIA 5: Búsqueda parcial (último recurso)...");
+foundPackage = packages.find(pkg => {
+const idMatch = pkg.id && pkg.id.toString().includes(cleanCode);
+const qrMatch = pkg.qr_code && pkg.qr_code.toString().includes(cleanCode);
+const match = idMatch || qrMatch;
+            
+if (match) {
+console.log(`Encontrado por coincidencia parcial: ${idMatch ? 'ID' : 'QR'}`);
+console.log(`Paquete:`, pkg);
+}
+            
+return match;
+});
+}
+    
+// Resultado final
+if (foundPackage) {
+console.log(`PAQUETE ENCONTRADO EXITOSAMENTE!`);
+console.log(`ID del paquete: ${foundPackage.id}`);
+console.log(`QR Code: ${foundPackage.qr_code}`);
+console.log(`Departamento: ${foundPackage.apartment_number}`);
+console.log(`Estado: ${foundPackage.status}`);
+} else {
+console.log(`PAQUETE NO ENCONTRADO`);
+console.log(`Código buscado: "${cleanCode}"`);
+        
 if (debugMode) {
-const availableIds = packages.map(pkg => pkg.id || pkg.qr_code || 'Sin ID');
-console.log("IDs disponibles:", availableIds);
+console.log("Códigos disponibles en el sistema:");
+packages.forEach((pkg, index) => {
+console.log(`${index + 1}. ID: "${pkg.id}" | QR: "${pkg.qr_code}" | Depto: ${pkg.apartment_number}`);
+});
+        
+console.log("Posibles coincidencias parciales:");
+packages.forEach(pkg => {
+const idSimilar = pkg.id && pkg.id.toString().toLowerCase().includes(cleanCode.toLowerCase());
+const qrSimilar = pkg.qr_code && pkg.qr_code.toString().toLowerCase().includes(cleanCode.toLowerCase());
+if (idSimilar || qrSimilar) {
+console.log(`Posible: ${pkg.id} (${idSimilar ? 'ID' : 'QR'} similar)`);
+}
+});
 }
 }
     
@@ -939,6 +1145,14 @@ return false;
 // FUNCIÓN MEJORADA: Iniciar la cámara con mejor configuración
 async function startCamera() {
 try {
+// Verificar que jsQR esté disponible
+if (typeof jsQR === 'undefined') {
+console.error('jsQR no está disponible, no se puede iniciar el escáner');
+showNotification('Error: Biblioteca QR no disponible. Recargue la página.', 'error');
+toggleManualEntry(true);
+return;
+}
+
 if (!cameraPermissionGranted) {
 const permissionGranted = await requestCameraPermission();
 if (!permissionGranted) return;
@@ -1010,130 +1224,247 @@ stopCamera();
 startCamera();
 }
 
-// FUNCIÓN MEJORADA: Procesamiento de frames con configuración optimizada
+// FUNCIÓN COMPLETAMENTE OPTIMIZADA: Procesamiento de frames con máxima efectividad
 function tick() {
 if (!scanning) return;
 
+// Verificar que jsQR esté disponible
+if (typeof jsQR === 'undefined') {
+console.error('jsQR no está disponible, deteniendo escaneo');
+stopCamera();
+showNotification('Error: Biblioteca QR no disponible', 'error');
+return;
+}
+
 if (video.readyState === video.HAVE_ENOUGH_DATA) {
-canvasElement.width = video.videoWidth;
-canvasElement.height = video.videoHeight;
-canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
-        
-const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
-
 try {
-// Configuración optimizada para jsQR
-const code = jsQR(imageData.data, imageData.width, imageData.height, {
-inversionAttempts: "attemptBoth", // Probar inversión
-locateFromCenter: true,           // Buscar desde el centro
-canvasSize: Math.min(canvasElement.width, canvasElement.height)
-});
-
+// Configurar canvas con dimensiones optimizadas
+const videoWidth = video.videoWidth;
+const videoHeight = video.videoHeight;
+            
+// Usar dimensiones más manejables para mejor rendimiento
+const maxDimension = 800;
+let canvasWidth = videoWidth;
+let canvasHeight = videoHeight;
+            
+if (videoWidth > maxDimension || videoHeight > maxDimension) {
+const scale = Math.min(maxDimension / videoWidth, maxDimension / videoHeight);
+canvasWidth = Math.floor(videoWidth * scale);
+canvasHeight = Math.floor(videoHeight * scale);
+}
+            
+canvasElement.width = canvasWidth;
+canvasElement.height = canvasHeight;
+            
+// Limpiar canvas y dibujar frame actual
+canvas.clearRect(0, 0, canvasWidth, canvasHeight);
+canvas.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+            
+// Obtener datos de imagen
+const imageData = canvas.getImageData(0, 0, canvasWidth, canvasHeight);
+            
+// Configuración optimizada de jsQR para máxima compatibilidad
+const qrOptions = {
+inversionAttempts: "attemptBoth",  // Probar inversión de colores
+locateFromCenter: true,            // Buscar desde el centro primero
+canvasSize: Math.min(canvasWidth, canvasHeight), // Tamaño de búsqueda
+greyScaleWeights: {               // Pesos personalizados para escala de grises
+red: 0.299,
+green: 0.587,
+blue: 0.114
+}
+};
+            
+if (debugMode) {
+console.log(`Escaneando frame: ${canvasWidth}x${canvasHeight}`);
+}
+            
+// Intentar detectar código QR
+const code = jsQR(imageData.data, imageData.width, imageData.height, qrOptions);
+            
 if (code) {
-console.log("QR Code detectado:", code.data);
+console.log("QR CODE DETECTADO!");
+console.log(`Contenido: "${code.data}"`);
+console.log(`Posición: x=${code.location.topLeftCorner.x}, y=${code.location.topLeftCorner.y}`);
+console.log(`Tamaño estimado: ${Math.abs(code.location.topRightCorner.x - code.location.topLeftCorner.x)}px`);
+                
 scanning = false;
 stopCamera();
+                
+// Agregar pequeño delay para suavizar la transición
+setTimeout(() => {
 processQRCode(code.data);
+}, 100);
+                
+return; // Salir del loop de escaneo
 }
-} catch (e) {
-console.error('Error al procesar el QR:', e);
+            
+} catch (processingError) {
+console.error('Error en procesamiento de frame:', processingError);
+// Continuar escaneando a pesar del error
 }
 }
 
+// Continuar escaneando si no se encontró código
 if (scanning) {
 requestAnimationFrame(tick);
 }
 }
 
-// FUNCIÓN PRINCIPAL COMPLETAMENTE REESCRITA: Procesar el código QR
+// FUNCIÓN PRINCIPAL COMPLETAMENTE REESCRITA: Procesar el código QR con máxima compatibilidad
 function processQRCode(data) {
-console.log('=== PROCESANDO CÓDIGO QR ===');
-console.log('Datos recibidos:', data);
-console.log('Tipo de datos:', typeof data);
-console.log('Longitud:', data.length);
+console.log('=====================================');
+console.log('INICIANDO PROCESAMIENTO DE QR');
+console.log('=====================================');
+console.log(`Datos brutos recibidos: "${data}"`);
+console.log(`Longitud de datos: ${data.length}`);
+console.log(`Tipo de datos: ${typeof data}`);
 
 try {
 let packageData = null;
 let isJsonData = false;
-let rawCode = data;
+let searchCode = data.trim();
 
-// Limpiar el código (eliminar espacios y caracteres extraños)
-const cleanedData = data.trim();
-console.log('Datos limpiados:', cleanedData);
+console.log(`Datos limpiados: "${searchCode}"`);
 
-// Estrategia 1: Intentar parsear como JSON
+// PASO 1: Detectar si es JSON
+console.log('PASO 1: Verificando si es formato JSON...');
 try {
-const jsonContent = JSON.parse(cleanedData);
-console.log('JSON parseado exitosamente:', jsonContent);
-            
-// Si es JSON, buscar el paquete usando el ID del JSON
+const jsonContent = JSON.parse(searchCode);
+console.log('JSON detectado y parseado exitosamente:', jsonContent);
+isJsonData = true;
+
+// Extraer el código de búsqueda del JSON
 if (jsonContent.id) {
-packageData = findPackageByCode(jsonContent.id);
-if (packageData) {
-console.log('Paquete encontrado usando ID del JSON:', packageData);
-isJsonData = true;
+searchCode = jsonContent.id;
+console.log(`Usando ID del JSON para búsqueda: "${searchCode}"`);
+} else if (jsonContent.qr_code) {
+searchCode = jsonContent.qr_code;
+console.log(`Usando qr_code del JSON para búsqueda: "${searchCode}"`);
 } else {
-// Si no se encuentra por ID, usar los datos del JSON directamente
-console.log('No se encontró en DB, usando datos del JSON');
-packageData = jsonContent;
-isJsonData = true;
+console.log('JSON sin ID ni qr_code identificable');
+searchCode = JSON.stringify(jsonContent);
 }
-} else {
-console.log('JSON sin ID, usando datos directamente');
-packageData = jsonContent;
-isJsonData = true;
+
+// Buscar el paquete en la base de datos
+packageData = findPackageByCode(searchCode);
+
+if (!packageData) {
+console.log('No encontrado en DB, usando datos del JSON como paquete');
+packageData = {
+...jsonContent,
+id: jsonContent.id || jsonContent.qr_code || searchCode,
+qr_code: jsonContent.qr_code || jsonContent.id || searchCode,
+source: 'qr_json'
+};
 }
 } catch (jsonError) {
-console.log('No es JSON válido, procesando como código directo');
-// Estrategia 2: Buscar como código directo
-packageData = findPackageByCode(cleanedData);
+console.log('No es JSON válido, tratando como código directo');
+console.log(`Error JSON: ${jsonError.message}`);
 isJsonData = false;
 }
 
-// Debug adicional
-if (debugMode) {
-console.log('Estado final:');
-console.log('- packageData:', packageData);
-console.log('- isJsonData:', isJsonData);
-console.log('- rawCode:', rawCode);
+// PASO 2: Si no es JSON, buscar como código directo
+if (!isJsonData) {
+console.log('PASO 2: Procesando como código directo...');
+console.log(`Buscando código: "${searchCode}"`);
+
+packageData = findPackageByCode(searchCode);
 }
 
-if (packageData) {
-// Paquete encontrado
-currentPackageData = packageData;
-displayPackageInfo(packageData, true, rawCode);
+// PASO 3: Validar y procesar resultado
+console.log('PASO 3: Validando resultado...');
 
-// Mostrar botón de procesar solo si está pendiente
+if (packageData && (packageData.id || packageData.qr_code)) {
+console.log('PAQUETE ENCONTRADO!');
+console.log(`ID: ${packageData.id}`);
+console.log(`QR: ${packageData.qr_code}`);
+console.log(`Departamento: ${packageData.apartment_number}`);
+console.log(`Estado: ${packageData.status}`);
+
+currentPackageData = packageData;
+displayPackageInfo(packageData, true, data);
+
+// Verificar estado para mostrar botón apropiado
 if (packageData.status === 'pendiente') {
 processButton.style.display = 'inline-flex';
 showNotification('Paquete encontrado y listo para entregar', 'success');
+console.log('Paquete pendiente, botón de entrega habilitado');
 } else {
 processButton.style.display = 'none';
-showNotification('Este paquete ya fue entregado anteriormente', 'warning');
+const statusMsg = `Paquete ya ${packageData.status === 'entregado' ? 'entregado' : 'procesado'}`;
+showNotification(statusMsg, 'warning');
+console.log(`Paquete con estado: ${packageData.status}`);
 }
 } else {
-// Paquete no encontrado
+console.log('PAQUETE NO ENCONTRADO');
+console.log(`Código buscado: "${searchCode}"`);
+console.log(`Datos originales: "${data}"`);
+
 currentPackageData = null;
-displayPackageInfo({ code: cleanedData }, false, rawCode);
+displayPackageInfo({ 
+code: searchCode, 
+originalData: data,
+searchAttempted: true 
+}, false, data);
+
 processButton.style.display = 'none';
-showNotification('Código no encontrado en la base de datos', 'error');
+showNotification('Código QR no asociado a ningún paquete registrado', 'error');
+
+// Información adicional para debugging
+if (debugMode) {
+const allPackages = getAllPackages();
+console.log(`Total de paquetes en sistema: ${allPackages.length}`);
+if (allPackages.length > 0) {
+console.log('Algunos IDs disponibles:');
+allPackages.slice(0, 5).forEach((pkg, i) => {
+console.log(`  ${i+1}. "${pkg.id}" (Depto: ${pkg.apartment_number})`);
+});
+}
+}
 }
 
+// Mostrar resultado
 resultContainer.classList.add('active');
+console.log('=====================================');
+console.log('PROCESAMIENTO COMPLETADO');
+console.log('=====================================');
+
 } catch (error) {
-console.error('Error crítico al procesar el código QR:', error);
-showNotification('Error crítico al procesar el código QR: ' + error.message, 'error');
+console.error('ERROR CRÍTICO al procesar código QR:', error);
+console.error('Stack trace:', error.stack);
+
+currentPackageData = null;
+processButton.style.display = 'none';
+
+// Mostrar error detallado
+displayPackageInfo({ 
+code: data, 
+error: error.message,
+errorOccurred: true 
+}, false, data);
+
+showNotification('Error crítico al procesar el código QR', 'error');
+resultContainer.classList.add('active');
 }
 }
 
-// FUNCIÓN MEJORADA: Mostrar información del paquete con debug
+// FUNCIÓN MEJORADA: Mostrar información del paquete con mensajes claros
 function displayPackageInfo(packageData, found, rawCode = '') {
+console.log('Generando display de información del paquete...');
+console.log(`Encontrado: ${found}`);
+console.log(`Datos del paquete:`, packageData);
+
 let content = '';
 
 if (found && (packageData.id || packageData.qr_code)) {
+console.log('Mostrando información de paquete encontrado');
+
 // Paquete encontrado en la base de datos
 const formattedDate = packageData.delivery_date ?
 new Date(packageData.delivery_date).toLocaleDateString('es-ES') :
+packageData.created_at ?
+new Date(packageData.created_at).toLocaleDateString('es-ES') :
 'No disponible';
         
 const status = packageData.status || 'pendiente';
@@ -1142,54 +1473,163 @@ const statusText = status === 'pendiente' ? 'Pendiente' :
                    status === 'entregado' ? 'Entregado' : 
                    status === 'retirado' ? 'Retirado' : status;
 
+const packageId = packageData.id || packageData.qr_code;
+const sender = packageData.sender || 'No especificado';
+const recipient = packageData.recipient || 'No especificado';
+const apartment = packageData.apartment_number || 'No disponible';
+const description = packageData.description || 'Sin descripción';
+
 content = `
 <div class="package-found">
 <h4><i class="fas fa-check-circle"></i> Paquete Encontrado</h4>
+<p>El código QR está asociado a un paquete registrado en el sistema.</p>
 </div>
-<p><strong>ID del Paquete:</strong> ${packageData.id || packageData.qr_code}</p>
-<p><strong>Departamento:</strong> ${packageData.apartment_number || 'No disponible'}</p>
-<p><strong>Remitente:</strong> ${packageData.sender || 'No especificado'}</p>
-<p><strong>Destinatario:</strong> ${packageData.recipient || 'No especificado'}</p>
+<p><strong>ID del Paquete:</strong> <code>${packageId}</code></p>
+<p><strong>Departamento:</strong> ${apartment}</p>
+<p><strong>Remitente:</strong> ${sender}</p>
+<p><strong>Destinatario:</strong> ${recipient}</p>
 <p><strong>Fecha de Registro:</strong> ${formattedDate}</p>
 <p><strong>Estado Actual:</strong> <span class="status-badge ${statusClass}">${statusText}</span></p>
-<p><strong>Descripción:</strong> ${packageData.description || 'Sin descripción'}</p>
+<p><strong>Descripción:</strong> ${description}</p>
 `;
+
+if (packageData.notes) {
+content += `<p><strong>Notas:</strong> ${packageData.notes}</p>`;
+}
 
 if (debugMode) {
 content += `
 <div class="debug-info">
-<strong>DEBUG INFO:</strong>
+<strong>INFORMACIÓN DE DEBUG:</strong>
 Código escaneado: ${rawCode}
-Datos del paquete: ${JSON.stringify(packageData, null, 2)}
+Código de búsqueda: ${packageData.search_code || 'N/A'}
+Datos completos del paquete:
+${JSON.stringify(packageData, null, 2)}
 </div>
 `;
 }
 } else {
+console.log('Mostrando información de paquete NO encontrado');
+
 // Código no encontrado
+const searchCode = packageData.code || rawCode;
+const isError = packageData.errorOccurred;
+const errorMsg = packageData.error;
+
 content = `
 <div class="package-not-found">
-<h4><i class="fas fa-exclamation-triangle"></i> Código No Encontrado</h4>
-<p>El código escaneado no corresponde a ningún paquete registrado en el sistema.</p>
+<h4><i class="fas fa-exclamation-triangle"></i> ${isError ? 'Error al Procesar' : 'Código No Asociado'}</h4>
+${isError ? 
+`<p>Se produjo un error al procesar el código QR: <strong>${errorMsg}</strong></p>` :
+`<p><strong>El código QR escaneado no está asociado a ningún paquete registrado en el sistema.</strong></p>`
+}
 </div>
-<p><strong>Código Escaneado:</strong> ${packageData.code || rawCode}</p>
-<p><strong>Recomendación:</strong> Verifique que el código QR sea válido o registre el paquete primero.</p>
+
+<div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 15px; margin: 15px 0;">
+<h5 style="margin: 0 0 10px 0; color: #856404;">Información del Escaneo:</h5>
+<p><strong>Código Escaneado:</strong> <code style="background: #f8f9fa; padding: 2px 4px; border-radius: 3px;">${searchCode}</code></p>
+<p><strong>Longitud:</strong> ${searchCode.length} caracteres</p>
+<p><strong>Fecha/Hora:</strong> ${new Date().toLocaleString('es-ES')}</p>
+</div>
+
+<div style="background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 6px; padding: 15px; margin: 15px 0;">
+<h5 style="margin: 0 0 10px 0; color: #0c5460;">Posibles Causas:</h5>
+<ul style="margin: 0; padding-left: 20px;">
+<li>El paquete no ha sido registrado en el sistema</li>
+<li>El código QR no fue generado por esta aplicación</li>
+<li>Puede haber un error en el formato del código</li>
+<li>El paquete pudo haber sido eliminado del sistema</li>
+</ul>
+</div>
+
+<div style="background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 6px; padding: 15px; margin: 15px 0;">
+<h5 style="margin: 0 0 10px 0; color: #155724;">Pasos a Seguir:</h5>
+<ol style="margin: 0; padding-left: 20px;">
+<li><strong>Verificar:</strong> Que el código QR esté bien enfocado y sin daños</li>
+<li><strong>Registrar:</strong> El paquete primero en "Registrar Paquete" si no existe</li>
+<li><strong>Contactar:</strong> Al administrador si el problema persiste</li>
+<li><strong>Intentar:</strong> Entrada manual del código si es necesario</li>
+</ol>
+</div>
 `;
 
 if (debugMode) {
 const allPackages = getAllPackages();
-const availableIds = allPackages.map(pkg => pkg.id || pkg.qr_code || 'Sin ID');
+const packageCount = allPackages.length;
+const availableIds = allPackages.slice(0, 10).map(pkg => pkg.id || 'Sin ID');
+
 content += `
 <div class="debug-info">
-<strong>DEBUG INFO:</strong>
-Código completo: ${rawCode}
-Total de paquetes en DB: ${allPackages.length}
-IDs disponibles: ${availableIds.join(', ')}
+<strong>INFORMACIÓN DE DEBUG:</strong>
+Datos originales: ${packageData.originalData || rawCode}
+Código procesado: ${searchCode}
+Total paquetes en sistema: ${packageCount}
+Algunos IDs disponibles: ${availableIds.join(', ')}${packageCount > 10 ? '...' : ''}
+
+Detalles técnicos:
+- Búsqueda realizada: ${packageData.searchAttempted ? 'Sí' : 'No'}
+- Error de parsing: ${packageData.error || 'Ninguno'}
+- Timestamp: ${new Date().toISOString()}
 </div>
 `;
 }
 }
 
 resultContent.innerHTML = content;
+console.log('Display de información generado correctamente');
+}
+
+// Función de test para probar códigos disponibles
+function testAvailableCodes() {
+console.log('INICIANDO TEST DE CÓDIGOS DISPONIBLES');
+    
+const packages = getAllPackages();
+if (packages.length === 0) {
+showNotification('No hay paquetes disponibles para probar', 'warning');
+return;
+}
+    
+console.log(`Paquetes disponibles para test: ${packages.length}`);
+    
+// Mostrar lista de códigos disponibles
+let testOptions = packages.map((pkg, index) => {
+const id = pkg.id || pkg.qr_code || 'Sin ID';
+const dept = pkg.apartment_number || 'Sin Depto';
+const status = pkg.status || 'Sin Estado';
+return `${index + 1}. ${id} (Depto: ${dept}, Estado: ${status})`;
+}).join('\n');
+    
+const userChoice = prompt(`CÓDIGOS DISPONIBLES PARA TEST:\n\n${testOptions}\n\nIngrese el número del código a probar (1-${packages.length}) o escriba un código personalizado:`);
+    
+if (!userChoice) {
+console.log('Test cancelado por el usuario');
+return;
+}
+    
+let testCode = '';
+    
+// Verificar si es un número (selección de lista)
+if (!isNaN(userChoice) && parseInt(userChoice) >= 1 && parseInt(userChoice) <= packages.length) {
+const selectedPackage = packages[parseInt(userChoice) - 1];
+testCode = selectedPackage.id || selectedPackage.qr_code;
+console.log(`Código seleccionado de la lista: "${testCode}"`);
+} else {
+// Es un código personalizado
+testCode = userChoice.trim();
+console.log(`Código personalizado ingresado: "${testCode}"`);
+}
+    
+if (testCode) {
+console.log(`Ejecutando test con código: "${testCode}"`);
+showNotification(`Probando código: ${testCode}`, 'info');
+        
+// Simular proceso de QR
+setTimeout(() => {
+processQRCode(testCode);
+}, 500);
+} else {
+showNotification('Código de test vacío', 'error');
+}
 }
 
 // Función para cerrar sesión
@@ -1253,6 +1693,13 @@ showNotification('Por favor ingrese un código válido', 'error');
 return;
 }
 
+// Verificar que las dependencias estén disponibles
+if (typeof jsQR === 'undefined') {
+console.error('jsQR no está disponible para procesar código manual');
+showNotification('Error: Biblioteca QR no disponible. Recargue la página.', 'error');
+return;
+}
+
 console.log('Procesando código manual:', manualCode);
 processQRCode(manualCode);
 manualCodeInput.value = '';
@@ -1302,14 +1749,249 @@ processManualCode();
 }
 });
 
-// Inicialización
-console.log('Lector QR inicializado');
-console.log('Total de paquetes en sistema:', getAllPackages().length);
+// Inicialización mejorada con sincronización de datos
+console.log('Inicializando Lector QR mejorado...');
+console.log('User Agent:', navigator.userAgent);
 
-// Iniciar automáticamente en dispositivos de escritorio
-if (!navigator.userAgent.match(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i)) {
-console.log('Dispositivo de escritorio detectado, iniciando cámara automáticamente');
+// Sincronizar datos al cargar la página
+function syncPackageData() {
+console.log('Sincronizando datos de paquetes...');
+    
+try {
+// Obtener datos de ambas fuentes
+const packages1 = localStorage.getItem('paquetesPrueba');
+const packages2 = localStorage.getItem('packages');
+        
+let allPackages = [];
+        
+// Procesar paquetesPrueba
+if (packages1) {
+try {
+const p1 = JSON.parse(packages1);
+if (Array.isArray(p1)) {
+console.log(`Cargados ${p1.length} paquetes de 'paquetesPrueba'`);
+allPackages = [...p1];
+}
+} catch (e) {
+console.error('Error al parsear paquetesPrueba:', e);
+}
+}
+        
+// Procesar packages y combinar
+if (packages2) {
+try {
+const p2 = JSON.parse(packages2);
+if (Array.isArray(p2)) {
+console.log(`Encontrados ${p2.length} paquetes adicionales en 'packages'`);
+                
+// Combinar evitando duplicados
+p2.forEach(pkg => {
+const isDuplicate = allPackages.some(existing => 
+(existing.id && pkg.id && existing.id === pkg.id) ||
+(existing.qr_code && pkg.qr_code && existing.qr_code === pkg.qr_code)
+);
+if (!isDuplicate) {
+allPackages.push(pkg);
+}
+});
+}
+} catch (e) {
+console.error('Error al parsear packages:', e);
+}
+}
+        
+// Normalizar todos los paquetes para búsqueda óptima
+const normalizedPackages = allPackages.map(pkg => ({
+...pkg,
+id: pkg.id || pkg.qr_code || pkg.package_id,
+qr_code: pkg.qr_code || pkg.id,
+search_terms: [
+pkg.id,
+pkg.qr_code,
+pkg.package_id
+].filter(Boolean)
+}));
+        
+// Guardar datos normalizados en ambas ubicaciones
+localStorage.setItem('paquetesPrueba', JSON.stringify(normalizedPackages));
+localStorage.setItem('packages', JSON.stringify(normalizedPackages));
+        
+console.log(`Sincronización completada: ${normalizedPackages.length} paquetes disponibles`);
+        
+if (normalizedPackages.length > 0) {
+console.log('Primeros 5 paquetes sincronizados:');
+normalizedPackages.slice(0, 5).forEach((pkg, i) => {
+console.log(`  ${i+1}. ID: "${pkg.id}" | Depto: ${pkg.apartment_number} | Estado: ${pkg.status}`);
+});
+}
+        
+return normalizedPackages;
+} catch (error) {
+console.error('Error en sincronización:', error);
+return [];
+}
+}
+
+// Ejecutar sincronización al cargar
+const availablePackages = syncPackageData();
+console.log(`Total de paquetes disponibles para escáner: ${availablePackages.length}`);
+
+// Verificar capacidades del navegador
+function checkBrowserCapabilities() {
+console.log('Verificando capacidades del navegador...');
+    
+const capabilities = {
+getUserMedia: !!navigator.mediaDevices?.getUserMedia,
+canvas: !!document.createElement('canvas').getContext,
+jsQR: typeof jsQR !== 'undefined',
+localStorage: !!window.localStorage
+};
+    
+console.log('Capacidades:', capabilities);
+    
+if (!capabilities.getUserMedia) {
+console.warn('getUserMedia no disponible - solo entrada manual');
+toggleManualEntry(true);
+}
+    
+if (!capabilities.jsQR) {
+console.error('Biblioteca jsQR no está disponible');
+showNotification('Error: La biblioteca de QR no está disponible. Recargue la página.', 'error');
+// Intentar mostrar el botón de entrada manual como alternativa
+toggleManualEntry(true);
+return capabilities;
+}
+    
+console.log('jsQR version:', jsQR.version || 'Desconocida');
+showNotification('Biblioteca QR cargada correctamente', 'success');
+    
+return capabilities;
+}
+
+const browserCaps = checkBrowserCapabilities();
+
+// Configurar eventos con mejor manejo de errores
+function setupEventListeners() {
+console.log('Configurando event listeners...');
+    
+try {
+// Botones de cámara
+startButton?.addEventListener('click', async () => {
+console.log('Iniciando cámara...');
+await startCamera();
+});
+        
+stopButton?.addEventListener('click', () => {
+console.log('Deteniendo cámara...');
+stopCamera();
+});
+        
+switchCameraButton?.addEventListener('click', () => {
+console.log('Cambiando cámara...');
+switchCamera();
+});
+        
+        // Debug toggle con estado persistente
+debugToggle?.addEventListener('click', function() {
+debugMode = !debugMode;
+localStorage.setItem('qr_debug_mode', debugMode.toString());
+const text = debugMode ? 'Debug ON' : 'Debug OFF';
+this.innerHTML = `<i class="fas fa-bug"></i><span>${text}</span>`;
+showNotification(`Modo debug ${debugMode ? 'activado' : 'desactivado'}`);
+console.log('Modo debug:', debugMode);
+});
+
+// Botón de test de códigos
+testCodesBtn?.addEventListener('click', function() {
+console.log('Iniciando test de códigos...');
+testAvailableCodes();
+});
+        
+// Restaurar estado de debug
+const savedDebugMode = localStorage.getItem('qr_debug_mode');
+if (savedDebugMode === 'true') {
+debugMode = true;
+debugToggle.innerHTML = '<i class="fas fa-bug"></i><span>Debug ON</span>';
+console.log('Modo debug restaurado: activado');
+}
+        
+// Botones de resultado
+closeResultButton?.addEventListener('click', () => {
+console.log('Cerrando resultado...');
+resultContainer.classList.remove('active');
+currentPackageData = null;
+});
+        
+scanAgainButton?.addEventListener('click', () => {
+console.log('Escaneando de nuevo...');
+resultContainer.classList.remove('active');
+currentPackageData = null;
 startCamera();
+});
+        
+// Ingreso manual
+toggleManualButton?.addEventListener('click', () => {
+const isVisible = manualForm.style.display !== 'none';
+console.log(`Alternando entrada manual: ${!isVisible ? 'mostrar' : 'ocultar'}`);
+toggleManualEntry(!isVisible);
+});
+        
+processManualButton?.addEventListener('click', () => {
+console.log('Procesando código manual...');
+processManualCode();
+});
+        
+cancelManualButton?.addEventListener('click', () => {
+console.log('Cancelando entrada manual...');
+toggleManualEntry(false);
+});
+        
+// Enter en campo manual
+manualCodeInput?.addEventListener('keypress', (e) => {
+if (e.key === 'Enter') {
+console.log('Enter presionado en campo manual');
+processManualCode();
+}
+});
+        
+console.log('Event listeners configurados correctamente');
+} catch (error) {
+console.error('Error configurando event listeners:', error);
+}
+}
+
+// Configurar todo
+setupEventListeners();
+
+// Auto-inicio inteligente
+if (browserCaps.getUserMedia && !navigator.userAgent.match(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i)) {
+console.log('Dispositivo de escritorio detectado, auto-iniciando cámara...');
+setTimeout(() => {
+startCamera();
+}, 1000);
+} else {
+console.log('Dispositivo móvil o sin cámara, esperando acción del usuario');
+}
+
+console.log('Lector QR completamente inicializado y listo');
+
+// Test de conectividad con datos
+setTimeout(() => {
+const testPackages = getAllPackages();
+console.log(`Test de conectividad: ${testPackages.length} paquetes accesibles`);
+if (testPackages.length === 0) {
+console.warn('Advertencia: No se encontraron paquetes para escanear');
+}
+}, 2000);
+
+} // Cierre de initializeQRReader
+
+// Agregar el event listener para DOMContentLoaded como fallback
+document.addEventListener('DOMContentLoaded', function() {
+// Esta función se ejecutará si jsQR ya está disponible cuando el DOM esté listo
+if (typeof jsQR !== 'undefined') {
+console.log('jsQR ya disponible, iniciando aplicación...');
+initializeQRReader();
 }
 });
 </script>
