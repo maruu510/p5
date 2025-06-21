@@ -1915,7 +1915,7 @@
       document.getElementById('residentEmail').value = resident.email;
       document.getElementById('residentPhone').value = resident.phone || '';
       document.getElementById('residentStatus').value = resident.status;
-      document.getElementById('residentPassword').value = ''; // No mostrar contraseña actual
+      document.getElementById('residentPassword').value = ''; 
       
       // Cambiar título del modal
       document.getElementById('residentModalTitle').textContent = 'Editar Residente';
@@ -2101,212 +2101,87 @@
     // ======= FUNCIONALIDAD DE GESTIÓN DE RECLAMOS =======
 
     // Función para inicializar reclamos con datos de ejemplo
-    function initializeComplaints() {
-      const savedComplaints = localStorage.getItem('complaints');
-      if (!savedComplaints) {
-        complaints = [
-          {
-            id: 'REC001',
-            residentId: residents.length > 0 ? residents[0].id : 'temp1',
-            residentName: residents.length > 0 ? residents[0].name : 'Juan Pérez',
-            department: residents.length > 0 ? residents[0].apartment : '101',
-            category: 'maintenance',
-            subject: 'Goteras en el baño',
-            description: 'Hay goteras en el techo del baño que están ocasionando problemas de humedad. El problema se presenta principalmente durante las lluvias.',
-            priority: 'high',
-            status: 'pending',
-            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // Hace 2 días
-            responses: [
-              {
-                id: 'resp1',
-                author: 'Residente',
-                message: 'El problema se ha agravado desde ayer. Por favor, necesito una solución urgente.',
-                timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
-              }
-            ]
-          },
-          {
-            id: 'REC002',
-            residentId: residents.length > 1 ? residents[1].id : 'temp2',
-            residentName: residents.length > 1 ? residents[1].name : 'María González',
-            department: residents.length > 1 ? residents[1].apartment : '202',
-            category: 'noise',
-            subject: 'Ruidos molestos en horas de descanso',
-            description: 'El departamento de arriba hace ruidos excesivos durante las noches, especialmente después de las 22:00 hrs.',
-            priority: 'medium',
-            status: 'processing',
-            createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // Hace 5 días
-            responses: [
-              {
-                id: 'resp2',
-                author: 'Administración',
-                message: 'Hemos contactado a los residentes del departamento superior para conversar sobre el tema.',
-                timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
-              },
-              {
-                id: 'resp3',
-                author: 'Residente',
-                message: 'Gracias por la gestión. Esperaré a ver si mejora la situación.',
-                timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-              }
-            ]
-          },
-          {
-            id: 'REC003',
-            residentId: residents.length > 0 ? residents[0].id : 'temp1',
-            residentName: residents.length > 0 ? residents[0].name : 'Juan Pérez',
-            department: residents.length > 0 ? residents[0].apartment : '101',
-            category: 'security',
-            subject: 'Problema con cerradura principal',
-            description: 'La cerradura del acceso principal del edificio no está funcionando correctamente con mi llave.',
-            priority: 'low',
-            status: 'resolved',
-            createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // Hace 10 días
-            responses: [
-              {
-                id: 'resp4',
-                author: 'Administración',
-                message: 'Hemos solicitado al cerrajero que revise y ajuste la cerradura.',
-                timestamp: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString()
-              },
-              {
-                id: 'resp5',
-                author: 'Administración',
-                message: 'Problema resuelto. La cerradura ha sido reparada y todas las llaves funcionan correctamente.',
-                timestamp: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString()
-              }
-            ]
-          }
-        ];
-        localStorage.setItem('complaints', JSON.stringify(complaints));
-      } else {
-        complaints = JSON.parse(savedComplaints);
-      }
-    }
+   function initializeComplaints() {
+  const savedComplaints = localStorage.getItem('complaints');
+  complaints = savedComplaints ? JSON.parse(savedComplaints) : [];
+}
 
-    // Función para cargar reclamos
-    function loadComplaints() {
-      initializeComplaints();
-      updateComplaintsSummary();
-      updateComplaintsTable();
-    }
+// Función principal para cargar y mostrar los reclamos
+function loadComplaints() {
+    const complaints = JSON.parse(localStorage.getItem('complaints')) || [];
+    
+    // Actualizar las tarjetas de resumen
+    updateComplaintSummary(complaints);
 
-    // Función para actualizar el resumen de reclamos
-    function updateComplaintsSummary() {
-      const total = complaints.length;
-      const pending = complaints.filter(c => c.status === 'pending').length;
-      const processing = complaints.filter(c => c.status === 'processing').length;
-      const resolved = complaints.filter(c => c.status === 'resolved').length;
+    // Obtener los valores de los filtros
+    const statusFilter = document.getElementById('statusFilter').value;
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    const priorityFilter = document.getElementById('priorityFilter').value;
 
-      document.getElementById('totalComplaints').textContent = total;
-      document.getElementById('pendingComplaints').textContent = pending;
-      document.getElementById('processingComplaints').textContent = processing;
-      document.getElementById('resolvedComplaints').textContent = resolved;
-    }
+    // Filtrar los reclamos
+    const filteredComplaints = complaints.filter(complaint => {
+        const matchesStatus = !statusFilter || complaint.status === statusFilter;
+        const matchesCategory = !categoryFilter || complaint.category === categoryFilter;
+        const matchesPriority = !priorityFilter || complaint.priority === priorityFilter;
+        return matchesStatus && matchesCategory && matchesPriority;
+    });
 
-    // Función para obtener el nombre de la categoría
-    function getCategoryName(category) {
-      const categories = {
-        'maintenance': 'Mantenimiento',
-        'noise': 'Ruidos',
-        'security': 'Seguridad',
-        'services': 'Servicios',
-        'packages': 'Paquetes',
-        'common_areas': 'Áreas Comunes',
-        'other': 'Otros'
-      };
-      return categories[category] || category;
-    }
+    // Mostrar los reclamos en la tabla
+    displayComplaints(filteredComplaints);
+}
 
-    // Función para obtener el nombre del estado
-    function getStatusName(status) {
-      const statuses = {
-        'pending': 'Pendiente',
-        'processing': 'En Proceso',
-        'resolved': 'Resuelto'
-      };
-      return statuses[status] || status;
-    }
+// Función para actualizar los contadores en las tarjetas de resumen
+function updateComplaintSummary(complaints) {
+    document.getElementById('totalComplaints').textContent = complaints.length;
+    document.getElementById('pendingComplaints').textContent = complaints.filter(c => c.status === 'pending').length;
+    document.getElementById('processingComplaints').textContent = complaints.filter(c => c.status === 'processing').length;
+    document.getElementById('resolvedComplaints').textContent = complaints.filter(c => c.status === 'resolved').length;
+}
 
-    // Función para obtener el nombre de la prioridad
-    function getPriorityName(priority) {
-      const priorities = {
-        'high': 'Alta',
-        'medium': 'Media',
-        'low': 'Baja'
-      };
-      return priorities[priority] || priority;
-    }
+// Función para renderizar los reclamos en la tabla
+function displayComplaints(complaints) {
+    const tableBody = document.getElementById('complaintsTableBody');
+    tableBody.innerHTML = ''; // Limpiar la tabla antes de añadir nuevas filas
 
-    // Función para actualizar la tabla de reclamos
-    function updateComplaintsTable() {
-      const tableBody = document.getElementById('complaintsTableBody');
-      if (!tableBody) return;
-
-      // Limpiar tabla
-      tableBody.innerHTML = '';
-
-      // Obtener filtros activos
-      const statusFilter = document.getElementById('statusFilter').value;
-      const categoryFilter = document.getElementById('categoryFilter').value;
-      const priorityFilter = document.getElementById('priorityFilter').value;
-
-      // Filtrar reclamos
-      let filteredComplaints = complaints.filter(complaint => {
-        return (!statusFilter || complaint.status === statusFilter) &&
-               (!categoryFilter || complaint.category === categoryFilter) &&
-               (!priorityFilter || complaint.priority === priorityFilter);
-      });
-
-      // Si no hay reclamos, mostrar mensaje
-      if (filteredComplaints.length === 0) {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td colspan="8" style="text-align: center; padding: 30px;">
-            <i class="fas fa-comments" style="font-size: 3rem; color: #ddd; margin-bottom: 10px; display: block;"></i>
-            <p>No hay reclamos que coincidan con los filtros seleccionados</p>
-          </td>
-        `;
-        tableBody.appendChild(row);
+    if (complaints.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No se encontraron reclamos.</td></tr>';
         return;
-      }
+    }
 
-      // Agregar reclamos a la tabla
-      filteredComplaints.forEach(complaint => {
+    complaints.forEach(complaint => {
         const row = document.createElement('tr');
-        row.dataset.id = complaint.id;
-
-        const date = new Date(complaint.createdAt).toLocaleDateString('es-CL');
-        const statusBadge = `badge-${complaint.status === 'pending' ? 'warning' : complaint.status === 'processing' ? 'info' : 'primary'}`;
-        const priorityClass = `priority-${complaint.priority}`;
+        
+        // Mapeo de valores para una mejor visualización
+        const statusMap = { pending: 'Pendiente', processing: 'En Proceso', resolved: 'Resuelto' };
+        const priorityMap = { low: 'Baja', medium: 'Media', high: 'Alta' };
+        const categoryMap = { maintenance: 'Mantenimiento', noise: 'Ruidos', security: 'Seguridad', services: 'Servicios', packages: 'Paquetes', common_areas: 'Áreas Comunes', other: 'Otros' };
 
         row.innerHTML = `
-          <td>${complaint.id}</td>
-          <td>${complaint.residentName}<br><small style="color: #666;">Depto. ${complaint.department}</small></td>
-          <td>${getCategoryName(complaint.category)}</td>
-          <td>${complaint.subject}</td>
-          <td><span class="${priorityClass}">${getPriorityName(complaint.priority)}</span></td>
-          <td><span class="badge ${statusBadge}">${getStatusName(complaint.status)}</span></td>
-          <td>${date}</td>
-          <td class="action-buttons">
-            <button class="btn-icon btn-view" onclick="viewComplaint('${complaint.id}')" title="Ver detalles">
-              <i class="fas fa-eye"></i>
-            </button>
-            <button class="btn-icon btn-edit" onclick="respondToComplaint('${complaint.id}')" title="Responder">
-              <i class="fas fa-reply"></i>
-            </button>
-          </td>
+            <td>${complaint.id}</td>
+            <td>${complaint.residentName} (Dpto: ${complaint.department})</td>
+            <td>${categoryMap[complaint.category] || complaint.category}</td>
+            <td>${complaint.subject}</td>
+            <td><span class="priority-tag ${complaint.priority}">${priorityMap[complaint.priority] || complaint.priority}</span></td>
+            <td><span class="status-tag ${complaint.status}">${statusMap[complaint.status] || complaint.status}</span></td>
+            <td>${new Date(complaint.date).toLocaleDateString()}</td>
+            <td>
+                ${complaint.description} <!-- Mostrar la descripción directamente -->
+                <button class="btn-action delete" title="Eliminar"><i class="fas fa-trash"></i></button>
+            </td>
         `;
 
+        // Add event listener to the delete button
+        const deleteButton = row.querySelector('.btn-action.delete');
+        deleteButton.addEventListener('click', () => deleteComplaint(complaint.id));
+
         tableBody.appendChild(row);
-      });
-    }
+    });
+}
 
-    // Función para filtrar reclamos
-    function filterComplaints() {
-      updateComplaintsTable();
-    }
-
+// Esta función es llamada por los 'onchange' de los filtros en tu HTML
+function filterComplaints() {
+    loadComplaints();
+}
     // Función para ver detalle de un reclamo
     function viewComplaint(complaintId) {
       const complaint = complaints.find(c => c.id === complaintId);
@@ -2332,6 +2207,34 @@
         
         Respuestas: ${complaint.responses.length}
       `);
+    }
+
+    // Función para eliminar un reclamo
+    function deleteComplaint(complaintId) {
+      let complaints = JSON.parse(localStorage.getItem('complaints')) || [];
+      const initialLength = complaints.length;
+      complaints = complaints.filter(c => c.id !== complaintId);
+      if (complaints.length < initialLength) {
+        localStorage.setItem('complaints', JSON.stringify(complaints));
+        showToast('success', 'Reclamo eliminado correctamente');
+        loadComplaints(); // Recargar la tabla para reflejar los cambios
+      } else {
+        showToast('error', 'No se encontró el reclamo para eliminar');
+      }
+    }
+
+    // Función para eliminar un reclamo
+    function deleteComplaint(complaintId) {
+      let complaints = JSON.parse(localStorage.getItem('complaints')) || [];
+      const initialLength = complaints.length;
+      complaints = complaints.filter(c => c.id !== complaintId);
+      if (complaints.length < initialLength) {
+        localStorage.setItem('complaints', JSON.stringify(complaints));
+        showToast('success', 'Reclamo eliminado correctamente');
+        loadComplaints(); // Recargar la tabla para reflejar los cambios
+      } else {
+        showToast('error', 'No se encontró el reclamo para eliminar');
+      }
     }
 
     // Función para responder a un reclamo
@@ -2686,7 +2589,16 @@
         if (e.target === this) {
           closeResidentModal();
         }
-      });
+         // Cargar los reclamos cuando la página esté lista
+    loadComplaints();
+
+    // Añadir listener al botón de actualizar
+    const refreshBtn = document.getElementById('refreshComplaintsBtn');
+    if(refreshBtn) {
+        refreshBtn.addEventListener('click', loadComplaints);
+    }
+});
+
       
       // Configurar eventos para cerrar modal de credenciales con clic fuera
       document.getElementById('loginCredentialsModal').addEventListener('click', function(e) {

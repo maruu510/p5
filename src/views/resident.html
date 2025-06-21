@@ -1052,9 +1052,9 @@ body {
             </div>
             
             <div style="display: flex; gap: 10px;">
-              <button type="submit" class="action-btn" id="enviar-solicitud">
+              <button type="button" class="action-btn" id="enviar-mensaje" onclick="enviarReclamoResidente()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2z"></path></svg>
-                Enviar Solicitud
+                  Enviar Mensaje
               </button>
               <button type="button" class="action-btn btn-secondary" onclick="clearPickupForm()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
@@ -1120,19 +1120,32 @@ body {
           <div>
             <h3 style="margin-bottom: 20px;">Envíe un Mensaje</h3>
             <form id="support-form">
-              <div class="form-group">
-                <label class="form-label">Asunto *</label>
-                <select class="form-control" id="support-subject" required>
-                  <option value="">Seleccione un asunto</option>
-                  <option value="consulta">Consulta General</option>
-                  <option value="problema-paquete">Problema con un Paquete</option>
-                  <option value="informacion">Solicitud de Información</option>
-                  <option value="sugerencia">Sugerencia</option>
-                  <option value="reclamo">Reclamo</option>
-                  <option value="otro">Otro</option>
-                </select>
-              </div>
-              
+             <div class="form-group">
+  <label class="form-label">Categoría *</label>
+  <select class="form-control" id="support-category" required>
+    <option value="">Seleccione una categoría</option>
+    <option value="maintenance">Mantenimiento</option>
+    <option value="noise">Ruidos</option>
+    <option value="security">Seguridad</option>
+    <option value="services">Servicios</option>
+    <option value="packages">Paquetes</option>
+    <option value="common_areas">Áreas Comunes</option>
+    <option value="other">Otros</option>
+  </select>
+</div>
+<div class="form-group">
+  <label class="form-label">Asunto *</label>
+  <input type="text" class="form-control" id="support-subject" placeholder="Ingrese el asunto de su consulta..." required>
+</div>
+<div class="form-group">
+  <label class="form-label">Prioridad *</label>
+  <select class="form-control" id="support-priority" required>
+    <option value="">Seleccione prioridad</option>
+    <option value="high">Alta</option>
+    <option value="medium">Media</option>
+    <option value="low">Baja</option>
+  </select>
+</div>
               <div class="form-group">
                 <label class="form-label">Mensaje *</label>
                 <textarea class="form-control" rows="5" id="support-message" placeholder="Describa su consulta o problema detalladamente..." required></textarea>
@@ -1818,7 +1831,44 @@ function requestPickup(packageId) {
   
   showToast('Formulario de retiro preparado', 'info');
 }
+function enviarReclamoResidente() {
+  const asunto = document.getElementById('support-subject').value;
+  const mensaje = document.getElementById('support-message').value.trim();
+  const categoria = document.getElementById('support-category').value;
+  const prioridad = document.getElementById('support-priority').value;
 
+  if (!asunto || !mensaje || !categoria || !prioridad) {
+    showToast('Por favor completa todos los campos', 'error');
+    return;
+  }
+
+  const currentResident = JSON.parse(localStorage.getItem('currentResident'));
+  if (!currentResident) {
+    showToast('Debes iniciar sesión como residente', 'error');
+    return;
+  }
+
+  const reclamo = {
+    id: 'REC' + Date.now(),
+    residentId: currentResident.id,
+    residentName: `${currentResident.name} ${currentResident.lastname}`,
+    department: currentResident.department,
+    category: categoria,
+    subject: asunto,
+    description: mensaje,
+    priority: prioridad,
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    responses: []
+  };
+
+  const reclamos = JSON.parse(localStorage.getItem('complaints') || '[]');
+  reclamos.push(reclamo);
+  localStorage.setItem('complaints', JSON.stringify(reclamos));
+
+  showToast('¡Reclamo enviado correctamente!', 'success');
+  document.getElementById('support-form').reset();
+}
 // Función para reportar problema
 function reportProblem(packageId) {
   switchTab('soporte');
@@ -2143,38 +2193,53 @@ function loadPickupHistory() {
 // Función para procesar mensaje de soporte
 function processSupportMessage(event) {
   event.preventDefault();
-  
+
+  const category = document.getElementById('support-category').value;
   const subject = document.getElementById('support-subject').value;
+  const priority = document.getElementById('support-priority').value;
   const message = document.getElementById('support-message').value.trim();
-  
-  if (!subject) {
-    showToast('Por favor selecciona un asunto', 'error');
+
+  if (!category || !subject || !priority || !message) {
+    showToast('error', 'Por favor, completa todos los campos requeridos.');
     return;
   }
-  
-  if (!message) {
-    showToast('Por favor ingresa un mensaje', 'error');
-    return;
-  }
-  
-  const supportMessage = {
-    id: 'MSG-' + Date.now(),
-    residentId: currentResident.id,
-    residentName: `${currentResident.name} ${currentResident.lastname}`,
-    department: currentResident.department,
-    email: currentResident.email,
+
+  // Generate a unique ID for the complaint
+  const complaintId = Date.now().toString(); // Simple unique ID based on timestamp
+
+  // Get resident details from currentResident object
+  const residentName = `${currentResident.name} ${currentResident.lastname}`;
+  const department = currentResident.department;
+
+  const newComplaint = {
+    id: complaintId,
+    residentName: residentName,
+    department: department,
+    category: category,
+    priority: priority,
     subject: subject,
-    message: message,
-    status: 'nuevo',
-    createdAt: new Date().toISOString()
+    description: message,
+    status: 'pending', // Initial status
+    date: new Date().toISOString(),
+    responses: [] // Initialize with no responses
   };
-  
-  const existingMessages = JSON.parse(localStorage.getItem('supportMessages') || '[]');
-  existingMessages.push(supportMessage);
-  localStorage.setItem('supportMessages', JSON.stringify(existingMessages));
-  
-  showToast('Mensaje enviado correctamente al soporte');
-  clearSupportForm();
+
+  // Retrieve existing complaints from local storage or initialize an empty array
+  let complaints = JSON.parse(localStorage.getItem('complaints')) || [];
+
+  // Add the new complaint
+  complaints.push(newComplaint);
+
+  // Save the updated complaints array to local storage
+  localStorage.setItem('complaints', JSON.stringify(complaints));
+
+  showToast('success', 'Su mensaje de soporte ha sido enviado.');
+  document.getElementById('support-message').value = '';
+  document.getElementById('support-subject').value = ''; // Clear subject field
+  document.getElementById('support-category').value = ''; // Clear category field
+  document.getElementById('support-priority').value = ''; // Clear priority field
+
+  // Optionally, refresh the support history if it's displayed on the same page
   loadSupportHistory();
 }
 
@@ -2188,10 +2253,16 @@ function loadSupportHistory() {
   const historyDiv = document.getElementById('support-history');
   
   try {
-    const allMessages = JSON.parse(localStorage.getItem('supportMessages') || '[]');
-    const userMessages = allMessages.filter(msg => msg.residentId === currentResident.id);
+    // Cambiar 'supportMessages' a 'complaints' para leer los reclamos guardados
+    const allComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+    // Filtrar los reclamos por el residentId del usuario actual
+    const userComplaints = allComplaints.filter(complaint => {
+       
+        return complaint.residentName === `${currentResident.name} ${currentResident.lastname}` && 
+               complaint.department === currentResident.department;
+    });
     
-    if (userMessages.length === 0) {
+    if (userComplaints.length === 0) {
       historyDiv.innerHTML = `
         <div class="empty-state">
           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
@@ -2201,23 +2272,24 @@ function loadSupportHistory() {
       return;
     }
     
-    // Ordenar por fecha más reciente
-    const sortedMessages = userMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    // Ordenar por fecha más reciente (usando complaint.date)
+    const sortedComplaints = userComplaints.sort((a, b) => new Date(b.date) - new Date(a.date));
     
     let historyHTML = '<div style="display: grid; gap: 15px;">';
     
-    sortedMessages.slice(0, 5).forEach(msg => {
-      const date = new Date(msg.createdAt);
+    sortedComplaints.slice(0, 5).forEach(complaint => {
+      const date = new Date(complaint.date);
       const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-      const statusClass = msg.status === 'nuevo' ? 'status-pending' : msg.status === 'respondido' ? 'status-delivered' : 'status-warning';
+      // El estado ahora viene del objeto complaint
+      const statusClass = complaint.status === 'pending' ? 'status-pending' : complaint.status === 'resolved' ? 'status-delivered' : 'status-warning';
       
       historyHTML += `
         <div style="background: white; border: 1px solid var(--gray-light); border-radius: 8px; padding: 20px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h4>${msg.subject}</h4>
-            <span class="status ${statusClass}">${msg.status.charAt(0).toUpperCase() + msg.status.slice(1)}</span>
+            <h4>${complaint.subject}</h4>
+            <span class="status ${statusClass}">${complaint.status.charAt(0).toUpperCase() + complaint.status.slice(1)}</span>
           </div>
-          <p style="margin-bottom: 10px; color: var(--gray);">${msg.message}</p>
+          <p style="margin-bottom: 10px; color: var(--gray);">${complaint.description}</p>
           <small style="color: var(--gray);">Enviado el ${formattedDate}</small>
         </div>
       `;
@@ -2330,8 +2402,77 @@ document.addEventListener('DOMContentLoaded', function() {
     showLoading(false);
     showToast('Error al cargar la aplicación', 'error');
     setTimeout(logout, 3000);
+
+     const supportForm = document.getElementById('support-form');
+    if (supportForm) {
+        supportForm.addEventListener('submit', handleSupportSubmit);
+    }
   }
 });
+ function handleSupportSubmit(event) {
+    event.preventDefault(); // Evita que la página se recargue
+
+    // Obtener los valores del formulario de soporte
+    const category = document.getElementById('support-category').value;
+    const priority = document.getElementById('support-priority').value;
+    const message = document.getElementById('support-message').value;
+    
+    // Obtener la información del residente actual
+    const currentResident = getCurrentResident();
+
+    if (!category || !priority || !message) {
+        showToast('error', 'Por favor, completa todos los campos requeridos.');
+        return;
+    }
+    
+    if (!currentResident) {
+        showToast('error', 'No se pudo identificar al residente. Por favor, inicia sesión de nuevo.');
+        return;
+    }
+
+    // Crear el objeto del reclamo
+    const newComplaint = {
+        id: 'REC-' + Date.now(), // ID único basado en la fecha y hora
+        residentName: `${currentResident.name} ${currentResident.lastname}`,
+        department: currentResident.department,
+        category: category,
+        subject: message.substring(0, 50) + '...', // Un asunto corto a partir del mensaje
+        description: message,
+        priority: priority,
+        status: 'pending', // Estado inicial siempre es 'pendiente'
+        date: new Date().toISOString(),
+        responses: [] // Historial de respuestas, inicialmente vacío
+    };
+
+    // Obtener los reclamos existentes de localStorage
+    let complaints = JSON.parse(localStorage.getItem('complaints')) || [];
+    
+    // Añadir el nuevo reclamo
+    complaints.push(newComplaint);
+    
+    // Guardar la lista actualizada en localStorage
+    localStorage.setItem('complaints', JSON.stringify(complaints));
+    
+    // Notificar al usuario y limpiar el formulario
+    showToast('success', 'Tu mensaje ha sido enviado correctamente.');
+    document.getElementById('support-form').reset();
+}
+
+
+// Función para mostrar notificaciones (toast) - Asegúrate de tenerla
+function showToast(type, message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast show';
+    if (type === 'error') {
+        toast.style.backgroundColor = 'var(--danger)';
+    } else {
+        toast.style.backgroundColor = 'var(--success)';
+    }
+    setTimeout(() => {
+        toast.className = 'toast';
+    }, 3000);
+}
 
 // Función para configurar event listeners
 function setupEventListeners() {
