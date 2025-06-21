@@ -1,1237 +1,1317 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lector de Códigos QR - Gestión de Paquetes</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #6c5ce7;
-            --primary-dark: #5b4cc7;
-            --primary-light: #e9e7fd;
-            --secondary: #2c3e50;
-            --accent: #e67e22;
-            --accent-dark: #d35400;
-            --accent-light: #f9e7dd;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --gray-light: #e9ecef;
-            --gray-50: #f8f9fa;
-            --gray-100: #f1f5f9;
-            --gray-200: #e2e8f0;
-            --gray-300: #cbd5e1;
-            --gray-700: #334155;
-            --danger: #c0392b;
-            --warning: #f39c12;
-            --info: #3498db;
-            --success: #27ae60;
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.1);
-            --radius-sm: 0.375rem;
-            --radius: 0.5rem;
-            --radius-md: 0.75rem;
-            --radius-lg: 1rem;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        html, body {
-            height: 100%;
-            width: 100%;
-            overflow-x: hidden;
-        }
-        
-        body {
-            background-color: #f5f7fb;
-            color: var(--dark);
-            display: flex;
-            min-height: 100vh;
-        }
-        
-        /* Sidebar styles */
-        .sidebar {
-            width: 250px;
-            background-color: #fff;
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-        
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--gray-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .logo {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-        
-        .logo img {
-            height: 40px;
-            width: auto;
-            object-fit: contain;
-        }
-        
-        .nav-menu {
-            list-style: none;
-            padding: 20px 0;
-        }
-        
-        .nav-item {
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--gray);
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 5px;
-        }
-        
-        .nav-item:hover {
-            background-color: rgba(170, 110, 239, 0.1);
-            color: var(--primary);
-        }
-        
-        .nav-item.active {
-            background-color: rgba(109, 43, 239, 0.15);
-            color: var(--primary);
-            border-left: 3px solid var(--primary);
-        }
-        
-        .nav-item i {
-            width: 20px;
-            text-align: center;
-        }
-        
-        /* Main content styles */
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            background-color: #f3eefb;
-            transition: all 0.3s ease;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            margin-bottom: 30px;
-        }
-        
-        .page-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-        
-        .card {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-        
-        .card-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--gray-light);
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .card-body {
-            padding: 20px;
-        }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-            font-size: 0.9rem;
-            text-decoration: none;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .btn-accent {
-            background-color: var(--accent);
-            color: white;
-        }
-        
-        .btn-accent:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .btn-gray {
-            background-color: var(--gray);
-            color: white;
-        }
-        
-        .btn-gray:hover {
-            background-color: var(--dark);
-        }
-        
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid var(--gray-300);
-            color: var(--gray-700);
-        }
-        
-        .btn-outline:hover {
-            background-color: var(--gray-50);
-            border-color: var(--gray-700);
-        }
-        
-        .btn-success {
-            background-color: var(--success);
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background-color: #145a32;
-        }
-        
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background-color: #a93226;
-        }
-        
-        /* QR Scanner specific styles */
-        .qr-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        .scanner-container {
-            width: 100%;
-            max-width: 400px;
-            aspect-ratio: 1/1;
-            position: relative;
-            overflow: hidden;
-            border-radius: 10px;
-            box-shadow: var(--shadow-md);
-            border: 2px solid var(--primary);
-            margin: 0 auto;
-        }
-        
-        #qr-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .scanner-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.1);
-            pointer-events: none;
-        }
-        
-        .scanner-corner {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border-color: var(--primary);
-            border-width: 3px;
-        }
-        
-        .corner-top-left {
-            top: 15px;
-            left: 15px;
-            border-left-style: solid;
-            border-top-style: solid;
-        }
-        
-        .corner-top-right {
-            top: 15px;
-            right: 15px;
-            border-right-style: solid;
-            border-top-style: solid;
-        }
-        
-        .corner-bottom-left {
-            bottom: 15px;
-            left: 15px;
-            border-left-style: solid;
-            border-bottom-style: solid;
-        }
-        
-        .corner-bottom-right {
-            bottom: 15px;
-            right: 15px;
-            border-right-style: solid;
-            border-bottom-style: solid;
-        }
-        
-        .scanner-line {
-            position: absolute;
-            height: 2px;
-            width: 80%;
-            background: linear-gradient(90deg, transparent 0%, var(--primary) 50%, transparent 100%);
-            top: 50%;
-            animation: scan 2s linear infinite;
-        }
-        
-        @keyframes scan {
-            0% {
-                transform: translateY(-80px);
-            }
-            50% {
-                transform: translateY(80px);
-            }
-            100% {
-                transform: translateY(-80px);
-            }
-        }
-        
-        .scanner-control {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .info-box {
-            background-color: var(--primary-light);
-            border-left: 4px solid var(--primary);
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
-        
-        .info-box h3 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1rem;
-            margin-bottom: 8px;
-            color: var(--primary-dark);
-            font-weight: 600;
-        }
-        
-        .info-box p {
-            color: var(--dark);
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-        
-        .manual-entry {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        
-        #manual-code {
-            width: 100%;
-            padding: 10px 15px;
-            border: 1px solid var(--gray-300);
-            border-radius: 6px;
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-        
-        #manual-code:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
-        }
-        
-        .result-container {
-            background-color: var(--gray-50);
-            border: 1px solid var(--gray-200);
-            border-radius: 10px;
-            padding: 20px;
-            width: 100%;
-            max-width: 600px;
-            margin: 20px auto;
-            display: none;
-        }
-        
-        .result-container.active {
-            display: block;
-        }
-        
-        .result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--gray-200);
-        }
-        
-        .result-header h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-        
-        .result-content {
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-        
-        .result-content p {
-            margin-bottom: 8px;
-            padding: 5px 0;
-            border-bottom: 1px solid var(--gray-100);
-        }
-        
-        .result-content p:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-        
-        .result-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid var(--gray-200);
-            gap: 10px;
-        }
-        
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            border-radius: 6px;
-            background-color: #e3f8e8;
-            color: var(--success);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: var(--shadow);
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.3s ease;
-            z-index: 1000;
-            max-width: 90%;
-        }
-        
-        .notification.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .notification.error {
-            background-color: rgba(192, 57, 43, 0.1);
-            color: var(--danger);
-        }
-        
-        .notification.warning {
-            background-color: rgba(243, 156, 18, 0.1);
-            color: var(--warning);
-        }
-        
-        /* Status indicators in results */
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        
-        .status-pending {
-            background-color: rgba(243, 156, 18, 0.15);
-            color: var(--warning);
-        }
-        
-        .status-delivered {
-            background-color: rgba(39, 174, 96, 0.15);
-            color: var(--success);
-        }
-        
-        .package-found {
-            background-color: rgba(39, 174, 96, 0.1);
-            border-left: 4px solid var(--success);
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-        }
-        
-        .package-not-found {
-            background-color: rgba(192, 57, 43, 0.1);
-            border-left: 4px solid var(--danger);
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-        }
-        
-        /* Responsive styles */
-        @media (max-width: 992px) {
-            .qr-container {
-                max-width: 100%;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 70px;
-            }
-            
-            .sidebar .logo span, 
-            .sidebar .nav-item span {
-                display: none;
-            }
-            
-            .sidebar .nav-item {
-                justify-content: center;
-                padding: 15px 0;
-            }
-            
-            .sidebar .nav-item i {
-                margin-right: 0;
-            }
-            
-            .sidebar .sidebar-header {
-                padding: 15px 0;
-            }
-            
-            .sidebar .logo {
-                justify-content: center;
-            }
-            
-            .sidebar .logo img {
-                height: 34px;
-            }
-            
-            .main-content {
-                padding: 15px;
-            }
-            
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-            
-            .scanner-container {
-                max-width: 100%;
-            }
-            
-            .scanner-control {
-                flex-direction: column;
-                width: 100%;
-            }
-            
-            .btn {
-                width: 100%;
-            }
-            
-            .result-actions {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .result-actions .btn {
-                width: 100%;
-            }
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lector de Códigos QR - Gestión de Paquetes</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+--primary: #6c5ce7;
+--primary-dark: #5b4cc7;
+--primary-light: #e9e7fd;
+--secondary: #2c3e50;
+--accent: #e67e22;
+--accent-dark: #d35400;
+--accent-light: #f9e7dd;
+--light: #f8f9fa;
+--dark: #212529;
+--gray: #6c757d;
+--gray-light: #e9ecef;
+--gray-50: #f8f9fa;
+--gray-100: #f1f5f9;
+--gray-200: #e2e8f0;
+--gray-300: #cbd5e1;
+--gray-700: #334155;
+--danger: #c0392b;
+--warning: #f39c12;
+--info: #3498db;
+--success: #27ae60;
+--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+--shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+--shadow-md: 0 10px 15px rgba(0, 0, 0, 0.1);
+--radius-sm: 0.375rem;
+--radius: 0.5rem;
+--radius-md: 0.75rem;
+--radius-lg: 1rem;
+ }
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+ }
+html, body {
+height: 100%;
+width: 100%;
+overflow-x: hidden;
+ }
+body {
+background-color: #f5f7fb;
+color: var(--dark);
+display: flex;
+min-height: 100vh;
+ }
+/* Sidebar styles */
+.sidebar {
+width: 250px;
+background-color: #fff;
+box-shadow: var(--shadow);
+transition: all 0.3s ease;
+z-index: 1000;
+ }
+.sidebar-header {
+padding: 20px;
+border-bottom: 1px solid var(--gray-light);
+display: flex;
+align-items: center;
+justify-content: center;
+ }
+.logo {
+font-size: 1.3rem;
+font-weight: bold;
+color: var(--primary);
+display: flex;
+align-items: center;
+gap: 8px;
+text-decoration: none;
+ }
+.logo img {
+height: 40px;
+width: auto;
+object-fit: contain;
+ }
+.nav-menu {
+list-style: none;
+padding: 20px 0;
+ }
+.nav-item {
+padding: 12px 20px;
+display: flex;
+align-items: center;
+gap: 10px;
+color: var(--gray);
+font-weight: 500;
+cursor: pointer;
+transition: all 0.3s ease;
+margin-bottom: 5px;
+ }
+.nav-item:hover {
+background-color: rgba(170, 110, 239, 0.1);
+color: var(--primary);
+ }
+.nav-item.active {
+background-color: rgba(109, 43, 239, 0.15);
+color: var(--primary);
+border-left: 3px solid var(--primary);
+ }
+.nav-item i {
+width: 20px;
+text-align: center;
+ }
+/* Main content styles */
+.main-content {
+flex: 1;
+padding: 20px;
+background-color: #f3eefb;
+transition: all 0.3s ease;
+ }
+.header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 15px 0;
+margin-bottom: 30px;
+ }
+.page-title {
+font-size: 1.5rem;
+font-weight: 600;
+color: var(--dark);
+ }
+.card {
+background-color: #fff;
+border-radius: 10px;
+box-shadow: var(--shadow);
+margin-bottom: 20px;
+overflow: hidden;
+ }
+.card-header {
+padding: 15px 20px;
+border-bottom: 1px solid var(--gray-light);
+font-weight: 600;
+display: flex;
+justify-content: space-between;
+align-items: center;
+ }
+.card-body {
+padding: 20px;
+ }
+.btn {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+padding: 8px 16px;
+border-radius: 6px;
+font-weight: 500;
+cursor: pointer;
+transition: all 0.3s ease;
+border: none;
+font-size: 0.9rem;
+text-decoration: none;
+ }
+.btn-primary {
+background-color: var(--primary);
+color: white;
+ }
+.btn-primary:hover {
+background-color: var(--primary-dark);
+transform: translateY(-2px);
+box-shadow: var(--shadow-sm);
+ }
+.btn-accent {
+background-color: var(--accent);
+color: white;
+ }
+.btn-accent:hover {
+background-color: var(--primary-dark);
+transform: translateY(-2px);
+box-shadow: var(--shadow-sm);
+ }
+.btn-gray {
+background-color: var(--gray);
+color: white;
+ }
+.btn-gray:hover {
+background-color: var(--dark);
+ }
+.btn-outline {
+background-color: transparent;
+border: 1px solid var(--gray-300);
+color: var(--gray-700);
+ }
+.btn-outline:hover {
+background-color: var(--gray-50);
+border-color: var(--gray-700);
+ }
+.btn-success {
+background-color: var(--success);
+color: white;
+ }
+.btn-success:hover {
+background-color: #145a32;
+ }
+.btn-danger {
+background-color: var(--danger);
+color: white;
+ }
+.btn-danger:hover {
+background-color: #a93226;
+ }
+/* QR Scanner specific styles */
+.qr-container {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 20px;
+max-width: 600px;
+margin: 0 auto;
+ }
+.scanner-container {
+width: 100%;
+max-width: 400px;
+aspect-ratio: 1/1;
+position: relative;
+overflow: hidden;
+border-radius: 10px;
+box-shadow: var(--shadow-md);
+border: 2px solid var(--primary);
+margin: 0 auto;
+ }
+#qr-video {
+width: 100%;
+height: 100%;
+object-fit: cover;
+ }
+.scanner-overlay {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+background: rgba(0, 0, 0, 0.1);
+pointer-events: none;
+ }
+.scanner-corner {
+position: absolute;
+width: 20px;
+height: 20px;
+border-color: var(--primary);
+border-width: 3px;
+ }
+.corner-top-left {
+top: 15px;
+left: 15px;
+border-left-style: solid;
+border-top-style: solid;
+ }
+.corner-top-right {
+top: 15px;
+right: 15px;
+border-right-style: solid;
+border-top-style: solid;
+ }
+.corner-bottom-left {
+bottom: 15px;
+left: 15px;
+border-left-style: solid;
+border-bottom-style: solid;
+ }
+.corner-bottom-right {
+bottom: 15px;
+right: 15px;
+border-right-style: solid;
+border-bottom-style: solid;
+ }
+.scanner-line {
+position: absolute;
+height: 2px;
+width: 80%;
+background: linear-gradient(90deg, transparent 0%, var(--primary) 50%, transparent 100%);
+top: 50%;
+animation: scan 2s linear infinite;
+ }
+@keyframes scan {
+ 0% {
+transform: translateY(-80px);
+ }
+ 50% {
+transform: translateY(80px);
+ }
+ 100% {
+transform: translateY(-80px);
+ }
+ }
+.scanner-control {
+display: flex;
+justify-content: center;
+gap: 10px;
+margin-top: 20px;
+flex-wrap: wrap;
+ }
+.info-box {
+background-color: var(--primary-light);
+border-left: 4px solid var(--primary);
+padding: 15px;
+border-radius: 6px;
+margin-bottom: 20px;
+ }
+.info-box h3 {
+display: flex;
+align-items: center;
+gap: 8px;
+font-size: 1rem;
+margin-bottom: 8px;
+color: var(--primary-dark);
+font-weight: 600;
+ }
+.info-box p {
+color: var(--dark);
+font-size: 0.9rem;
+line-height: 1.5;
+ }
+.manual-entry {
+width: 100%;
+margin-bottom: 20px;
+ }
+#manual-code {
+width: 100%;
+padding: 10px 15px;
+border: 1px solid var(--gray-300);
+border-radius: 6px;
+margin-bottom: 10px;
+font-size: 1rem;
+ }
+#manual-code:focus {
+outline: none;
+border-color: var(--primary);
+box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+ }
+.result-container {
+background-color: var(--gray-50);
+border: 1px solid var(--gray-200);
+border-radius: 10px;
+padding: 20px;
+width: 100%;
+max-width: 600px;
+margin: 20px auto;
+display: none;
+ }
+.result-container.active {
+display: block;
+ }
+.result-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 15px;
+padding-bottom: 10px;
+border-bottom: 1px solid var(--gray-200);
+ }
+.result-header h3 {
+font-size: 1.1rem;
+font-weight: 600;
+color: var(--dark);
+ }
+.result-content {
+font-size: 0.95rem;
+line-height: 1.6;
+ }
+.result-content p {
+margin-bottom: 8px;
+padding: 5px 0;
+border-bottom: 1px solid var(--gray-100);
+ }
+.result-content p:last-child {
+border-bottom: none;
+margin-bottom: 0;
+ }
+.result-actions {
+display: flex;
+justify-content: space-between;
+margin-top: 15px;
+padding-top: 15px;
+border-top: 1px solid var(--gray-200);
+gap: 10px;
+ }
+.notification {
+position: fixed;
+bottom: 20px;
+right: 20px;
+padding: 12px 20px;
+border-radius: 6px;
+background-color: #e3f8e8;
+color: var(--success);
+display: flex;
+align-items: center;
+gap: 10px;
+box-shadow: var(--shadow);
+opacity: 0;
+transform: translateY(10px);
+transition: all 0.3s ease;
+z-index: 1000;
+max-width: 90%;
+ }
+.notification.show {
+opacity: 1;
+transform: translateY(0);
+ }
+.notification.error {
+background-color: rgba(192, 57, 43, 0.1);
+color: var(--danger);
+ }
+.notification.warning {
+background-color: rgba(243, 156, 18, 0.1);
+color: var(--warning);
+ }
+/* Status indicators in results */
+.status-badge {
+padding: 4px 8px;
+border-radius: 12px;
+font-size: 0.75rem;
+font-weight: 600;
+text-transform: uppercase;
+ }
+.status-pending {
+background-color: rgba(243, 156, 18, 0.15);
+color: var(--warning);
+ }
+.status-delivered {
+background-color: rgba(39, 174, 96, 0.15);
+color: var(--success);
+ }
+.package-found {
+background-color: rgba(39, 174, 96, 0.1);
+border-left: 4px solid var(--success);
+padding: 15px;
+border-radius: 6px;
+margin-bottom: 15px;
+ }
+.package-not-found {
+background-color: rgba(192, 57, 43, 0.1);
+border-left: 4px solid var(--danger);
+padding: 15px;
+border-radius: 6px;
+margin-bottom: 15px;
+ }
 
-        @media (max-width: 576px) {
-            .main-content {
-                padding: 10px;
-            }
-            
-            .card {
-                border-radius: 8px;
-            }
-            
-            .card-header, .card-body {
-                padding: 15px;
-            }
-            
-            .scanner-container {
-                aspect-ratio: 1/1;
-            }
-            
-            .scanner-corner {
-                width: 15px;
-                height: 15px;
-            }
-            
-            @keyframes scan {
-                0% {
-                    transform: translateY(-60px);
-                }
-                50% {
-                    transform: translateY(60px);
-                }
-                100% {
-                    transform: translateY(-60px);
-                }
-            }
-        }
-    </style>
+.debug-info {
+background-color: var(--info-light);
+border: 1px solid var(--info);
+border-radius: 6px;
+padding: 10px;
+margin: 10px 0;
+font-family: 'Courier New', monospace;
+font-size: 0.8rem;
+white-space: pre-wrap;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+.qr-container {
+max-width: 100%;
+ }
+ }
+@media (max-width: 768px) {
+.sidebar {
+width: 70px;
+ }
+.sidebar .logo span,
+.sidebar .nav-item span {
+display: none;
+ }
+.sidebar .nav-item {
+justify-content: center;
+padding: 15px 0;
+ }
+.sidebar .nav-item i {
+margin-right: 0;
+ }
+.sidebar .sidebar-header {
+padding: 15px 0;
+ }
+.sidebar .logo {
+justify-content: center;
+ }
+.sidebar .logo img {
+height: 34px;
+ }
+.main-content {
+padding: 15px;
+ }
+.header {
+flex-direction: column;
+align-items: flex-start;
+gap: 15px;
+ }
+.scanner-container {
+max-width: 100%;
+ }
+.scanner-control {
+flex-direction: column;
+width: 100%;
+ }
+.btn {
+width: 100%;
+ }
+.result-actions {
+flex-direction: column;
+gap: 10px;
+ }
+.result-actions .btn {
+width: 100%;
+ }
+ }
+@media (max-width: 576px) {
+.main-content {
+padding: 10px;
+ }
+.card {
+border-radius: 8px;
+ }
+.card-header, .card-body {
+padding: 15px;
+ }
+.scanner-container {
+aspect-ratio: 1/1;
+ }
+.scanner-corner {
+width: 15px;
+height: 15px;
+ }
+@keyframes scan {
+ 0% {
+transform: translateY(-60px);
+ }
+ 50% {
+transform: translateY(60px);
+ }
+ 100% {
+transform: translateY(-60px);
+ }
+ }
+ }
+</style>
 </head>
 <body>
-    <!-- Sidebar / Menú Lateral -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <a href="dashboard.html" class="logo">
-                <img src="./images/favicon1.svg" alt="Logo Encomiendas">
-                <span>PackTrack</span>
-            </a>
-        </div>
-        <ul class="nav-menu">
-            <li class="nav-item" onclick="window.location.href='dashboard.html'">
-                <i class="fas fa-th-large"></i>
-                <span>Dashboard</span>
-            </li>
-            <li class="nav-item" onclick="window.location.href='registerPackage.html'">
-                <i class="fas fa-plus-square"></i>
-                <span>Registrar Paquete</span>
-            </li>
-            <li class="nav-item" onclick="window.location.href='listPackages.html'">
-                <i class="fas fa-list"></i>
-                <span>Lista de Paquetes</span>
-            </li>
-            <li class="nav-item" onclick="window.location.href='departaments.html'">
-                <i class="fas fa-building"></i>
-                <span>Departamentos</span>
-            </li>
-            <li class="nav-item active" onclick="window.location.href='codigoqr.html'">
-                <i class="fas fa-qrcode"></i>
-                <span>Lector QR</span>
-            </li>
-            <li class="nav-item" onclick="window.location.href='notificaciones.html'">
-                <i class="fas fa-bell"></i>
-                <span>Notificaciones</span>
-            </li>
-            <li class="nav-item" onclick="window.location.href='configuracion.html'">
-                <i class="fas fa-cog"></i>
-                <span>Configuración</span>
-            </li>
-            <li class="nav-item" onclick="logout()" style="margin-top: 50px; color: #e74c3c;">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Cerrar Sesión</span>
-            </li>
-        </ul>
-    </div>
-    
-    <!-- Contenido Principal -->
-    <div class="main-content">
-        <div class="header">
-            <h1 class="page-title">Lector de Códigos QR</h1>
-        </div>
+<!-- Sidebar / Menú Lateral -->
+<div class="sidebar">
+<div class="sidebar-header">
+<a href="dashboard.html" class="logo">
+<img src="./images/favicon1.svg" alt="Logo Encomiendas">
+<span>PackTrack</span>
+</a>
+</div>
+<ul class="nav-menu">
+<li class="nav-item" onclick="window.location.href='dashboard.html'">
+<i class="fas fa-th-large"></i>
+<span>Dashboard</span>
+</li>
+<li class="nav-item" onclick="window.location.href='registerPackage.html'">
+<i class="fas fa-plus-square"></i>
+<span>Registrar Paquete</span>
+</li>
+<li class="nav-item" onclick="window.location.href='listPackages.html'">
+<i class="fas fa-list"></i>
+<span>Lista de Paquetes</span>
+</li>
+<li class="nav-item" onclick="window.location.href='departaments.html'">
+<i class="fas fa-building"></i>
+<span>Departamentos</span>
+</li>
+<li class="nav-item active" onclick="window.location.href='codigoqr.html'">
+<i class="fas fa-qrcode"></i>
+<span>Lector QR</span>
+</li>
+<li class="nav-item" onclick="window.location.href='notificaciones.html'">
+<i class="fas fa-bell"></i>
+<span>Notificaciones</span>
+</li>
+<li class="nav-item" onclick="window.location.href='configuracion.html'">
+<i class="fas fa-cog"></i>
+<span>Configuración</span>
+</li>
+<li class="nav-item" onclick="logout()" style="margin-top: 50px; color: #e74c3c;">
+<i class="fas fa-sign-out-alt"></i>
+<span>Cerrar Sesión</span>
+</li>
+</ul>
+</div>
+<!-- Contenido Principal -->
+<div class="main-content">
+<div class="header">
+<h1 class="page-title">Lector de Códigos QR</h1>
+</div>
+<div class="card">
+<div class="card-header">
+ Escanear Código QR de Paquete
+</div>
+<div class="card-body">
+<div class="info-box">
+<h3><i class="fas fa-info-circle"></i> Instrucciones</h3>
+<p>Apunte la cámara hacia un código QR para escanear y procesar la información del paquete. Asegúrese de que el código QR esté bien iluminado y centrado en el recuadro. Si no puede acceder a la cámara, use la opción para ingresar el código manualmente.</p>
+</div>
+<!-- Opción de entrada manual -->
+<div class="manual-entry">
+<button id="toggle-manual" class="btn btn-outline" style="margin-bottom: 15px;">
+<i class="fas fa-keyboard"></i>
+<span>Ingresar código manualmente</span>
+</button>
+<div id="manual-form" style="display: none; margin-bottom: 20px;">
+<div class="card" style="margin-bottom: 0;">
+<div class="card-header">Ingreso Manual de Código</div>
+<div class="card-body">
+<input type="text" id="manual-code" placeholder="Ingrese el código del paquete (Ej: PKG-101-20241122)">
+<div style="display: flex; gap: 10px;">
+<button id="process-manual" class="btn btn-primary">
+<i class="fas fa-check"></i>
+<span>Procesar</span>
+</button>
+<button id="cancel-manual" class="btn btn-outline">
+<i class="fas fa-times"></i>
+<span>Cancelar</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="qr-container">
+<div class="scanner-container">
+<video id="qr-video" playsinline></video>
+<div class="scanner-overlay">
+<div class="scanner-line"></div>
+<div class="scanner-corner corner-top-left"></div>
+<div class="scanner-corner corner-top-right"></div>
+<div class="scanner-corner corner-bottom-left"></div>
+<div class="scanner-corner corner-bottom-right"></div>
+</div>
+</div>
+<div class="scanner-control">
+<button id="start-button" class="btn btn-primary">
+<i class="fas fa-play"></i>
+<span>Iniciar Escáner</span>
+</button>
+<button id="stop-button" class="btn btn-outline" style="display: none;">
+<i class="fas fa-stop"></i>
+<span>Detener</span>
+</button>
+<button id="switch-camera" class="btn btn-outline">
+<i class="fas fa-sync-alt"></i>
+<span>Cambiar Cámara</span>
+</button>
+<button id="debug-toggle" class="btn btn-gray">
+<i class="fas fa-bug"></i>
+<span>Debug</span>
+</button>
+</div>
+<p style="text-align: center; margin-top: 10px; color: var(--gray); font-size: 0.9rem;">
+ Si tiene problemas, asegúrese de permitir el acceso a la cámara y que el código QR esté bien iluminado.
+</p>
+</div>
+<!-- Contenedor de resultados -->
+<div id="result-container" class="result-container">
+<div class="result-header">
+<h3><i class="fas fa-check-circle"></i> Resultado del Escaneo</h3>
+<button id="close-result" class="btn btn-outline" style="padding: 5px 10px;">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<div id="result-content" class="result-content">
+<!-- El resultado del escaneo se mostrará aquí -->
+</div>
+<div class="result-actions">
+<button id="process-btn" class="btn btn-success" style="display: none;">
+<i class="fas fa-check"></i>
+<span>Marcar como Entregado</span>
+</button>
+<button id="scan-again" class="btn btn-outline">
+<i class="fas fa-redo"></i>
+<span>Escanear Otro</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Notificación -->
+<div id="notification" class="notification">
+<i class="fas fa-check-circle"></i>
+<span id="notification-message">Paquete procesado correctamente</span>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// Verificar autenticación
+const authToken = localStorage.getItem('authToken');
+const isLoggedIn = localStorage.getItem('isLoggedIn');
+if (!authToken || !isLoggedIn) {
+window.location.href = 'login.html';
+return;
+ }
+
+// Variables para debugging
+let debugMode = false;
+
+// Elementos del DOM
+const video = document.getElementById('qr-video');
+const startButton = document.getElementById('start-button');
+const stopButton = document.getElementById('stop-button');
+const switchCameraButton = document.getElementById('switch-camera');
+const resultContainer = document.getElementById('result-container');
+const resultContent = document.getElementById('result-content');
+const closeResultButton = document.getElementById('close-result');
+const scanAgainButton = document.getElementById('scan-again');
+const processButton = document.getElementById('process-btn');
+const notification = document.getElementById('notification');
+const notificationMessage = document.getElementById('notification-message');
+const debugToggle = document.getElementById('debug-toggle');
+
+// Elementos para ingreso manual
+const toggleManualButton = document.getElementById('toggle-manual');
+const manualForm = document.getElementById('manual-form');
+const manualCodeInput = document.getElementById('manual-code');
+const processManualButton = document.getElementById('process-manual');
+const cancelManualButton = document.getElementById('cancel-manual');
+
+// Variables para gestionar el escáner
+let scanner = null;
+let canvasElement = document.createElement('canvas');
+let canvas = canvasElement.getContext('2d');
+let scanning = false;
+let cameraId = null;
+let cameraList = [];
+let currentCameraIndex = 0;
+let cameraPermissionGranted = false;
+let currentPackageData = null;
+
+// FUNCIÓN MEJORADA: Obtener todos los paquetes con múltiples fuentes
+function getAllPackages() {
+try {
+console.log("=== OBTENIENDO TODOS LOS PAQUETES ===");
         
-        <div class="card">
-            <div class="card-header">
-                Escanear Código QR de Paquete
-            </div>
-            <div class="card-body">
-                <div class="info-box">
-                    <h3><i class="fas fa-info-circle"></i> Instrucciones</h3>
-                    <p>Apunte la cámara hacia un código QR para escanear y procesar la información del paquete. Asegúrese de que el código QR esté bien iluminado y centrado en el recuadro. Si no puede acceder a la cámara, use la opción para ingresar el código manualmente.</p>
-                </div>
-                
-                <!-- Opción de entrada manual -->
-                <div class="manual-entry">
-                    <button id="toggle-manual" class="btn btn-outline" style="margin-bottom: 15px;">
-                        <i class="fas fa-keyboard"></i>
-                        <span>Ingresar código manualmente</span>
-                    </button>
+let allPackages = [];
+        
+// Verificar en múltiples ubicaciones de localStorage
+const sources = ['paquetesPrueba', 'packages'];
+        
+sources.forEach(source => {
+const data = localStorage.getItem(source);
+if (data) {
+try {
+const packages = JSON.parse(data);
+if (Array.isArray(packages)) {
+console.log(`Encontrados ${packages.length} paquetes en '${source}'`);
                     
-                    <div id="manual-form" style="display: none; margin-bottom: 20px;">
-                        <div class="card" style="margin-bottom: 0;">
-                            <div class="card-header">Ingreso Manual de Código</div>
-                            <div class="card-body">
-                                <input type="text" id="manual-code" placeholder="Ingrese el código del paquete (Ej: PKG-101-20241122)">
-                                <div style="display: flex; gap: 10px;">
-                                    <button id="process-manual" class="btn btn-primary">
-                                        <i class="fas fa-check"></i>
-                                        <span>Procesar</span>
-                                    </button>
-                                    <button id="cancel-manual" class="btn btn-outline">
-                                        <i class="fas fa-times"></i>
-                                        <span>Cancelar</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="qr-container">
-                    <div class="scanner-container">
-                        <video id="qr-video" playsinline></video>
-                        <div class="scanner-overlay">
-                            <div class="scanner-line"></div>
-                            <div class="scanner-corner corner-top-left"></div>
-                            <div class="scanner-corner corner-top-right"></div>
-                            <div class="scanner-corner corner-bottom-left"></div>
-                            <div class="scanner-corner corner-bottom-right"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="scanner-control">
-                        <button id="start-button" class="btn btn-primary">
-                            <i class="fas fa-play"></i>
-                            <span>Iniciar Escáner</span>
-                        </button>
-                        <button id="stop-button" class="btn btn-outline" style="display: none;">
-                            <i class="fas fa-stop"></i>
-                            <span>Detener</span>
-                        </button>
-                        <button id="switch-camera" class="btn btn-outline">
-                            <i class="fas fa-sync-alt"></i>
-                            <span>Cambiar Cámara</span>
-                        </button>
-                    </div>
-                    
-                    <p style="text-align: center; margin-top: 10px; color: var(--gray); font-size: 0.9rem;">
-                        Si tiene problemas, asegúrese de permitir el acceso a la cámara y que el código QR esté bien iluminado.
-                    </p>
-                </div>
-                
-                <!-- Contenedor de resultados -->
-                <div id="result-container" class="result-container">
-                    <div class="result-header">
-                        <h3><i class="fas fa-check-circle"></i> Resultado del Escaneo</h3>
-                        <button id="close-result" class="btn btn-outline" style="padding: 5px 10px;">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div id="result-content" class="result-content">
-                        <!-- El resultado del escaneo se mostrará aquí -->
-                    </div>
-                    <div class="result-actions">
-                        <button id="process-btn" class="btn btn-success" style="display: none;">
-                            <i class="fas fa-check"></i>
-                            <span>Marcar como Entregado</span>
-                        </button>
-                        <button id="scan-again" class="btn btn-outline">
-                            <i class="fas fa-redo"></i>
-                            <span>Escanear Otro</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+// Evitar duplicados
+packages.forEach(pkg => {
+const exists = allPackages.some(existing => 
+(existing.id && pkg.id && existing.id === pkg.id) ||
+(existing.qr_code && pkg.qr_code && existing.qr_code === pkg.qr_code)
+);
+if (!exists) {
+allPackages.push(pkg);
+}
+});
+}
+} catch (e) {
+console.error(`Error al parsear '${source}':`, e);
+}
+}
+});
+        
+console.log(`Total de paquetes únicos encontrados: ${allPackages.length}`);
+if (debugMode) {
+console.log("Paquetes detallados:", allPackages);
+}
+        
+return allPackages;
+} catch (error) {
+console.error('Error crítico al cargar paquetes:', error);
+return [];
+}
+}
+
+// FUNCIÓN MEJORADA: Actualizar estado del paquete
+function updatePackageStatus(packageId, newStatus) {
+try {
+console.log(`=== ACTUALIZANDO PAQUETE ${packageId} A ${newStatus} ===`);
+        
+const packages = getAllPackages();
+const packageIndex = packages.findIndex(pkg => 
+(pkg.id && pkg.id === packageId) ||
+(pkg.qr_code && pkg.qr_code === packageId)
+);
+        
+if (packageIndex === -1) {
+console.error('Paquete no encontrado:', packageId);
+return false;
+}
+        
+const originalPackage = packages[packageIndex];
+console.log('Paquete original:', originalPackage);
+        
+// Actualizar el estado y la fecha de entrega
+packages[packageIndex] = {
+...originalPackage,
+status: newStatus,
+delivered_date: new Date().toISOString(),
+delivery_time: new Date().toLocaleString('es-ES'),
+updated_at: new Date().toISOString()
+};
+        
+console.log('Paquete actualizado:', packages[packageIndex]);
+        
+// Guardar en múltiples ubicaciones para compatibilidad
+const sources = ['paquetesPrueba', 'packages'];
+sources.forEach(source => {
+try {
+localStorage.setItem(source, JSON.stringify(packages));
+console.log(`Guardado en '${source}' exitosamente`);
+} catch (e) {
+console.error(`Error al guardar en '${source}':`, e);
+}
+});
+        
+return true;
+} catch (error) {
+console.error('Error al actualizar paquete:', error);
+return false;
+}
+}
+
+// FUNCIÓN COMPLETAMENTE REESCRITA: Buscar paquete por código
+function findPackageByCode(code) {
+console.log(`=== BUSCANDO PAQUETE CON CÓDIGO: "${code}" ===`);
     
-    <!-- Notificación -->
-    <div id="notification" class="notification">
-        <i class="fas fa-check-circle"></i>
-        <span id="notification-message">Paquete procesado correctamente</span>
-    </div>
+const packages = getAllPackages();
+console.log(`Buscando en ${packages.length} paquetes`);
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Verificar autenticación
-            const authToken = localStorage.getItem('authToken');
-            const isLoggedIn = localStorage.getItem('isLoggedIn');
+if (packages.length === 0) {
+console.log("No hay paquetes para buscar");
+return null;
+}
+    
+// Estrategia 1: Buscar por ID exacto
+let foundPackage = packages.find(pkg => {
+const match = (pkg.id && pkg.id === code) || (pkg.qr_code && pkg.qr_code === code);
+if (match) {
+console.log("Encontrado por ID exacto:", pkg);
+}
+return match;
+});
+    
+if (foundPackage) return foundPackage;
+    
+// Estrategia 2: Buscar por coincidencia parcial en el ID
+foundPackage = packages.find(pkg => {
+const idMatch = pkg.id && pkg.id.toString().includes(code);
+const qrMatch = pkg.qr_code && pkg.qr_code.toString().includes(code);
+if (idMatch || qrMatch) {
+console.log("Encontrado por coincidencia parcial:", pkg);
+}
+return idMatch || qrMatch;
+});
+    
+if (foundPackage) return foundPackage;
+    
+// Estrategia 3: Si el código es tipo PKG-, extraer departamento
+if (code.startsWith('PKG-')) {
+console.log("Código tipo PKG detectado, extrayendo departamento...");
+const parts = code.split('-');
+if (parts.length >= 2) {
+const deptNumber = parts[1];
+console.log(`Buscando paquetes pendientes en departamento: ${deptNumber}`);
             
-            if (!authToken || !isLoggedIn) {
-                window.location.href = 'login.html';
-                return;
-            }
+foundPackage = packages.find(pkg => {
+const deptMatch = pkg.apartment_number === deptNumber;
+const statusMatch = pkg.status === 'pendiente';
+const match = deptMatch && statusMatch;
+if (match) {
+console.log("Encontrado por departamento y estado:", pkg);
+}
+return match;
+});
+}
+}
+    
+if (!foundPackage) {
+console.log("Paquete no encontrado con ninguna estrategia");
+// Mostrar IDs disponibles para debugging
+if (debugMode) {
+const availableIds = packages.map(pkg => pkg.id || pkg.qr_code || 'Sin ID');
+console.log("IDs disponibles:", availableIds);
+}
+}
+    
+return foundPackage;
+}
 
-            // Elementos del DOM
-            const video = document.getElementById('qr-video');
-            const startButton = document.getElementById('start-button');
-            const stopButton = document.getElementById('stop-button');
-            const switchCameraButton = document.getElementById('switch-camera');
-            const resultContainer = document.getElementById('result-container');
-            const resultContent = document.getElementById('result-content');
-            const closeResultButton = document.getElementById('close-result');
-            const scanAgainButton = document.getElementById('scan-again');
-            const processButton = document.getElementById('process-btn');
-            const notification = document.getElementById('notification');
-            const notificationMessage = document.getElementById('notification-message');
+// Función para mostrar notificaciones
+function showNotification(message, type = 'success') {
+console.log(`Notificación [${type}]: ${message}`);
+notificationMessage.textContent = message;
+notification.className = 'notification show';
+if (type === 'error') {
+notification.classList.add('error');
+} else if (type === 'warning') {
+notification.classList.add('warning');
+}
+setTimeout(() => {
+notification.classList.remove('show');
+setTimeout(() => {
+notification.className = 'notification';
+}, 300);
+}, 3000);
+}
+
+// Función para solicitar permisos de cámara
+async function requestCameraPermission() {
+try {
+showNotification('Solicitando acceso a la cámara...');
+const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+// Detener el stream temporal
+stream.getTracks().forEach(track => track.stop());
+cameraPermissionGranted = true;
+console.log("Permiso de cámara concedido");
+return true;
+} catch (error) {
+console.error('Permiso de cámara denegado:', error);
+showNotification('Permiso de cámara denegado. Use la entrada manual de códigos.', 'error');
+toggleManualEntry(true);
+return false;
+}
+}
+
+// FUNCIÓN MEJORADA: Iniciar la cámara con mejor configuración
+async function startCamera() {
+try {
+if (!cameraPermissionGranted) {
+const permissionGranted = await requestCameraPermission();
+if (!permissionGranted) return;
+}
+
+toggleManualEntry(false);
+const devices = await navigator.mediaDevices.enumerateDevices();
+cameraList = devices.filter(device => device.kind === 'videoinput');
+
+if (cameraList.length === 0) {
+throw new Error('No se encontraron cámaras disponibles');
+}
+
+cameraId = cameraList[currentCameraIndex].deviceId;
+
+// Configuración mejorada para mejor lectura de QR
+const constraints = {
+video: {
+deviceId: cameraId ? { exact: cameraId } : undefined,
+facingMode: cameraList.length > 1 ? 'environment' : undefined,
+width: { ideal: 1920, min: 640 },
+height: { ideal: 1080, min: 480 },
+frameRate: { ideal: 30, min: 15 }
+}
+};
+
+console.log("Configuración de cámara:", constraints);
+
+const stream = await navigator.mediaDevices.getUserMedia(constraints);
+video.srcObject = stream;
+video.setAttribute('playsinline', true);
+await video.play();
+
+scanning = true;
+requestAnimationFrame(tick);
+
+startButton.style.display = 'none';
+stopButton.style.display = 'inline-flex';
+switchCameraButton.disabled = cameraList.length <= 1;
+
+showNotification('Cámara activada. Apunte al código QR');
+console.log("Cámara iniciada exitosamente");
+} catch (error) {
+console.error('Error al acceder a la cámara:', error);
+showNotification('Error al acceder a la cámara: ' + error.message, 'error');
+toggleManualEntry(true);
+}
+}
+
+// Función para detener la cámara
+function stopCamera() {
+scanning = false;
+if (video.srcObject) {
+const tracks = video.srcObject.getTracks();
+tracks.forEach(track => track.stop());
+video.srcObject = null;
+}
+startButton.style.display = 'inline-flex';
+stopButton.style.display = 'none';
+console.log("Cámara detenida");
+}
+
+// Función para cambiar de cámara
+function switchCamera() {
+if (cameraList.length <= 1) return;
+currentCameraIndex = (currentCameraIndex + 1) % cameraList.length;
+console.log(`Cambiando a cámara ${currentCameraIndex + 1} de ${cameraList.length}`);
+stopCamera();
+startCamera();
+}
+
+// FUNCIÓN MEJORADA: Procesamiento de frames con configuración optimizada
+function tick() {
+if (!scanning) return;
+
+if (video.readyState === video.HAVE_ENOUGH_DATA) {
+canvasElement.width = video.videoWidth;
+canvasElement.height = video.videoHeight;
+canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+        
+const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+
+try {
+// Configuración optimizada para jsQR
+const code = jsQR(imageData.data, imageData.width, imageData.height, {
+inversionAttempts: "attemptBoth", // Probar inversión
+locateFromCenter: true,           // Buscar desde el centro
+canvasSize: Math.min(canvasElement.width, canvasElement.height)
+});
+
+if (code) {
+console.log("QR Code detectado:", code.data);
+scanning = false;
+stopCamera();
+processQRCode(code.data);
+}
+} catch (e) {
+console.error('Error al procesar el QR:', e);
+}
+}
+
+if (scanning) {
+requestAnimationFrame(tick);
+}
+}
+
+// FUNCIÓN PRINCIPAL COMPLETAMENTE REESCRITA: Procesar el código QR
+function processQRCode(data) {
+console.log('=== PROCESANDO CÓDIGO QR ===');
+console.log('Datos recibidos:', data);
+console.log('Tipo de datos:', typeof data);
+console.log('Longitud:', data.length);
+
+try {
+let packageData = null;
+let isJsonData = false;
+let rawCode = data;
+
+// Limpiar el código (eliminar espacios y caracteres extraños)
+const cleanedData = data.trim();
+console.log('Datos limpiados:', cleanedData);
+
+// Estrategia 1: Intentar parsear como JSON
+try {
+const jsonContent = JSON.parse(cleanedData);
+console.log('JSON parseado exitosamente:', jsonContent);
             
-            // Elementos para ingreso manual
-            const toggleManualButton = document.getElementById('toggle-manual');
-            const manualForm = document.getElementById('manual-form');
-            const manualCodeInput = document.getElementById('manual-code');
-            const processManualButton = document.getElementById('process-manual');
-            const cancelManualButton = document.getElementById('cancel-manual');
+// Si es JSON, buscar el paquete usando el ID del JSON
+if (jsonContent.id) {
+packageData = findPackageByCode(jsonContent.id);
+if (packageData) {
+console.log('Paquete encontrado usando ID del JSON:', packageData);
+isJsonData = true;
+} else {
+// Si no se encuentra por ID, usar los datos del JSON directamente
+console.log('No se encontró en DB, usando datos del JSON');
+packageData = jsonContent;
+isJsonData = true;
+}
+} else {
+console.log('JSON sin ID, usando datos directamente');
+packageData = jsonContent;
+isJsonData = true;
+}
+} catch (jsonError) {
+console.log('No es JSON válido, procesando como código directo');
+// Estrategia 2: Buscar como código directo
+packageData = findPackageByCode(cleanedData);
+isJsonData = false;
+}
 
-            // Variables para gestionar el escáner
-            let scanner = null;
-            let canvasElement = document.createElement('canvas');
-            let canvas = canvasElement.getContext('2d');
-            let scanning = false;
-            let cameraId = null;
-            let cameraList = [];
-            let currentCameraIndex = 0;
-            let cameraPermissionGranted = false;
-            let currentPackageData = null; // Almacenar el paquete actual
+// Debug adicional
+if (debugMode) {
+console.log('Estado final:');
+console.log('- packageData:', packageData);
+console.log('- isJsonData:', isJsonData);
+console.log('- rawCode:', rawCode);
+}
 
-            // NUEVA FUNCIÓN: Obtener todos los paquetes
-            function getAllPackages() {
-                try {
-                    const packagesData = localStorage.getItem('paquetesPrueba');
-                    return packagesData ? JSON.parse(packagesData) : [];
-                } catch (error) {
-                    console.error('Error al cargar paquetes:', error);
-                    return [];
-                }
-            }
+if (packageData) {
+// Paquete encontrado
+currentPackageData = packageData;
+displayPackageInfo(packageData, true, rawCode);
 
-            // NUEVA FUNCIÓN: Actualizar estado del paquete
-            function updatePackageStatus(packageId, newStatus) {
-                try {
-                    const packages = getAllPackages();
-                    const packageIndex = packages.findIndex(pkg => pkg.id === packageId);
-                    
-                    if (packageIndex === -1) {
-                        console.error('Paquete no encontrado:', packageId);
-                        return false;
-                    }
-                    
-                    // Actualizar el estado y la fecha de entrega
-                    packages[packageIndex].status = newStatus;
-                    packages[packageIndex].delivered_date = new Date().toISOString();
-                    packages[packageIndex].delivery_time = new Date().toLocaleString('es-ES');
-                    
-                    // Guardar en localStorage
-                    localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
-                    
-                    console.log('Paquete actualizado:', packages[packageIndex]);
-                    return true;
-                } catch (error) {
-                    console.error('Error al actualizar paquete:', error);
-                    return false;
-                }
-            }
+// Mostrar botón de procesar solo si está pendiente
+if (packageData.status === 'pendiente') {
+processButton.style.display = 'inline-flex';
+showNotification('Paquete encontrado y listo para entregar', 'success');
+} else {
+processButton.style.display = 'none';
+showNotification('Este paquete ya fue entregado anteriormente', 'warning');
+}
+} else {
+// Paquete no encontrado
+currentPackageData = null;
+displayPackageInfo({ code: cleanedData }, false, rawCode);
+processButton.style.display = 'none';
+showNotification('Código no encontrado en la base de datos', 'error');
+}
 
-            // NUEVA FUNCIÓN: Buscar paquete por código
-            function findPackageByCode(code) {
-                const packages = getAllPackages();
-                
-                // Buscar por ID exacto
-                let foundPackage = packages.find(pkg => pkg.id === code);
-                
-                if (!foundPackage) {
-                    // Buscar por coincidencia parcial en el ID
-                    foundPackage = packages.find(pkg => 
-                        pkg.id && pkg.id.toString().includes(code)
-                    );
-                }
-                
-                if (!foundPackage && code.startsWith('PKG-')) {
-                    // Extraer información del código PKG-
-                    const parts = code.split('-');
-                    if (parts.length >= 2) {
-                        const deptNumber = parts[1];
-                        // Buscar paquetes pendientes en ese departamento
-                        foundPackage = packages.find(pkg => 
-                            pkg.apartment_number === deptNumber && 
-                            pkg.status === 'pendiente'
-                        );
-                    }
-                }
-                
-                return foundPackage;
-            }
+resultContainer.classList.add('active');
+} catch (error) {
+console.error('Error crítico al procesar el código QR:', error);
+showNotification('Error crítico al procesar el código QR: ' + error.message, 'error');
+}
+}
 
-            // Función para mostrar notificaciones
-            function showNotification(message, type = 'success') {
-                notificationMessage.textContent = message;
-                notification.className = 'notification show';
-                
-                if (type === 'error') {
-                    notification.classList.add('error');
-                } else if (type === 'warning') {
-                    notification.classList.add('warning');
-                }
-                
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                    // Limpiar clases de tipo después de la animación
-                    setTimeout(() => {
-                        notification.className = 'notification';
-                    }, 300);
-                }, 3000);
-            }
+// FUNCIÓN MEJORADA: Mostrar información del paquete con debug
+function displayPackageInfo(packageData, found, rawCode = '') {
+let content = '';
 
-            // Función para solicitar permisos de cámara
-            async function requestCameraPermission() {
-                try {
-                    showNotification('Se solicitará acceso a la cámara para escanear códigos QR');
-                    
-                    await navigator.mediaDevices.getUserMedia({ video: true });
-                    
-                    cameraPermissionGranted = true;
-                    return true;
-                } catch (error) {
-                    console.error('Permiso de cámara denegado:', error);
-                    showNotification('Permiso de cámara denegado. Puede usar la entrada manual de códigos.', 'error');
-                    
-                    toggleManualEntry(true);
-                    
-                    return false;
-                }
-            }
-            
-            // Función para iniciar la cámara
-            async function startCamera() {
-                try {
-                    if (!cameraPermissionGranted) {
-                        const permissionGranted = await requestCameraPermission();
-                        if (!permissionGranted) return;
-                    }
-                    
-                    toggleManualEntry(false);
-                    
-                    const devices = await navigator.mediaDevices.enumerateDevices();
-                    cameraList = devices.filter(device => device.kind === 'videoinput');
-                    
-                    if (cameraList.length === 0) {
-                        throw new Error('No se encontraron cámaras disponibles');
-                    }
-                    
-                    cameraId = cameraList[currentCameraIndex].deviceId;
-                    
-                    let facingMode = 'environment';
-                    
-                    const constraints = {
-                        video: {
-                            deviceId: cameraId ? { exact: cameraId } : undefined,
-                            facingMode: facingMode,
-                            width: { ideal: 1280 },
-                            height: { ideal: 720 }
-                        }
-                    };
-                    
-                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                    video.srcObject = stream;
-                    video.setAttribute('playsinline', true);
-                    
-                    await video.play();
-                    scanning = true;
-                    requestAnimationFrame(tick);
-                    
-                    startButton.style.display = 'none';
-                    stopButton.style.display = 'inline-flex';
-                    
-                    switchCameraButton.disabled = cameraList.length <= 1;
-                    
-                    showNotification('Cámara activada. Apunte al código QR');
-                    
-                } catch (error) {
-                    console.error('Error al acceder a la cámara:', error);
-                    showNotification('Error al acceder a la cámara: ' + error.message, 'error');
-                    
-                    toggleManualEntry(true);
-                }
-            }
+if (found && (packageData.id || packageData.qr_code)) {
+// Paquete encontrado en la base de datos
+const formattedDate = packageData.delivery_date ?
+new Date(packageData.delivery_date).toLocaleDateString('es-ES') :
+'No disponible';
+        
+const status = packageData.status || 'pendiente';
+const statusClass = status === 'pendiente' ? 'status-pending' : 'status-delivered';
+const statusText = status === 'pendiente' ? 'Pendiente' : 
+                   status === 'entregado' ? 'Entregado' : 
+                   status === 'retirado' ? 'Retirado' : status;
 
-            // Función para detener la cámara
-            function stopCamera() {
-                scanning = false;
-                if (video.srcObject) {
-                    const tracks = video.srcObject.getTracks();
-                    tracks.forEach(track => track.stop());
-                    video.srcObject = null;
-                }
-                
-                startButton.style.display = 'inline-flex';
-                stopButton.style.display = 'none';
-            }
+content = `
+<div class="package-found">
+<h4><i class="fas fa-check-circle"></i> Paquete Encontrado</h4>
+</div>
+<p><strong>ID del Paquete:</strong> ${packageData.id || packageData.qr_code}</p>
+<p><strong>Departamento:</strong> ${packageData.apartment_number || 'No disponible'}</p>
+<p><strong>Remitente:</strong> ${packageData.sender || 'No especificado'}</p>
+<p><strong>Destinatario:</strong> ${packageData.recipient || 'No especificado'}</p>
+<p><strong>Fecha de Registro:</strong> ${formattedDate}</p>
+<p><strong>Estado Actual:</strong> <span class="status-badge ${statusClass}">${statusText}</span></p>
+<p><strong>Descripción:</strong> ${packageData.description || 'Sin descripción'}</p>
+`;
 
-            // Función para cambiar de cámara
-            function switchCamera() {
-                if (cameraList.length <= 1) return;
-                
-                currentCameraIndex = (currentCameraIndex + 1) % cameraList.length;
-                stopCamera();
-                startCamera();
-            }
+if (debugMode) {
+content += `
+<div class="debug-info">
+<strong>DEBUG INFO:</strong>
+Código escaneado: ${rawCode}
+Datos del paquete: ${JSON.stringify(packageData, null, 2)}
+</div>
+`;
+}
+} else {
+// Código no encontrado
+content = `
+<div class="package-not-found">
+<h4><i class="fas fa-exclamation-triangle"></i> Código No Encontrado</h4>
+<p>El código escaneado no corresponde a ningún paquete registrado en el sistema.</p>
+</div>
+<p><strong>Código Escaneado:</strong> ${packageData.code || rawCode}</p>
+<p><strong>Recomendación:</strong> Verifique que el código QR sea válido o registre el paquete primero.</p>
+`;
 
-            // Función para procesamiento de frames y detección de QR
-            function tick() {
-                if (!scanning) return;
-                
-                if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                    canvasElement.width = video.videoWidth;
-                    canvasElement.height = video.videoHeight;
-                    canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
-                    
-                    const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
-                    
-                    try {
-                        const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                            inversionAttempts: "dontInvert",
-                        });
-                        
-                        if (code) {
-                            scanning = false;
-                            stopCamera();
-                            processQRCode(code.data);
-                        }
-                    } catch (e) {
-                        console.error('Error al procesar el QR:', e);
-                    }
-                }
-                
-                if (scanning) {
-                    requestAnimationFrame(tick);
-                }
-            }
+if (debugMode) {
+const allPackages = getAllPackages();
+const availableIds = allPackages.map(pkg => pkg.id || pkg.qr_code || 'Sin ID');
+content += `
+<div class="debug-info">
+<strong>DEBUG INFO:</strong>
+Código completo: ${rawCode}
+Total de paquetes en DB: ${allPackages.length}
+IDs disponibles: ${availableIds.join(', ')}
+</div>
+`;
+}
+}
 
-            // FUNCIÓN PRINCIPAL MODIFICADA: Procesar el código QR
-            function processQRCode(data) {
-                console.log('QR Code escaneado:', data);
-                
-                try {
-                    let packageData = null;
-                    let isJsonData = false;
-                    
-                    // Intentar parsear como JSON primero
-                    try {
-                        const jsonContent = JSON.parse(data);
-                        packageData = jsonContent;
-                        isJsonData = true;
-                        console.log('Código QR JSON detectado:', packageData);
-                    } catch (e) {
-                        // No es JSON, buscar en la base de datos local
-                        console.log('Buscando código en base de datos:', data);
-                        packageData = findPackageByCode(data);
-                        isJsonData = false;
-                    }
-                    
-                    if (packageData) {
-                        // Paquete encontrado
-                        currentPackageData = packageData;
-                        displayPackageInfo(packageData, true);
-                        
-                        // Mostrar botón de procesar solo si está pendiente
-                        if (packageData.status === 'pendiente') {
-                            processButton.style.display = 'inline-flex';
-                            showNotification('Paquete encontrado y listo para marcar como entregado', 'success');
-                        } else {
-                            processButton.style.display = 'none';
-                            showNotification('Este paquete ya fue entregado anteriormente', 'warning');
-                        }
-                    } else {
-                        // Paquete no encontrado
-                        currentPackageData = null;
-                        displayPackageInfo({ code: data }, false);
-                        processButton.style.display = 'none';
-                        showNotification('Código no encontrado en la base de datos', 'error');
-                    }
-                    
-                    resultContainer.classList.add('active');
-                    
-                } catch (error) {
-                    console.error('Error al procesar el código QR:', error);
-                    showNotification('Error al procesar el código QR: ' + error.message, 'error');
-                }
-            }
+resultContent.innerHTML = content;
+}
 
-            // NUEVA FUNCIÓN: Mostrar información del paquete
-            function displayPackageInfo(packageData, found) {
-                let content = '';
-                
-                if (found && packageData.id) {
-                    // Paquete encontrado en la base de datos
-                    const formattedDate = packageData.delivery_date ? 
-                        new Date(packageData.delivery_date).toLocaleDateString('es-ES') : 
-                        'No disponible';
-                    
-                    const status = packageData.status || 'pendiente';
-                    const statusClass = status === 'pendiente' ? 'status-pending' : 'status-delivered';
-                    const statusText = status === 'pendiente' ? 'Pendiente' : 'Entregado';
-                    
-                    content = `
-                        <div class="package-found">
-                            <h4><i class="fas fa-check-circle"></i> Paquete Encontrado</h4>
-                        </div>
-                        <p><strong>ID del Paquete:</strong> ${packageData.id}</p>
-                        <p><strong>Departamento:</strong> ${packageData.apartment_number || 'No disponible'}</p>
-                        <p><strong>Remitente:</strong> ${packageData.sender || 'No especificado'}</p>
-                        <p><strong>Destinatario:</strong> ${packageData.recipient || 'No especificado'}</p>
-                        <p><strong>Fecha de Registro:</strong> ${formattedDate}</p>
-                        <p><strong>Estado Actual:</strong> <span class="status-badge ${statusClass}">${statusText}</span></p>
-                        <p><strong>Descripción:</strong> ${packageData.description || 'Sin descripción'}</p>
-                    `;
-                } else {
-                    // Código no encontrado
-                    content = `
-                        <div class="package-not-found">
-                            <h4><i class="fas fa-exclamation-triangle"></i> Código No Encontrado</h4>
-                            <p>El código escaneado no corresponde a ningún paquete registrado en el sistema.</p>
-                        </div>
-                        <p><strong>Código Escaneado:</strong> ${packageData.code || 'No disponible'}</p>
-                        <p><strong>Recomendación:</strong> Verifique que el código QR sea válido o registre el paquete primero.</p>
-                    `;
-                }
-                
-                resultContent.innerHTML = content;
-            }
+// Función para cerrar sesión
+function logout() {
+localStorage.removeItem('authToken');
+localStorage.removeItem('userName');
+localStorage.removeItem('userType');
+localStorage.removeItem('isLoggedIn');
+window.location.href = 'login.html';
+}
+window.logout = logout;
 
-            // Función para cerrar sesión
-            function logout() {
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('userName');
-                localStorage.removeItem('userType');
-                localStorage.removeItem('isLoggedIn');
-                window.location.href = 'login.html';
-            }
-            
-            window.logout = logout;
-            
-            // MANEJADOR PRINCIPAL MODIFICADO: Procesar paquete (marcar como entregado)
-            processButton.addEventListener('click', function() {
-                if (!currentPackageData || !currentPackageData.id) {
-                    showNotification('No hay paquete válido para procesar', 'error');
-                    return;
-                }
-                
-                if (currentPackageData.status !== 'pendiente') {
-                    showNotification('Este paquete ya fue entregado anteriormente', 'warning');
-                    return;
-                }
-                
-                // Actualizar el estado del paquete a 'entregado'
-                const updateSuccess = updatePackageStatus(currentPackageData.id, 'entregado');
-                
-                if (updateSuccess) {
-                    // Actualizar la visualización
-                    currentPackageData.status = 'entregado';
-                    displayPackageInfo(currentPackageData, true);
-                    
-                    // Ocultar el botón de procesar
-                    processButton.style.display = 'none';
-                    
-                    // Mostrar notificación de éxito
-                    showNotification('¡Paquete marcado como entregado exitosamente!', 'success');
-                    
-                    // Opcional: cerrar automáticamente después de un tiempo
-                    setTimeout(() => {
-                        resultContainer.classList.remove('active');
-                        currentPackageData = null;
-                    }, 3000);
-                } else {
-                    showNotification('Error al actualizar el estado del paquete', 'error');
-                }
-            });
+// MANEJADOR DE EVENTOS: Procesar paquete (marcar como entregado)
+processButton.addEventListener('click', function() {
+if (!currentPackageData || !(currentPackageData.id || currentPackageData.qr_code)) {
+showNotification('No hay paquete válido para procesar', 'error');
+return;
+}
 
-            // Función para mostrar/ocultar el formulario manual de ingreso
-            function toggleManualEntry(show) {
-                if (show) {
-                    manualForm.style.display = 'block';
-                    if (scanning) {
-                        stopCamera();
-                    }
-                } else {
-                    manualForm.style.display = 'none';
-                    manualCodeInput.value = '';
-                }
-            }
-            
-            // Función para procesar un código manual
-            function processManualCode() {
-                const manualCode = manualCodeInput.value.trim();
-                
-                if (!manualCode) {
-                    showNotification('Por favor ingrese un código válido', 'error');
-                    return;
-                }
-                
-                processQRCode(manualCode);
-                
-                manualCodeInput.value = '';
-                toggleManualEntry(false);
-            }
+if (currentPackageData.status !== 'pendiente') {
+showNotification('Este paquete ya fue entregado anteriormente', 'warning');
+return;
+}
 
-            // Event listeners básicos
-            startButton.addEventListener('click', startCamera);
-            stopButton.addEventListener('click', stopCamera);
-            switchCameraButton.addEventListener('click', switchCamera);
-            closeResultButton.addEventListener('click', function() {
-                resultContainer.classList.remove('active');
-                currentPackageData = null;
-            });
-            scanAgainButton.addEventListener('click', function() {
-                resultContainer.classList.remove('active');
-                currentPackageData = null;
-                startCamera();
-            });
-            
-            // Event listeners para el ingreso manual
-            toggleManualButton.addEventListener('click', function() {
-                toggleManualEntry(manualForm.style.display === 'none');
-            });
-            
-            processManualButton.addEventListener('click', processManualCode);
-            
-            cancelManualButton.addEventListener('click', function() {
-                toggleManualEntry(false);
-            });
-            
-            // Permitir enviar el formulario con Enter
-            manualCodeInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    processManualCode();
-                }
-            });
+const packageId = currentPackageData.id || currentPackageData.qr_code;
+const updateSuccess = updatePackageStatus(packageId, 'entregado');
 
-            // Iniciar automáticamente en dispositivos de escritorio
-            if (!navigator.userAgent.match(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i)) {
-                startCamera();
-            }
-        });
-    </script>
+if (updateSuccess) {
+currentPackageData.status = 'entregado';
+displayPackageInfo(currentPackageData, true);
+processButton.style.display = 'none';
+showNotification('¡Paquete marcado como entregado exitosamente!', 'success');
+
+setTimeout(() => {
+resultContainer.classList.remove('active');
+currentPackageData = null;
+}, 3000);
+} else {
+showNotification('Error al actualizar el estado del paquete', 'error');
+}
+});
+
+// Función para mostrar/ocultar el formulario manual de ingreso
+function toggleManualEntry(show) {
+if (show) {
+manualForm.style.display = 'block';
+if (scanning) {
+stopCamera();
+}
+} else {
+manualForm.style.display = 'none';
+manualCodeInput.value = '';
+}
+}
+
+// Función para procesar un código manual
+function processManualCode() {
+const manualCode = manualCodeInput.value.trim();
+if (!manualCode) {
+showNotification('Por favor ingrese un código válido', 'error');
+return;
+}
+
+console.log('Procesando código manual:', manualCode);
+processQRCode(manualCode);
+manualCodeInput.value = '';
+toggleManualEntry(false);
+}
+
+// Event listeners básicos
+startButton.addEventListener('click', startCamera);
+stopButton.addEventListener('click', stopCamera);
+switchCameraButton.addEventListener('click', switchCamera);
+
+// Debug toggle
+debugToggle.addEventListener('click', function() {
+debugMode = !debugMode;
+const text = debugMode ? 'Debug ON' : 'Debug OFF';
+this.innerHTML = `<i class="fas fa-bug"></i><span>${text}</span>`;
+showNotification(`Modo debug ${debugMode ? 'activado' : 'desactivado'}`);
+console.log('Modo debug:', debugMode);
+});
+
+closeResultButton.addEventListener('click', function() {
+resultContainer.classList.remove('active');
+currentPackageData = null;
+});
+
+scanAgainButton.addEventListener('click', function() {
+resultContainer.classList.remove('active');
+currentPackageData = null;
+startCamera();
+});
+
+// Event listeners para el ingreso manual
+toggleManualButton.addEventListener('click', function() {
+toggleManualEntry(manualForm.style.display === 'none');
+});
+
+processManualButton.addEventListener('click', processManualCode);
+
+cancelManualButton.addEventListener('click', function() {
+toggleManualEntry(false);
+});
+
+// Permitir enviar el formulario con Enter
+manualCodeInput.addEventListener('keypress', function(e) {
+if (e.key === 'Enter') {
+processManualCode();
+}
+});
+
+// Inicialización
+console.log('Lector QR inicializado');
+console.log('Total de paquetes en sistema:', getAllPackages().length);
+
+// Iniciar automáticamente en dispositivos de escritorio
+if (!navigator.userAgent.match(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i)) {
+console.log('Dispositivo de escritorio detectado, iniciando cámara automáticamente');
+startCamera();
+}
+});
+</script>
 </body>
 </html>
