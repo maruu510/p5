@@ -523,6 +523,10 @@ padding: 10px 8px;
 <div class="card-header">
 <h2 style="font-size: 1.2rem; font-weight: 600;" id="packageViewTitle">Paquetes del Departamento</h2>
 <div>
+<button class="btn btn-outline" id="refreshPackagesBtn" aria-label="Refrescar paquetes" style="margin-right: 10px;">
+<i class="fas fa-sync-alt"></i>
+<span>Refrescar</span>
+</button>
 <button class="btn btn-secondary" id="backToDeptBtn" aria-label="Volver a departamentos">
 <i class="fas fa-arrow-left"></i>
 <span>Volver a Departamentos</span>
@@ -570,7 +574,82 @@ padding: 10px 8px;
 </div>
 
 <script>
-// Función para mostrar notificaciones
+// Variable global para mantener el departamento actual en vista
+let currentViewingDepartment = null;
+
+// Función para sincronizar y limpiar datos de localStorage
+function syncAndCleanData() {
+    console.log("=== SINCRONIZANDO Y LIMPIANDO DATOS ===");
+    
+    try {
+        // Sincronizar paquetes entre 'packages' y 'paquetesPrueba'
+        const packages1 = localStorage.getItem('packages');
+        const packages2 = localStorage.getItem('paquetesPrueba');
+        
+        let allPackages = [];
+        
+        if (packages1) {
+            try {
+                const p1 = JSON.parse(packages1);
+                allPackages = allPackages.concat(p1);
+            } catch (e) {
+                console.error("Error al parsear 'packages':", e);
+            }
+        }
+        
+        if (packages2) {
+            try {
+                const p2 = JSON.parse(packages2);
+                p2.forEach(pkg => {
+                    const exists = allPackages.some(existing => 
+                        (existing.id && pkg.id && existing.id === pkg.id) ||
+                        (existing.qr_code && pkg.qr_code && existing.qr_code === pkg.qr_code)
+                    );
+                    if (!exists) {
+                        allPackages.push(pkg);
+                    }
+                });
+            } catch (e) {
+                console.error("Error al parsear 'paquetesPrueba':", e);
+            }
+        }
+        
+        // Guardar datos sincronizados en ambos lugares
+        localStorage.setItem('packages', JSON.stringify(allPackages));
+        localStorage.setItem('paquetesPrueba', JSON.stringify(allPackages));
+        
+        console.log(`Sincronización completada. Total de paquetes: ${allPackages.length}`);
+        
+        return allPackages;
+    } catch (error) {
+        console.error("Error durante la sincronización:", error);
+        return [];
+    }
+}
+
+// Función para refrescar la vista actual
+function refreshCurrentView() {
+    console.log("=== REFRESCANDO VISTA ACTUAL ===");
+    
+    try {
+        // Sincronizar datos primero
+        syncAndCleanData();
+        
+        // Si estamos viendo paquetes de un departamento, recargar esa vista
+        if (currentViewingDepartment) {
+            console.log(`Recargando paquetes del departamento: ${currentViewingDepartment}`);
+            loadPackagesByDepartment(currentViewingDepartment);
+        }
+        
+        // Siempre recargar la vista de departamentos para actualizar contadores
+        loadDepartments();
+        
+        showNotification('Datos actualizados correctamente');
+    } catch (error) {
+        console.error("Error al refrescar vista:", error);
+        showNotification('Error al actualizar datos', true);
+    }
+}
 function showNotification(message, isError = false) {
     const notification = document.getElementById('notification');
     const notificationMessage = document.getElementById('notification-message');
@@ -772,31 +851,96 @@ function getAllDepartments() {
     }
 }
 
-// Función para obtener todos los paquetes
+// Función para obtener todos los paquetes - MEJORADA CON DEBUG
 function getAllPackages() {
     try {
+        console.log("=== OBTENIENDO TODOS LOS PAQUETES ===");
+        
+        let allPackages = [];
+        
+        // Verificar en 'packages' primero
         const packagesData = localStorage.getItem('packages');
         if (packagesData) {
-            return JSON.parse(packagesData);
+            try {
+                const packages = JSON.parse(packagesData);
+                console.log("Paquetes encontrados en 'packages':", packages.length);
+                allPackages = allPackages.concat(packages);
+            } catch (e) {
+                console.error("Error al parsear 'packages':", e);
+            }
+        } else {
+            console.log("No se encontraron datos en 'packages'");
         }
         
+        // Verificar en 'paquetesPrueba'
         const oldPackagesData = localStorage.getItem('paquetesPrueba');
         if (oldPackagesData) {
-            return JSON.parse(oldPackagesData);
+            try {
+                const oldPackages = JSON.parse(oldPackagesData);
+                console.log("Paquetes encontrados en 'paquetesPrueba':", oldPackages.length);
+                
+                // Evitar duplicados - combinar por ID
+                oldPackages.forEach(oldPkg => {
+                    const exists = allPackages.some(pkg => 
+                        (pkg.id && oldPkg.id && pkg.id === oldPkg.id) ||
+                        (pkg.qr_code && oldPkg.qr_code && pkg.qr_code === oldPkg.qr_code)
+                    );
+                    if (!exists) {
+                        allPackages.push(oldPkg);
+                    }
+                });
+            } catch (e) {
+                console.error("Error al parsear 'paquetesPrueba':", e);
+            }
+        } else {
+            console.log("No se encontraron datos en 'paquetesPrueba'");
         }
         
-        return [];
+        console.log("Total de paquetes únicos encontrados:", allPackages.length);
+        console.log("Paquetes detallados:", allPackages);
+        
+        return allPackages;
     } catch (error) {
-        console.error('Error al cargar paquetes:', error);
+        console.error('Error crítico al cargar paquetes:', error);
         return [];
     }
 }
 
-// Función para obtener paquetes por departamento
+// Función para obtener paquetes por departamento - MEJORADA CON DEBUG
 function getPackagesByDepartment(deptId) {
     try {
+        console.log(`=== OBTENIENDO PAQUETES PARA DEPARTAMENTO ${deptId} ===`);
+        
         const packages = getAllPackages();
-        return packages.filter(pkg => pkg.apartment_number === deptId.toString());
+        console.log(`Total de paquetes a revisar: ${packages.length}`);
+        
+        if (packages.length === 0) {
+            console.log("No hay paquetes para filtrar");
+            return [];
+        }
+        
+        // Normalizar deptId para comparación
+        const targetDeptId = String(deptId).trim();
+        console.log(`Buscando paquetes para departamento: "${targetDeptId}"`);
+        
+        const matchingPackages = packages.filter(pkg => {
+            // Verificar diferentes formatos de apartment_number
+            const pkgDeptId = pkg.apartment_number || pkg.departmentNumber || pkg.dept_number || pkg.department;
+            const normalizedPkgDeptId = String(pkgDeptId || '').trim();
+            
+            console.log(`Comparando: "${normalizedPkgDeptId}" === "${targetDeptId}"`);
+            
+            return normalizedPkgDeptId === targetDeptId;
+        });
+        
+        console.log(`Paquetes encontrados para departamento ${deptId}:`, matchingPackages.length);
+        console.log("Paquetes detallados:", matchingPackages);
+        
+        // Mostrar todos los apartment_number únicos para debug
+        const uniqueDeptIds = [...new Set(packages.map(pkg => pkg.apartment_number || 'undefined'))];
+        console.log("Todos los apartment_number en los paquetes:", uniqueDeptIds);
+        
+        return matchingPackages;
     } catch (error) {
         console.error(`Error al obtener paquetes del departamento ${deptId}:`, error);
         return [];
@@ -853,7 +997,13 @@ function deleteDepartment(deptId) {
 
 // Función para ver paquetes de un departamento
 function viewDepartment(deptId) {
-    console.log(`Viendo paquetes del departamento: ${deptId}`);
+    console.log(`=== VIENDO PAQUETES DEL DEPARTAMENTO: ${deptId} ===`);
+    
+    // Guardar el departamento actual
+    currentViewingDepartment = deptId;
+    
+    // Sincronizar datos antes de mostrar
+    syncAndCleanData();
     
     // Cambiar a la vista de paquetes
     document.getElementById('departmentsView').style.display = 'none';
@@ -868,8 +1018,17 @@ function viewDepartment(deptId) {
 
 // Función para volver a la vista de departamentos
 function backToDepartments() {
+    console.log("=== VOLVIENDO A VISTA DE DEPARTAMENTOS ===");
+    
+    // Limpiar departamento actual
+    currentViewingDepartment = null;
+    
+    // Cambiar vistas
     document.getElementById('packagesView').style.display = 'none';
     document.getElementById('departmentsView').style.display = 'block';
+    
+    // Recargar departamentos para actualizar contadores
+    loadDepartments();
 }
 
 // Función para formatear fecha de manera legible
@@ -1169,6 +1328,9 @@ function markAsDelivered(packageId, departmentId) {
             localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
             localStorage.setItem('packages', JSON.stringify(packages));
             console.log('Paquetes guardados en localStorage exitosamente');
+            
+            // Sincronizar datos después del cambio
+            syncAndCleanData();
         } catch (storageError) {
             console.error('Error al guardar en localStorage:', storageError);
             showNotification('Error al guardar los cambios', true);
@@ -1386,6 +1548,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Cargar departamentos (esto automáticamente limpia los inválidos)
     loadDepartments();
     
+    // Sincronizar datos al cargar la página
+    console.log("Sincronizando datos al cargar la página...");
+    syncAndCleanData();
+    
     // Configurar botones principales
     const addDeptBtn = document.getElementById('addDeptBtn');
     if (addDeptBtn) {
@@ -1408,6 +1574,14 @@ document.addEventListener('DOMContentLoaded', () => {
         addPackageBtn.addEventListener('click', () => {
             console.log('Botón Agregar Paquete clickeado');
             window.location.href = 'registerPackage.html';
+        });
+    }
+    
+    const refreshPackagesBtn = document.getElementById('refreshPackagesBtn');
+    if (refreshPackagesBtn) {
+        refreshPackagesBtn.addEventListener('click', () => {
+            console.log('Botón Refrescar clickeado');
+            refreshCurrentView();
         });
     }
     
@@ -1441,6 +1615,33 @@ document.addEventListener('DOMContentLoaded', () => {
     
     window.addEventListener('beforeunload', function(e) {
         console.log('Página a punto de cambiar');
+    });
+    
+    // Refrescar datos cuando la ventana gana foco (útil si el usuario estuvo en otra pestaña)
+    window.addEventListener('focus', function() {
+        console.log('Ventana ganó foco - sincronizando datos...');
+        syncAndCleanData();
+        
+        // Si estamos viendo paquetes, recargar
+        if (currentViewingDepartment) {
+            loadPackagesByDepartment(currentViewingDepartment);
+        } else {
+            loadDepartments();
+        }
+    });
+    
+    // También refrescar cuando la página se vuelve visible
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            console.log('Página se volvió visible - sincronizando datos...');
+            syncAndCleanData();
+            
+            if (currentViewingDepartment) {
+                loadPackagesByDepartment(currentViewingDepartment);
+            } else {
+                loadDepartments();
+            }
+        }
     });
 });
 </script>
