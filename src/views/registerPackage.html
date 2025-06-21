@@ -751,7 +751,6 @@
 
   <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- Script para verificar que la biblioteca QR se ha cargado correctamente -->
   <script>
     // Verificar que la biblioteca QR Code está disponible
     document.addEventListener('DOMContentLoaded', function() {
@@ -764,16 +763,10 @@
     });
   </script>
   <script>
-    // Variables globales para simular almacenamiento
-    const MOCK_DATA = {
-      departments: [],
-      packages: []
-    };
-
     // Variable para almacenar el ID generado del paquete
     let currentPackageId = null;
     
-    // Gestor de errores global - versión mejorada
+    // Gestor de errores global
     window.addEventListener('error', function(event) {
       console.error('Error capturado:', event.error || 'Error desconocido');
       showToast('error', 'Se ha producido un error en la aplicación: ' + (event.error ? event.error.message : 'Error desconocido'));
@@ -796,19 +789,17 @@
           toastElement.classList.remove('show');
         }, 3000);
       } else {
-        // Fallback si no existe el toast
         alert(message);
       }
     }
     
-    // Función de navegación real (no simulada)
+    // Función de navegación
     function navigateTo(page) {
       console.log('Navegando a:', page);
-      // Redirigir a la página especificada
       window.location.href = page;
     }
     
-    // NUEVA FUNCIÓN: Generar ID único en formato PKG consistente
+    // Función para generar ID único en formato PKG consistente
     function generatePackageId(departmentNumber) {
       const timestamp = Date.now();
       const randomSuffix = Math.random().toString(36).substring(2, 5).toUpperCase();
@@ -822,8 +813,43 @@
         return new Date(dateString).toLocaleDateString('es-ES', options);
       } catch (error) {
         console.error('Error al formatear fecha:', error);
-        return dateString; // Devolver la fecha original si hay error
+        return dateString;
       }
+    }
+    
+    // Función para extraer número válido de departamento
+    function extractDepartmentNumber(dept) {
+        if (dept === null || dept === undefined) {
+            return null;
+        }
+        
+        if (typeof dept === 'object' && dept !== null) {
+            const possibleNumbers = [
+                dept.number,
+                dept.id,
+                dept.deptNumber,
+                dept.numero,
+                dept.departmentNumber,
+                dept.apartment_number
+            ];
+            
+            for (let num of possibleNumbers) {
+                if (num !== null && num !== undefined && num !== '') {
+                    const cleanNum = String(num).trim();
+                    if (cleanNum && !isNaN(cleanNum)) {
+                        return cleanNum;
+                    }
+                }
+            }
+            return null;
+        }
+        
+        const cleanDept = String(dept).trim();
+        if (cleanDept && !isNaN(cleanDept)) {
+            return cleanDept;
+        }
+        
+        return null;
     }
     
     // Función para obtener todos los departamentos
@@ -832,7 +858,6 @@
             console.log("Obteniendo departamentos desde localStorage...");
             const departmentsString = localStorage.getItem('departments');
             
-            // Si no hay datos, devolver array vacío
             if (!departmentsString) {
                 console.log("No se encontraron departamentos en localStorage");
                 return [];
@@ -847,42 +872,24 @@
                 return [];
             }
             
-            // Verificar si es un array
-            if (!Array.isArray(departments)) {
-                console.warn("Los departamentos no están en formato array:", departments);
-                // Intentar convertir a array si es posible
-                if (departments) {
-                    return [departments];
+            let normalizedDepts = [];
+            
+            if (Array.isArray(departments)) {
+                departments.forEach(dept => {
+                    const deptNumber = extractDepartmentNumber(dept);
+                    if (deptNumber) {
+                        normalizedDepts.push({ number: deptNumber });
+                    }
+                });
+            } else if (departments) {
+                const deptNumber = extractDepartmentNumber(departments);
+                if (deptNumber) {
+                    normalizedDepts.push({ number: deptNumber });
                 }
-                return [];
             }
             
-            // Normalizar formato: convertir todos los departamentos a un formato estándar
-            const normalizedDepts = departments.map(dept => {
-                // Si es null o undefined, omitir
-                if (dept === null || dept === undefined) {
-                    return null;
-                }
-                
-                // Si ya es un objeto con número
-                if (typeof dept === 'object' && dept !== null) {
-                    // Priorizar la propiedad 'number', luego 'deptNumber', luego 'numero'
-                    const deptNumber = dept.number || dept.deptNumber || dept.numero;
-                    if (deptNumber) {
-                        return { number: deptNumber.toString() };
-                    }
-                    return null; // Omitir si no tiene número
-                }
-                
-                // Si es un valor primitivo (string o número)
-                return { number: dept.toString() };
-            });
-            
-            // Filtrar valores null
-            const validDepts = normalizedDepts.filter(dept => dept !== null);
-            console.log("Departamentos normalizados:", validDepts);
-            
-            return validDepts;
+            console.log("Departamentos normalizados:", normalizedDepts);
+            return normalizedDepts;
         } catch (error) {
             console.error("Error general al obtener departamentos:", error);
             return [];
@@ -898,9 +905,8 @@
                 return;
             }
             
-            // Obtener todos los departamentos
             const departments = getAllDepartments();
-            console.log('Departamentos cargados:', departments); // Para depuración
+            console.log('Departamentos cargados:', departments);
             
             // Limpiar opciones existentes excepto la primera
             while (departmentSelect.options.length > 1) {
@@ -909,19 +915,10 @@
             
             // Agregar departamentos existentes
             departments.forEach(dept => {
-                // Extraer el número de departamento, manejando diferentes formatos posibles
-                let deptNumber;
-                if (typeof dept === 'object' && dept !== null) {
-                    deptNumber = dept.number || dept.deptNumber || dept.numero;
-                } else {
-                    deptNumber = dept;
-                }
-                
-                // Verificar que el número de departamento no es null o undefined
-                if (deptNumber) {
+                if (dept.number) {
                     const option = document.createElement('option');
-                    option.value = deptNumber;
-                    option.textContent = `Departamento ${deptNumber}`;
+                    option.value = dept.number;
+                    option.textContent = `Departamento ${dept.number}`;
                     departmentSelect.appendChild(option);
                 }
             });
@@ -937,15 +934,10 @@
                 if (this.value === 'new') {
                     const newDept = prompt('Ingrese el número del nuevo departamento:');
                     if (newDept && !isNaN(newDept)) {
-                        const deptNumber = parseInt(newDept);
+                        const deptNumber = newDept.toString();
                         
                         // Verificar si ya existe
-                        const exists = departments.some(dept => {
-                            if (typeof dept === 'object') {
-                                return (dept.number || dept.deptNumber || dept.numero) == deptNumber;
-                            }
-                            return dept == deptNumber;
-                        });
+                        const exists = departments.some(dept => dept.number === deptNumber);
                         
                         if (exists) {
                             showToast('error', 'Este número de departamento ya existe');
@@ -954,7 +946,6 @@
                         }
                         
                         // Añadir nuevo departamento
-                        // Guardar el departamento en un formato consistente
                         const newDepartment = { number: deptNumber };
                         departments.push(newDepartment);
                         
@@ -977,7 +968,7 @@
                         // Seleccionar el nuevo departamento
                         this.value = deptNumber;
                     } else {
-                        this.value = ''; // Resetear si no es válido
+                        this.value = '';
                         showToast('error', 'Por favor ingrese un número válido para el departamento');
                     }
                 }
@@ -997,10 +988,8 @@
       init() {
         try {
           console.log('Inicializando aplicación...');
-          // Obtener elementos del DOM de forma segura
           this.cacheElements();
           
-          // Cargar departamentos
           loadDepartments();
           
           // Inicializar fecha con el día actual
@@ -1012,7 +1001,6 @@
             console.warn('No se encontró el campo de fecha para inicializar');
           }
           
-          // Establecer los event listeners
           this.setupEventListeners();
           
           console.log('Aplicación inicializada correctamente');
@@ -1023,7 +1011,6 @@
       },
       
       cacheElements() {
-        // Lista de IDs de elementos y sus nombres descriptivos
         const elementsMap = {
           'packageForm': 'packageForm',
           'apartment_number': 'departmentSelect',
@@ -1051,7 +1038,6 @@
         
         this.elements = {};
         
-        // Recorrer el mapa de elementos e intentar buscarlos en el DOM
         Object.entries(elementsMap).forEach(([id, descriptiveName]) => {
           const element = document.getElementById(id);
           if (element) {
@@ -1061,7 +1047,6 @@
           }
         });
         
-        // Verificar elementos críticos
         const criticalElements = ['departmentSelect', 'senderInput', 'dateInput', 'qrCodeDiv', 'qrCodeInput'];
         const missingCritical = criticalElements.filter(name => !this.elements[name]);
         
@@ -1074,13 +1059,11 @@
       
       setupEventListeners() {
         try {
-          // Evento de envío del formulario
           if (this.elements.packageForm) {
             this.elements.packageForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
             console.log('Event listener para envío de formulario asignado');
           }
           
-          // Eventos de QR
           if (this.elements.generateQrBtn) {
             this.elements.generateQrBtn.addEventListener('click', () => this.generateQRCode());
             console.log('Event listener para generación de QR asignado');
@@ -1096,7 +1079,6 @@
             console.log('Event listener para descarga de QR asignado');
           }
           
-          // Validación en tiempo real
           if (this.elements.packageForm) {
             const inputs = this.elements.packageForm.querySelectorAll('.form-input');
             inputs.forEach(input => {
@@ -1110,7 +1092,6 @@
             console.log('Event listeners para validación en tiempo real asignados');
           }
           
-          // Configurar el menú desplegable de usuario
           const userProfileDropdown = this.elements.userProfileDropdown;
           const userDropdown = this.elements.userDropdown;
           
@@ -1120,7 +1101,6 @@
                 e.stopPropagation();
             });
             
-            // Cerrar el menú desplegable al hacer clic fuera de él
             document.addEventListener('click', function(e) {
                 if (!userProfileDropdown.contains(e.target)) {
                     userDropdown.classList.remove('show');
@@ -1148,7 +1128,7 @@
           }
         } catch (error) {
           console.warn('Error en validación de campo:', error);
-          return true; // Asumir válido en caso de error
+          return true;
         }
       },
       
@@ -1161,7 +1141,6 @@
           requiredInputs.forEach(input => {
             if (!this.validateField(input)) {
               isValid = false;
-              // Hacer scroll al primer campo inválido
               if (isValid === false) {
                 input.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 input.focus();
@@ -1172,16 +1151,14 @@
           return isValid;
         } catch (error) {
           console.warn('Error en validación de formulario:', error);
-          return true; // Permitir envío en caso de error
+          return true;
         }
       },
       
-      // FUNCIÓN MODIFICADA: Generar QR con ID consistente
       generateQRCode() {
         try {
           console.log('Iniciando generación de QR...');
           
-          // Obtener referencias directamente para asegurarnos
           const departmentSelect = document.getElementById('apartment_number');
           const senderInput = document.getElementById('sender');
           const dateInput = document.getElementById('delivery_date');
@@ -1191,7 +1168,6 @@
           const codePreview = document.getElementById('codePreview');
           const codeContent = document.getElementById('codeContent');
           
-          // Actualizar nuestras referencias en caso de que hayan fallado antes
           this.elements.departmentSelect = departmentSelect;
           this.elements.senderInput = senderInput;
           this.elements.dateInput = dateInput;
@@ -1201,7 +1177,6 @@
           this.elements.codePreview = codePreview;
           this.elements.codeContent = codeContent;
           
-          // Verificar que todos los elementos necesarios existen
           if (!departmentSelect || !senderInput || !dateInput || !qrCodeDiv || !qrCodeInput || !qrButtons) {
             const missing = [];
             if (!departmentSelect) missing.push('departmentSelect (apartment_number)');
@@ -1214,7 +1189,6 @@
             throw new Error(`Elementos faltantes: ${missing.join(', ')}`);
           }
           
-          // Validar campos necesarios
           if (!departmentSelect.value) {
             showToast('error', 'Por favor seleccione un departamento');
             departmentSelect.focus();
@@ -1233,11 +1207,9 @@
             return;
           }
           
-          // GENERAR ID ÚNICO QUE SE USARÁ TANTO PARA QR COMO PARA EL PAQUETE
           currentPackageId = generatePackageId(departmentSelect.value);
           qrCodeInput.value = currentPackageId;
           
-          // Crear contenido para el QR (datos estructurados)
           const qrContent = JSON.stringify({
             id: currentPackageId,
             apartment_number: departmentSelect.value,
@@ -1249,21 +1221,17 @@
           console.log('Generando QR con ID unificado:', currentPackageId);
           console.log('Contenido QR:', qrContent);
           
-          // Mostrar vista previa del contenido
           if (codeContent && codePreview) {
             codeContent.textContent = qrContent;
             codePreview.style.display = 'block';
           }
           
-          // Verificar que la librería QRCode está disponible
           if (typeof QRCode === 'undefined') {
             throw new Error('La librería QRCode no está disponible. Verifique la conexión a Internet.');
           }
           
-          // Limpiar QR anterior si existe
           qrCodeDiv.innerHTML = '';
           
-          // Generar nuevo QR
           new QRCode(qrCodeDiv, {
             text: qrContent,
             width: 180,
@@ -1273,7 +1241,6 @@
             correctLevel: QRCode.CorrectLevel.H
           });
           
-          // Mostrar el QR y los botones
           qrCodeDiv.style.display = 'block';
           qrButtons.style.display = 'flex';
           
@@ -1289,13 +1256,11 @@
         try {
           const { departmentSelect, senderInput, dateInput, qrCodeDiv, qrCodeInput } = this.elements;
           
-          // Verificar que hay un QR generado
           if (!qrCodeDiv || !qrCodeDiv.querySelector('canvas')) {
             showToast('error', 'Primero debe generar un código QR');
             return;
           }
           
-          // Crear una ventana de impresión
           const printWindow = window.open('', '_blank');
           if (!printWindow) {
             throw new Error('No se pudo abrir la ventana de impresión. Verifique que no estén bloqueadas las ventanas emergentes.');
@@ -1367,7 +1332,6 @@
           `);
           printWindow.document.close();
           
-          // Esperar a que cargue el contenido antes de imprimir
           setTimeout(() => {
             try {
               printWindow.print();
@@ -1388,20 +1352,17 @@
         try {
           const { departmentSelect, qrCodeDiv, qrCodeInput } = this.elements;
           
-          // Verificar que hay un QR generado
           if (!qrCodeDiv || !qrCodeDiv.querySelector('canvas')) {
             showToast('error', 'Primero debe generar un código QR');
             return;
           }
           
-          // Obtener la imagen desde el canvas generado por la librería
           const canvas = qrCodeDiv.querySelector('canvas');
           if (!canvas) {
             throw new Error('No se encontró el código QR para descargar');
           }
           
           try {
-            // Convertir canvas a imagen descargable
             const imgData = canvas.toDataURL('image/png');
             const downloadLink = document.createElement('a');
             
@@ -1411,7 +1372,6 @@
             downloadLink.click();
             document.body.removeChild(downloadLink);
           } catch (e) {
-            // Alternativa si hay error de seguridad
             const newWindow = window.open('', '_blank');
             if (newWindow) {
               newWindow.document.write(`
@@ -1435,47 +1395,39 @@
         }
       },
       
-      // FUNCIÓN MODIFICADA: Usar el ID generado del QR
       handleFormSubmit(e) {
         e.preventDefault();
         try {
-          // Validar formulario
           if (!this.validateForm()) {
             showToast('error', 'Por favor complete todos los campos requeridos');
             return;
           }
 
-          // Si no hay código QR generado, preguntar si desea continuar
           if (!currentPackageId) {
             if (!confirm('No has generado un código QR para este paquete. ¿Deseas continuar sin código QR?')) {
               return;
             }
-            // Si decide continuar sin QR, generar ID básico
             const deptValue = this.elements.departmentSelect.value;
             currentPackageId = generatePackageId(deptValue);
           }
           
-          // Mostrar loading
           this.showLoading(true);
           
           try {
             const packageData = this.getFormData();
             
-            // USAR EL ID GENERADO PARA EL QR COMO ID DEL PAQUETE
             packageData.id = currentPackageId;
             packageData.created_at = new Date().toISOString();
-            packageData.qr_code = currentPackageId; // El código QR es el mismo que el ID
+            packageData.qr_code = currentPackageId;
             
             console.log('Registrando paquete con ID unificado:', packageData);
             
-            // Guardar en localStorage para persistencia
             try {
               const existingPackages = JSON.parse(localStorage.getItem('paquetesPrueba')) || [];
               existingPackages.push(packageData);
               localStorage.setItem('paquetesPrueba', JSON.stringify(existingPackages));
               console.log('Paquete guardado en localStorage. Total:', existingPackages.length);
               
-              // También guardar en el específico del departamento
               if (packageData.apartment_number) {
                   const deptKey = `packages_${packageData.apartment_number}`;
                   const deptPackages = JSON.parse(localStorage.getItem(deptKey)) || [];
@@ -1483,7 +1435,6 @@
                   localStorage.setItem(deptKey, JSON.stringify(deptPackages));
               }
               
-              // Actualizar contador de paquetes pendientes para el dashboard
               const pendingCount = existingPackages.filter(pkg => pkg.status === 'pendiente').length;
               localStorage.setItem('pendingPackagesCount', pendingCount.toString());
             } catch (storageError) {
@@ -1493,7 +1444,6 @@
             
             showToast('success', `¡Paquete registrado exitosamente! ID: ${packageData.id}`);
             
-            // Mostrar resumen del registro
             const resumenRegistro = `
               Paquete Registrado:
               - ID: ${packageData.id}
@@ -1504,7 +1454,6 @@
             `;
             console.log(resumenRegistro);
             
-            // Redirigir a la lista de paquetes después de un momento
             setTimeout(() => {
               window.location.href = 'listPackages.html';
             }, 2000);
@@ -1521,7 +1470,6 @@
         }
       },
       
-      // FUNCIÓN MODIFICADA: Incluir nuevos campos
       getFormData() {
         const { departmentSelect, senderInput, recipientInput, dateInput, statusSelect, descriptionInput, qrCodeInput, notesTextarea } = this.elements;
         
@@ -1542,13 +1490,11 @@
           if (this.elements.packageForm) {
             this.elements.packageForm.reset();
             
-            // Restablecer fecha
             if (this.elements.dateInput) {
               const today = new Date().toISOString().split('T')[0];
               this.elements.dateInput.value = today;
             }
             
-            // Ocultar QR
             if (this.elements.qrCodeDiv) {
               this.elements.qrCodeDiv.style.display = 'none';
               this.elements.qrCodeDiv.innerHTML = '';
@@ -1566,10 +1512,8 @@
               this.elements.codePreview.style.display = 'none';
             }
             
-            // Limpiar ID actual
             currentPackageId = null;
             
-            // Quitar clases de validación
             const invalidGroups = this.elements.packageForm.querySelectorAll('.form-group.invalid');
             invalidGroups.forEach(group => group.classList.remove('invalid'));
             
@@ -1622,31 +1566,9 @@
       return true;
     }
     
-    // Migrar datos antiguos (si existen) a nuevo formato
-    function migrarDatosAntiguos() {
-      try {
-        // Comprobar si existen datos en el formato antiguo
-        const departmentsString = localStorage.getItem('departments');
-        if (!departmentsString) return;
-        
-        const departments = JSON.parse(departmentsString);
-        
-        // Si los departamentos son objetos, extraer solo los números
-        if (Array.isArray(departments) && departments.length > 0 && typeof departments[0] === 'object') {
-          const departmentNumbers = departments.map(dept => dept.deptNumber || dept.numero);
-          localStorage.setItem('departments', JSON.stringify(departmentNumbers));
-          console.log('Datos de departamentos migrados al nuevo formato:', departmentNumbers);
-        }
-      } catch (error) {
-        console.error('Error al migrar datos antiguos:', error);
-      }
-    }
-    
     // Inicializar la aplicación cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOM cargado, verificando elementos críticos...');
-      // Migrar datos si es necesario
-      migrarDatosAntiguos();
       
       if (checkCriticalElements()) {
         console.log('Elementos críticos verificados, inicializando aplicación...');
