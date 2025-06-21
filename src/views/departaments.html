@@ -22,6 +22,8 @@
 --warning: #f39c12;
 --warning-dark: #e67e22;
 --warning-light: #fff8e1;
+--info: #3498db;
+--info-light: #e3f2fd;
 --light: #f8f9fa;
 --dark: #212529;
 --gray: #6c757d;
@@ -260,6 +262,21 @@ color: var(--warning-dark);
 background-color: var(--success-light);
 color: var(--success);
  }
+
+.badge-delivered {
+background-color: var(--success-light);
+color: var(--success);
+ }
+
+.badge-retired {
+background-color: var(--info-light);
+color: var(--info);
+ }
+
+.badge-info {
+background-color: #e3f2fd;
+color: #1976d2;
+ }
 .actions-cell {
 display: flex;
 gap: 0.5rem;
@@ -440,7 +457,9 @@ padding: 10px 8px;
 <div class="header">
 <h1 class="page-title">Administración de Departamentos</h1>
 </div>
-<div class="card">
+
+<!-- Vista Principal de Departamentos -->
+<div class="card" id="departmentsView">
 <div class="card-header">
 <h2 style="font-size: 1.2rem; font-weight: 600;">Departamentos Registrados</h2>
 <div>
@@ -472,6 +491,51 @@ padding: 10px 8px;
 <tbody>
 <tr>
 <td colspan="4" style="text-align: center;">
+<div class="loading-spinner" role="status"></div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- Vista de Paquetes por Departamento -->
+<div class="card" id="packagesView" style="display: none;">
+<div class="card-header">
+<h2 style="font-size: 1.2rem; font-weight: 600;" id="packageViewTitle">Paquetes del Departamento</h2>
+<div>
+<button class="btn btn-secondary" id="backToDeptBtn" aria-label="Volver a departamentos">
+<i class="fas fa-arrow-left"></i>
+<span>Volver a Departamentos</span>
+</button>
+<button class="btn btn-primary" id="addPackageBtn" aria-label="Agregar nuevo paquete" style="margin-left: 10px;">
+<i class="fas fa-plus"></i>
+<span>Agregar Paquete</span>
+</button>
+</div>
+</div>
+<div class="card-body">
+<div id="packageErrorMessage" class="error-message" style="display: none;">
+<i class="fas fa-exclamation-circle"></i>
+<span>Ha ocurrido un error al cargar los paquetes.</span>
+</div>
+<div class="table-container">
+<table id="packagesTable" aria-label="Lista de paquetes del departamento">
+<thead>
+<tr>
+<th scope="col">ID</th>
+<th scope="col">Remitente</th>
+<th scope="col">Destinatario</th>
+<th scope="col">Fecha</th>
+<th scope="col">Estado</th>
+<th scope="col">Descripción</th>
+<th scope="col">Acciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="7" style="text-align: center;">
 <div class="loading-spinner" role="status"></div>
 </td>
 </tr>
@@ -771,7 +835,236 @@ function deleteDepartment(deptId) {
 
 // Función para ver paquetes de un departamento
 function viewDepartment(deptId) {
-    window.location.href = `listPackages.html?department=${deptId}`;
+    console.log(`Viendo paquetes del departamento: ${deptId}`);
+    
+    // Cambiar a la vista de paquetes
+    document.getElementById('departmentsView').style.display = 'none';
+    document.getElementById('packagesView').style.display = 'block';
+    
+    // Actualizar título
+    document.getElementById('packageViewTitle').textContent = `Paquetes del Departamento ${deptId}`;
+    
+    // Cargar paquetes del departamento
+    loadPackagesByDepartment(deptId);
+}
+
+// Función para volver a la vista de departamentos
+function backToDepartments() {
+    document.getElementById('packagesView').style.display = 'none';
+    document.getElementById('departmentsView').style.display = 'block';
+}
+
+// Función para formatear fecha de manera legible
+function formatDateForDisplay(dateString) {
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    } catch (error) {
+        return dateString;
+    }
+}
+
+// Función para obtener badge de estado
+function getStatusBadge(status) {
+    switch (status?.toLowerCase()) {
+        case 'pendiente':
+            return '<span class="badge badge-pending"><i class="fas fa-clock"></i> Pendiente</span>';
+        case 'entregado':
+            return '<span class="badge badge-delivered"><i class="fas fa-check"></i> Entregado</span>';
+        case 'retirado':
+            return '<span class="badge badge-retired"><i class="fas fa-hand-holding"></i> Retirado</span>';
+        default:
+            return '<span class="badge badge-info"><i class="fas fa-question"></i> ' + (status || 'Desconocido') + '</span>';
+    }
+}
+
+// Función para cargar paquetes por departamento
+function loadPackagesByDepartment(deptId) {
+    const tbody = document.querySelector('#packagesTable tbody');
+    const errorMessage = document.getElementById('packageErrorMessage');
+    
+    if (!tbody || !errorMessage) {
+        console.error('No se encontraron elementos del DOM para paquetes');
+        return;
+    }
+    
+    errorMessage.style.display = 'none';
+    
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="7" style="text-align: center;">
+                <div class="loading-spinner" role="status"></div>
+            </td>
+        </tr>
+    `;
+    
+    try {
+        console.log(`Cargando paquetes para departamento: ${deptId}`);
+        const packages = getPackagesByDepartment(deptId);
+        console.log(`Paquetes encontrados:`, packages);
+        
+        if (!packages || packages.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 40px;">
+                        <div style="color: var(--gray);">
+                            <i class="fas fa-box-open" style="font-size: 3rem; margin-bottom: 15px; color: var(--gray-300);"></i>
+                            <p style="margin-bottom: 20px;">No hay paquetes registrados para este departamento</p>
+                            <button class="btn btn-primary" onclick="redirectToRegisterPackage('${deptId}')">
+                                <i class="fas fa-plus"></i>
+                                <span>Registrar Primer Paquete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        
+        packages.forEach((pkg, index) => {
+            try {
+                console.log(`Procesando paquete ${index}:`, pkg);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <code style="background-color: var(--gray-100); padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">
+                            ${pkg.id || pkg.qr_code || 'Sin ID'}
+                        </code>
+                    </td>
+                    <td>
+                        <strong>${pkg.sender || 'Sin remitente'}</strong>
+                    </td>
+                    <td>
+                        ${pkg.recipient || '<span style="color: var(--gray);">No especificado</span>'}
+                    </td>
+                    <td>
+                        ${formatDateForDisplay(pkg.delivery_date || pkg.created_at)}
+                    </td>
+                    <td>
+                        ${getStatusBadge(pkg.status)}
+                    </td>
+                    <td>
+                        ${pkg.description || '<span style="color: var(--gray);">Sin descripción</span>'}
+                    </td>
+                    <td class="actions-cell">
+                        <button class="btn btn-outline" onclick="viewPackageDetails('${pkg.id || pkg.qr_code}')" aria-label="Ver detalles del paquete">
+                            <i class="fas fa-eye"></i>
+                            <span>Ver</span>
+                        </button>
+                        <button class="btn btn-success" onclick="markAsDelivered('${pkg.id || pkg.qr_code}')" aria-label="Marcar como entregado" ${pkg.status === 'entregado' || pkg.status === 'retirado' ? 'disabled' : ''}>
+                            <i class="fas fa-check"></i>
+                            <span>Entregar</span>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            } catch (packageError) {
+                console.error('Error al procesar paquete:', pkg, packageError);
+            }
+        });
+        
+        console.log(`Tabla de paquetes cargada exitosamente con ${packages.length} paquetes`);
+    } catch (error) {
+        console.error('Error al cargar paquetes:', error);
+        
+        errorMessage.innerHTML = `
+            <i class="fas fa-exclamation-circle"></i>
+            <span>Error al cargar paquetes: ${error.message}</span>
+        `;
+        errorMessage.style.display = 'flex';
+        
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; color: var(--danger);">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                    <p>Error al cargar los paquetes</p>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+// Función para redirigir al registro de paquetes con departamento pre-seleccionado
+function redirectToRegisterPackage(deptId) {
+    // Guardar el departamento seleccionado en localStorage para pre-llenarlo
+    localStorage.setItem('preselectedDepartment', deptId);
+    window.location.href = 'registerPackage.html';
+}
+
+// Función para ver detalles de un paquete específico
+function viewPackageDetails(packageId) {
+    try {
+        const packages = getAllPackages();
+        const pkg = packages.find(p => p.id === packageId || p.qr_code === packageId);
+        
+        if (!pkg) {
+            showNotification('Paquete no encontrado', true);
+            return;
+        }
+        
+        const details = `
+DETALLES DEL PAQUETE
+
+ID: ${pkg.id || pkg.qr_code || 'Sin ID'}
+Departamento: ${pkg.apartment_number || 'No especificado'}
+Remitente: ${pkg.sender || 'Sin remitente'}
+Destinatario: ${pkg.recipient || 'No especificado'}
+Fecha de entrega: ${formatDateForDisplay(pkg.delivery_date)}
+Estado: ${pkg.status || 'Sin estado'}
+Descripción: ${pkg.description || 'Sin descripción'}
+Notas: ${pkg.notes || 'Sin notas'}
+Fecha de registro: ${formatDateForDisplay(pkg.created_at)}
+        `;
+        
+        alert(details);
+    } catch (error) {
+        console.error('Error al ver detalles del paquete:', error);
+        showNotification('Error al cargar detalles del paquete', true);
+    }
+}
+
+// Función para marcar un paquete como entregado
+function markAsDelivered(packageId) {
+    if (!confirm('¿Está seguro que desea marcar este paquete como entregado?')) {
+        return;
+    }
+    
+    try {
+        const packages = getAllPackages();
+        const packageIndex = packages.findIndex(p => p.id === packageId || p.qr_code === packageId);
+        
+        if (packageIndex === -1) {
+            showNotification('Paquete no encontrado', true);
+            return;
+        }
+        
+        // Actualizar estado
+        packages[packageIndex].status = 'entregado';
+        packages[packageIndex].delivered_at = new Date().toISOString();
+        
+        // Guardar cambios
+        localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
+        localStorage.setItem('packages', JSON.stringify(packages));
+        
+        showNotification('Paquete marcado como entregado exitosamente');
+        
+        // Recargar la vista de paquetes
+        const currentDept = packages[packageIndex].apartment_number;
+        loadPackagesByDepartment(currentDept);
+        
+        // También recargar la vista de departamentos para actualizar contadores
+        loadDepartments();
+    } catch (error) {
+        console.error('Error al marcar paquete como entregado:', error);
+        showNotification('Error al actualizar el estado del paquete', true);
+    }
 }
 
 // Función para cargar departamentos en la tabla - MEJORADA
@@ -964,7 +1257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Cargar departamentos (esto automáticamente limpia los inválidos)
     loadDepartments();
     
-    // Configurar botones
+    // Configurar botones principales
     const addDeptBtn = document.getElementById('addDeptBtn');
     if (addDeptBtn) {
         addDeptBtn.addEventListener('click', addNewDepartment);
@@ -973,6 +1266,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const cleanDeptBtn = document.getElementById('cleanDeptBtn');
     if (cleanDeptBtn) {
         cleanDeptBtn.addEventListener('click', manualCleanDepartments);
+    }
+    
+    // Configurar botones de la vista de paquetes
+    const backToDeptBtn = document.getElementById('backToDeptBtn');
+    if (backToDeptBtn) {
+        backToDeptBtn.addEventListener('click', backToDepartments);
+    }
+    
+    const addPackageBtn = document.getElementById('addPackageBtn');
+    if (addPackageBtn) {
+        addPackageBtn.addEventListener('click', () => {
+            window.location.href = 'registerPackage.html';
+        });
     }
 });
 </script>
