@@ -443,10 +443,16 @@ padding: 10px 8px;
 <div class="card">
 <div class="card-header">
 <h2 style="font-size: 1.2rem; font-weight: 600;">Departamentos Registrados</h2>
+<div>
+<button class="btn btn-danger" id="cleanDeptBtn" aria-label="Limpiar departamentos inválidos" style="margin-right: 10px;">
+<i class="fas fa-trash-alt"></i>
+<span>Limpiar</span>
+</button>
 <button class="btn btn-primary" id="addDeptBtn" aria-label="Agregar nuevo departamento">
 <i class="fas fa-plus"></i>
 <span>Agregar Departamento</span>
 </button>
+</div>
 </div>
 <div class="card-body">
 <div id="errorMessage" class="error-message" style="display: none;">
@@ -512,112 +518,174 @@ function logout() {
     }
 }
 
-// Función para extraer número válido de departamento
+// Función mejorada para validar si un valor es un número de departamento válido
+function isValidDepartmentNumber(value) {
+    if (value === null || value === undefined || value === '') {
+        return false;
+    }
+    
+    const cleanValue = String(value).trim();
+    
+    // Debe ser un número positivo
+    if (!cleanValue || isNaN(cleanValue)) {
+        return false;
+    }
+    
+    const numValue = parseInt(cleanValue);
+    return numValue > 0 && numValue <= 9999; // Rango razonable para números de departamento
+}
+
+// Función para extraer número válido de departamento - MEJORADA
 function extractDepartmentNumber(dept) {
+    console.log('Extrayendo número de departamento de:', dept);
+    
     // Si es null o undefined, devolver null
     if (dept === null || dept === undefined) {
+        console.log('Departamento es null o undefined');
         return null;
     }
     
     // Si es un objeto
     if (typeof dept === 'object' && dept !== null) {
+        console.log('Departamento es objeto:', dept);
+        
         // Buscar propiedades que contengan el número del departamento
-        const possibleNumbers = [
-            dept.number,
-            dept.id,
-            dept.deptNumber,
-            dept.numero,
-            dept.departmentNumber,
-            dept.apartment_number
+        const possibleProperties = [
+            'number', 'id', 'deptNumber', 'numero', 
+            'departmentNumber', 'apartment_number', 'dept_number'
         ];
         
-        for (let num of possibleNumbers) {
-            if (num !== null && num !== undefined && num !== '') {
-                const cleanNum = String(num).trim();
-                if (cleanNum && !isNaN(cleanNum)) {
-                    return cleanNum;
-                }
+        for (let prop of possibleProperties) {
+            const value = dept[prop];
+            console.log(`Verificando propiedad ${prop}:`, value);
+            
+            if (isValidDepartmentNumber(value)) {
+                const validNumber = String(value).trim();
+                console.log(`Número válido encontrado en ${prop}:`, validNumber);
+                return validNumber;
             }
         }
+        
+        console.log('No se encontró número válido en el objeto');
         return null;
     }
     
     // Si es un string o número primitivo
-    const cleanDept = String(dept).trim();
-    if (cleanDept && !isNaN(cleanDept)) {
-        return cleanDept;
+    console.log('Departamento es primitivo:', dept);
+    if (isValidDepartmentNumber(dept)) {
+        const validNumber = String(dept).trim();
+        console.log('Número primitivo válido:', validNumber);
+        return validNumber;
     }
     
+    console.log('Número primitivo inválido');
     return null;
 }
 
-// Función para obtener todos los departamentos
-function getAllDepartments() {
+// Función para limpiar departamentos inválidos del localStorage
+function cleanInvalidDepartments() {
     try {
-        console.log("Obteniendo departamentos desde localStorage...");
+        console.log('=== INICIANDO LIMPIEZA DE DEPARTAMENTOS ===');
         
-        // Intentar obtener departamentos del localStorage
         const deptsFromStorage = localStorage.getItem('departments');
         if (!deptsFromStorage) {
-            console.log("No se encontraron departamentos en localStorage");
-            
-            // Si no hay datos, crear datos de ejemplo
-            const defaultDepartments = [
-                { number: '101' },
-                { number: '102' },
-                { number: '103' },
-                { number: '201' }
-            ];
-            
-            localStorage.setItem('departments', JSON.stringify(defaultDepartments));
-            console.log("Departamentos por defecto creados:", defaultDepartments);
-            return defaultDepartments;
+            console.log('No hay departamentos en localStorage');
+            return [];
         }
         
         let departments;
         try {
             departments = JSON.parse(deptsFromStorage);
-            console.log("Departamentos parseados desde localStorage:", departments);
+            console.log('Departamentos originales:', departments);
         } catch (parseError) {
-            console.error("Error al parsear departamentos:", parseError);
+            console.error('Error al parsear departamentos:', parseError);
+            // Si hay error de parseo, eliminar y crear nuevo
+            localStorage.removeItem('departments');
             return [];
         }
         
-        // Normalizar el formato
-        let normalizedDepts = [];
+        let validDepartments = [];
+        let removedCount = 0;
         
         if (Array.isArray(departments)) {
-            departments.forEach(dept => {
+            departments.forEach((dept, index) => {
+                console.log(`Procesando departamento ${index}:`, dept);
                 const deptNumber = extractDepartmentNumber(dept);
+                
                 if (deptNumber) {
-                    normalizedDepts.push({ number: deptNumber });
+                    // Verificar que no esté duplicado
+                    const isDuplicate = validDepartments.some(validDept => validDept.number === deptNumber);
+                    if (!isDuplicate) {
+                        validDepartments.push({ number: deptNumber });
+                        console.log(`Departamento ${deptNumber} agregado como válido`);
+                    } else {
+                        console.log(`Departamento ${deptNumber} duplicado, omitido`);
+                        removedCount++;
+                    }
+                } else {
+                    console.log(`Departamento inválido removido:`, dept);
+                    removedCount++;
                 }
             });
         } else if (departments) {
+            // Si es un solo objeto
             const deptNumber = extractDepartmentNumber(departments);
             if (deptNumber) {
-                normalizedDepts.push({ number: deptNumber });
+                validDepartments.push({ number: deptNumber });
+            } else {
+                removedCount++;
             }
         }
         
-        console.log("Departamentos normalizados:", normalizedDepts);
+        console.log(`Departamentos válidos: ${validDepartments.length}, Removidos: ${removedCount}`);
         
-        // Si no hay departamentos válidos, crear algunos por defecto
-        if (normalizedDepts.length === 0) {
-            normalizedDepts = [
+        // Actualizar localStorage con departamentos limpios
+        localStorage.setItem('departments', JSON.stringify(validDepartments));
+        
+        if (removedCount > 0) {
+            showNotification(`Se eliminaron ${removedCount} departamentos inválidos`, false);
+        }
+        
+        console.log('=== LIMPIEZA COMPLETADA ===');
+        console.log('Departamentos finales:', validDepartments);
+        
+        return validDepartments;
+    } catch (error) {
+        console.error('Error durante la limpieza:', error);
+        return [];
+    }
+}
+
+// Función para obtener todos los departamentos - COMPLETAMENTE REESCRITA
+function getAllDepartments() {
+    try {
+        console.log("=== OBTENIENDO DEPARTAMENTOS ===");
+        
+        // Primero, limpiar departamentos inválidos
+        let departments = cleanInvalidDepartments();
+        
+        // Si después de la limpieza no hay departamentos válidos, crear algunos por defecto
+        if (departments.length === 0) {
+            console.log("No hay departamentos válidos, creando por defecto");
+            
+            departments = [
                 { number: '101' },
                 { number: '102' },
                 { number: '103' },
                 { number: '201' }
             ];
             
-            localStorage.setItem('departments', JSON.stringify(normalizedDepts));
-            console.log("Departamentos por defecto creados debido a datos inválidos");
+            localStorage.setItem('departments', JSON.stringify(departments));
+            console.log("Departamentos por defecto creados:", departments);
+            showNotification('Se crearon departamentos por defecto', false);
         }
         
-        return normalizedDepts;
+        console.log("Departamentos finales a retornar:", departments);
+        return departments;
+        
     } catch (error) {
-        console.error("Error general al obtener departamentos:", error);
+        console.error("Error crítico al obtener departamentos:", error);
+        showNotification('Error crítico al cargar departamentos', true);
         return [];
     }
 }
@@ -706,7 +774,7 @@ function viewDepartment(deptId) {
     window.location.href = `listPackages.html?department=${deptId}`;
 }
 
-// Función para cargar departamentos en la tabla
+// Función para cargar departamentos en la tabla - MEJORADA
 function loadDepartments() {
     const tbody = document.querySelector('#departmentsTable tbody');
     const errorMessage = document.getElementById('errorMessage');
@@ -727,7 +795,9 @@ function loadDepartments() {
     `;
     
     try {
+        console.log("=== CARGANDO DEPARTAMENTOS EN TABLA ===");
         const departments = getAllDepartments();
+        console.log("Departamentos obtenidos para tabla:", departments);
         
         if (!departments || departments.length === 0) {
             tbody.innerHTML = `
@@ -753,17 +823,19 @@ function loadDepartments() {
         
         tbody.innerHTML = '';
         
-        departments.forEach(dept => {
+        departments.forEach((dept, index) => {
             try {
+                console.log(`Procesando departamento ${index} para tabla:`, dept);
                 const deptNumber = dept.number;
                 
-                // Verificar que el número de departamento es válido
-                if (!deptNumber) {
-                    console.warn('Departamento sin número válido:', dept);
+                // Verificación estricta
+                if (!deptNumber || !isValidDepartmentNumber(deptNumber)) {
+                    console.warn('Departamento sin número válido saltado:', dept);
                     return;
                 }
                 
                 const summary = getDepartmentSummary(deptNumber);
+                console.log(`Resumen para departamento ${deptNumber}:`, summary);
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -794,12 +866,15 @@ function loadDepartments() {
                     </td>
                 `;
                 tbody.appendChild(row);
+                console.log(`Fila agregada para departamento ${deptNumber}`);
             } catch (packageError) {
-                console.error('Error al procesar departamento', dept, packageError);
+                console.error('Error al procesar departamento para tabla:', dept, packageError);
             }
         });
+        
+        console.log("=== TABLA CARGADA EXITOSAMENTE ===");
     } catch (error) {
-        console.error('Error al cargar departamentos:', error);
+        console.error('Error al cargar departamentos en tabla:', error);
         
         errorMessage.innerHTML = `
             <i class="fas fa-exclamation-circle"></i>
@@ -818,37 +893,61 @@ function loadDepartments() {
     }
 }
 
-// Función para añadir un nuevo departamento
+// Función para añadir un nuevo departamento - MEJORADA
 function addNewDepartment() {
     try {
         const deptNumber = prompt('Ingrese el número del nuevo departamento:');
         
         if (!deptNumber) return;
         
-        if (isNaN(deptNumber)) {
-            showNotification('Por favor ingrese un número válido', true);
+        const cleanDeptNumber = String(deptNumber).trim();
+        
+        if (!isValidDepartmentNumber(cleanDeptNumber)) {
+            showNotification('Por favor ingrese un número válido (entre 1 y 9999)', true);
             return;
         }
         
         const departments = getAllDepartments();
-        const exists = departments.some(dept => dept.number === deptNumber.toString());
+        const exists = departments.some(dept => dept.number === cleanDeptNumber);
         
         if (exists) {
             showNotification('Ya existe un departamento con ese número', true);
             return;
         }
         
-        const newDept = { number: deptNumber.toString() };
+        const newDept = { number: cleanDeptNumber };
         departments.push(newDept);
         
         localStorage.setItem('departments', JSON.stringify(departments));
         
-        showNotification('Departamento agregado correctamente');
+        showNotification(`Departamento ${cleanDeptNumber} agregado correctamente`);
         
         loadDepartments();
     } catch (error) {
         console.error('Error al agregar departamento:', error);
         showNotification('Error al agregar departamento: ' + error.message, true);
+    }
+}
+
+// Función para limpiar manualmente departamentos inválidos
+function manualCleanDepartments() {
+    if (confirm('¿Está seguro que desea limpiar todos los departamentos inválidos? Esta acción no se puede deshacer.')) {
+        try {
+            const before = JSON.parse(localStorage.getItem('departments') || '[]');
+            const after = cleanInvalidDepartments();
+            
+            const removed = before.length - after.length;
+            
+            if (removed > 0) {
+                showNotification(`Se limpiaron ${removed} departamentos inválidos`);
+                loadDepartments();
+            } else {
+                showNotification('No se encontraron departamentos inválidos para limpiar');
+            }
+        } catch (error) {
+            console.error('Error en limpieza manual:', error);
+            showNotification('Error durante la limpieza: ' + error.message, true);
+        }
     }
 }
 
@@ -862,11 +961,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
+    // Cargar departamentos (esto automáticamente limpia los inválidos)
     loadDepartments();
     
+    // Configurar botones
     const addDeptBtn = document.getElementById('addDeptBtn');
     if (addDeptBtn) {
         addDeptBtn.addEventListener('click', addNewDepartment);
+    }
+    
+    const cleanDeptBtn = document.getElementById('cleanDeptBtn');
+    if (cleanDeptBtn) {
+        cleanDeptBtn.addEventListener('click', manualCleanDepartments);
     }
 });
 </script>
