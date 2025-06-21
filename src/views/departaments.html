@@ -213,6 +213,24 @@ color: var(--gray-700);
 background-color: var(--gray-50);
 border-color: var(--gray-700);
  }
+
+.btn-outline:disabled {
+background-color: var(--gray-100);
+color: var(--gray);
+border-color: var(--gray-300);
+cursor: not-allowed;
+transform: none;
+ }
+
+.btn:disabled {
+opacity: 0.6;
+cursor: not-allowed;
+transform: none;
+ }
+
+.btn:disabled:hover {
+transform: none;
+}
 .table-container {
 overflow-x: auto;
 border-radius: var(--radius);
@@ -914,7 +932,7 @@ function loadPackagesByDepartment(deptId) {
                         <div style="color: var(--gray);">
                             <i class="fas fa-box-open" style="font-size: 3rem; margin-bottom: 15px; color: var(--gray-300);"></i>
                             <p style="margin-bottom: 20px;">No hay paquetes registrados para este departamento</p>
-                            <button class="btn btn-primary" onclick="redirectToRegisterPackage('${deptId}')">
+                            <button type="button" class="btn btn-primary" data-action="add-first-package" data-department-id="${deptId}">
                                 <i class="fas fa-plus"></i>
                                 <span>Registrar Primer Paquete</span>
                             </button>
@@ -922,6 +940,21 @@ function loadPackagesByDepartment(deptId) {
                     </td>
                 </tr>
             `;
+            
+            // Agregar event listener para el botón "Registrar Primer Paquete"
+            setTimeout(() => {
+                const addFirstPackageBtn = tbody.querySelector('[data-action="add-first-package"]');
+                if (addFirstPackageBtn) {
+                    addFirstPackageBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const deptId = this.getAttribute('data-department-id');
+                        console.log('Registrar primer paquete para departamento:', deptId);
+                        redirectToRegisterPackage(deptId);
+                    });
+                }
+            }, 100);
+            
             return;
         }
         
@@ -931,11 +964,14 @@ function loadPackagesByDepartment(deptId) {
             try {
                 console.log(`Procesando paquete ${index}:`, pkg);
                 
+                const packageId = pkg.id || pkg.qr_code || `temp-${index}`;
+                const isDelivered = pkg.status === 'entregado' || pkg.status === 'retirado';
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>
                         <code style="background-color: var(--gray-100); padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">
-                            ${pkg.id || pkg.qr_code || 'Sin ID'}
+                            ${packageId}
                         </code>
                     </td>
                     <td>
@@ -954,17 +990,41 @@ function loadPackagesByDepartment(deptId) {
                         ${pkg.description || '<span style="color: var(--gray);">Sin descripción</span>'}
                     </td>
                     <td class="actions-cell">
-                        <button class="btn btn-outline" onclick="viewPackageDetails('${pkg.id || pkg.qr_code}')" aria-label="Ver detalles del paquete">
+                        <button type="button" class="btn btn-outline" data-action="view" data-package-id="${packageId}" aria-label="Ver detalles del paquete">
                             <i class="fas fa-eye"></i>
                             <span>Ver</span>
                         </button>
-                        <button class="btn btn-success" onclick="markAsDelivered('${pkg.id || pkg.qr_code}')" aria-label="Marcar como entregado" ${pkg.status === 'entregado' || pkg.status === 'retirado' ? 'disabled' : ''}>
+                        <button type="button" class="btn btn-success" data-action="deliver" data-package-id="${packageId}" data-department-id="${deptId}" aria-label="Marcar como entregado" ${isDelivered ? 'disabled' : ''}>
                             <i class="fas fa-check"></i>
                             <span>Entregar</span>
                         </button>
                     </td>
                 `;
+                
                 tbody.appendChild(row);
+                
+                // Agregar event listeners para evitar conflictos con onclick
+                const viewBtn = row.querySelector('[data-action="view"]');
+                const deliverBtn = row.querySelector('[data-action="deliver"]');
+                
+                if (viewBtn) {
+                    viewBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Botón Ver clickeado para:', packageId);
+                        viewPackageDetails(packageId);
+                    });
+                }
+                
+                if (deliverBtn && !isDelivered) {
+                    deliverBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Botón Entregar clickeado para:', packageId);
+                        markAsDelivered(packageId, deptId);
+                    });
+                }
+                
             } catch (packageError) {
                 console.error('Error al procesar paquete:', pkg, packageError);
             }
@@ -991,26 +1051,51 @@ function loadPackagesByDepartment(deptId) {
     }
 }
 
-// Función para redirigir al registro de paquetes con departamento pre-seleccionado
+// Función para redirigir al registro de paquetes con departamento pre-seleccionado - MEJORADA
 function redirectToRegisterPackage(deptId) {
-    // Guardar el departamento seleccionado en localStorage para pre-llenarlo
-    localStorage.setItem('preselectedDepartment', deptId);
-    window.location.href = 'registerPackage.html';
-}
-
-// Función para ver detalles de un paquete específico
-function viewPackageDetails(packageId) {
+    console.log('=== REDIRIGIENDO A REGISTRO DE PAQUETE ===');
+    console.log('Departamento seleccionado:', deptId);
+    
     try {
-        const packages = getAllPackages();
-        const pkg = packages.find(p => p.id === packageId || p.qr_code === packageId);
-        
-        if (!pkg) {
-            showNotification('Paquete no encontrado', true);
-            return;
+        // Guardar el departamento seleccionado en localStorage para pre-llenarlo
+        if (deptId) {
+            localStorage.setItem('preselectedDepartment', deptId);
+            console.log('Departamento guardado en localStorage para pre-selección');
         }
         
+        console.log('Redirigiendo a registerPackage.html...');
+        window.location.href = 'registerPackage.html';
+        
+    } catch (error) {
+        console.error('Error al redireccionar:', error);
+        showNotification('Error al redireccionar a registro de paquetes', true);
+    }
+}
+
+// Función para ver detalles de un paquete específico - MEJORADA
+function viewPackageDetails(packageId) {
+    console.log('=== VIENDO DETALLES DEL PAQUETE ===');
+    console.log('Package ID:', packageId);
+    
+    try {
+        const packages = getAllPackages();
+        const pkg = packages.find(p => 
+            (p.id && p.id === packageId) || 
+            (p.qr_code && p.qr_code === packageId)
+        );
+        
+        if (!pkg) {
+            console.error('Paquete no encontrado:', packageId);
+            showNotification('Paquete no encontrado', true);
+            return false;
+        }
+        
+        console.log('Paquete encontrado:', pkg);
+        
         const details = `
-DETALLES DEL PAQUETE
+═══════════════════════════════════
+         DETALLES DEL PAQUETE
+═══════════════════════════════════
 
 ID: ${pkg.id || pkg.qr_code || 'Sin ID'}
 Departamento: ${pkg.apartment_number || 'No especificado'}
@@ -1021,49 +1106,93 @@ Estado: ${pkg.status || 'Sin estado'}
 Descripción: ${pkg.description || 'Sin descripción'}
 Notas: ${pkg.notes || 'Sin notas'}
 Fecha de registro: ${formatDateForDisplay(pkg.created_at)}
+${pkg.delivered_at ? 'Entregado el: ' + formatDateForDisplay(pkg.delivered_at) : ''}
+
+═══════════════════════════════════
         `;
         
         alert(details);
+        return false; // Prevenir navegación
     } catch (error) {
         console.error('Error al ver detalles del paquete:', error);
-        showNotification('Error al cargar detalles del paquete', true);
+        showNotification('Error al cargar detalles del paquete: ' + error.message, true);
+        return false;
     }
 }
 
-// Función para marcar un paquete como entregado
-function markAsDelivered(packageId) {
-    if (!confirm('¿Está seguro que desea marcar este paquete como entregado?')) {
-        return;
-    }
+// Función para marcar un paquete como entregado - MEJORADA
+function markAsDelivered(packageId, departmentId) {
+    console.log('=== FUNCIÓN markAsDelivered LLAMADA ===');
+    console.log('Package ID:', packageId);
+    console.log('Department ID:', departmentId);
     
+    // Prevenir cualquier comportamiento por defecto
     try {
-        const packages = getAllPackages();
-        const packageIndex = packages.findIndex(p => p.id === packageId || p.qr_code === packageId);
-        
-        if (packageIndex === -1) {
-            showNotification('Paquete no encontrado', true);
-            return;
+        if (!confirm('¿Está seguro que desea marcar este paquete como entregado?')) {
+            console.log('Usuario canceló la operación');
+            return false;
         }
         
-        // Actualizar estado
-        packages[packageIndex].status = 'entregado';
-        packages[packageIndex].delivered_at = new Date().toISOString();
+        console.log('Usuario confirmó la operación');
         
-        // Guardar cambios
-        localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
-        localStorage.setItem('packages', JSON.stringify(packages));
+        const packages = getAllPackages();
+        console.log('Paquetes obtenidos:', packages.length);
+        
+        const packageIndex = packages.findIndex(p => 
+            (p.id && p.id === packageId) || 
+            (p.qr_code && p.qr_code === packageId)
+        );
+        
+        console.log('Índice del paquete encontrado:', packageIndex);
+        
+        if (packageIndex === -1) {
+            console.error('Paquete no encontrado con ID:', packageId);
+            showNotification('Paquete no encontrado', true);
+            return false;
+        }
+        
+        const originalPackage = packages[packageIndex];
+        console.log('Paquete original:', originalPackage);
+        
+        // Actualizar estado
+        packages[packageIndex] = {
+            ...originalPackage,
+            status: 'entregado',
+            delivered_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        };
+        
+        console.log('Paquete actualizado:', packages[packageIndex]);
+        
+        // Guardar cambios en ambos formatos para compatibilidad
+        try {
+            localStorage.setItem('paquetesPrueba', JSON.stringify(packages));
+            localStorage.setItem('packages', JSON.stringify(packages));
+            console.log('Paquetes guardados en localStorage exitosamente');
+        } catch (storageError) {
+            console.error('Error al guardar en localStorage:', storageError);
+            showNotification('Error al guardar los cambios', true);
+            return false;
+        }
         
         showNotification('Paquete marcado como entregado exitosamente');
         
-        // Recargar la vista de paquetes
-        const currentDept = packages[packageIndex].apartment_number;
-        loadPackagesByDepartment(currentDept);
+        // Recargar la vista de paquetes del departamento actual
+        const currentDept = departmentId || originalPackage.apartment_number;
+        console.log('Recargando vista para departamento:', currentDept);
         
-        // También recargar la vista de departamentos para actualizar contadores
-        loadDepartments();
+        if (currentDept) {
+            loadPackagesByDepartment(currentDept);
+        }
+        
+        console.log('=== OPERACIÓN COMPLETADA EXITOSAMENTE ===');
+        return false; // Importante: prevenir cualquier navegación
+        
     } catch (error) {
-        console.error('Error al marcar paquete como entregado:', error);
-        showNotification('Error al actualizar el estado del paquete', true);
+        console.error('ERROR CRÍTICO en markAsDelivered:', error);
+        console.error('Stack trace:', error.stack);
+        showNotification('Error crítico al actualizar el estado del paquete: ' + error.message, true);
+        return false;
     }
 }
 
@@ -1277,9 +1406,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const addPackageBtn = document.getElementById('addPackageBtn');
     if (addPackageBtn) {
         addPackageBtn.addEventListener('click', () => {
+            console.log('Botón Agregar Paquete clickeado');
             window.location.href = 'registerPackage.html';
         });
     }
+    
+    // Event listener global para debuggear clicks inesperados
+    document.addEventListener('click', function(e) {
+        // Solo loggear clicks en botones para no saturar la consola
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+            const button = e.target.tagName === 'BUTTON' ? e.target : e.target.closest('button');
+            console.log('Click detectado en botón:', {
+                text: button.textContent?.trim(),
+                className: button.className,
+                action: button.getAttribute('data-action'),
+                onclick: button.getAttribute('onclick')
+            });
+        }
+    });
+    
+    // Interceptar cambios de ubicación para debuggear redirecciones inesperadas
+    const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
+    
+    history.pushState = function() {
+        console.log('pushState llamado:', arguments);
+        return originalPushState.apply(history, arguments);
+    };
+    
+    history.replaceState = function() {
+        console.log('replaceState llamado:', arguments);
+        return originalReplaceState.apply(history, arguments);
+    };
+    
+    window.addEventListener('beforeunload', function(e) {
+        console.log('Página a punto de cambiar');
+    });
 });
 </script>
 </body>
