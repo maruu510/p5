@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel de Residente - Gestión de Paquetes</title>
+<script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
+
 <style>
 :root {
   --primary: #4361ee;
@@ -14,10 +16,11 @@
   --success: #2ecc71;
   --danger: #f72585;
   --warning: #f8961e;
-  --info: #90e0ef;
+  --info: #65d2e5;
   --light: #f8f9fa;
   --dark: #212529;
   --gray: #6c757d;
+  --pppp: #7427cd;
   --gray-light: #e9ecef;
   --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   --transition: all 0.3s ease;
@@ -381,6 +384,18 @@ body {
   background-color: var(--warning);
 }
 
+.btn-qr {
+  background-color: var(--pppp);
+}
+
+.btn-qr:hover {
+  background-color: #5d1f9e;
+}
+
+.btn-warning:hover {
+  background-color: #e67e00;
+}
+
 .btn-info {
   background-color: var(--info);
 }
@@ -661,6 +676,10 @@ body {
   font-size: 14px;
 }
 
+.mobile-menu {
+  display: none;
+}
+
 @media (max-width: 1200px) {
   .stats-container {
     grid-template-columns: repeat(2, 1fr);
@@ -747,18 +766,32 @@ body {
   </div>
 </div>
 
-<!-- Modal para confirmar retiro -->
-<div class="modal" id="confirm-pickup-modal" style="display: none;">
-  <div class="modal-content">
+<!-- Modal para mostrar código QR -->
+<div class="modal" id="qr-modal" style="display: none;">
+  <div class="modal-content" style="max-width: 400px; text-align: center;">
     <div class="modal-header">
-      <h3 class="modal-title">Confirmar Retiro</h3>
-      <button class="close-btn" onclick="closeModal('confirm-pickup-modal')">&times;</button>
+      <h3 class="modal-title">Código QR del Paquete</h3>
+      <button class="close-btn" onclick="closeModal('qr-modal')">&times;</button>
     </div>
-    <div id="confirm-pickup-content">
-      <p>¿Estás seguro de que deseas solicitar el retiro de este paquete?</p>
-      <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-        <button class="action-btn btn-secondary" onclick="closeModal('confirm-pickup-modal')">Cancelar</button>
-        <button class="action-btn" id="confirm-pickup-btn">Confirmar</button>
+    <div id="qr-modal-content">
+      <div id="qr-info" style="margin-bottom: 20px;">
+        <!-- Información del paquete -->
+      </div>
+      <div id="qr-code-container" style="display: flex; justify-content: center; margin: 20px 0;">
+        <!-- Aquí se generará el código QR -->
+      </div>
+      <p style="color: var(--gray); font-size: 14px; margin-top: 15px;">
+        Muestra este código QR al personal de conserjería para el retiro del paquete
+      </p>
+      <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+        <button class="action-btn btn-secondary" onclick="downloadQR()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Descargar QR
+        </button>
+        <button class="action-btn" onclick="shareQR()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+          Compartir
+        </button>
       </div>
     </div>
   </div>
@@ -768,7 +801,7 @@ body {
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="logo">
-        <img src="./images/favicon1.svg" width="40" height="40" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        <svg width="40" height="40" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
         PackTrack
       </div> 
     </div>
@@ -1052,9 +1085,9 @@ body {
             </div>
             
             <div style="display: flex; gap: 10px;">
-              <button type="button" class="action-btn" id="enviar-mensaje" onclick="enviarReclamoResidente()">
+              <button type="submit" class="action-btn" id="enviar-solicitud">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2z"></path></svg>
-                  Enviar Mensaje
+                Enviar Solicitud
               </button>
               <button type="button" class="action-btn btn-secondary" onclick="clearPickupForm()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
@@ -1121,31 +1154,31 @@ body {
             <h3 style="margin-bottom: 20px;">Envíe un Mensaje</h3>
             <form id="support-form">
              <div class="form-group">
-  <label class="form-label">Categoría *</label>
-  <select class="form-control" id="support-category" required>
-    <option value="">Seleccione una categoría</option>
-    <option value="maintenance">Mantenimiento</option>
-    <option value="noise">Ruidos</option>
-    <option value="security">Seguridad</option>
-    <option value="services">Servicios</option>
-    <option value="packages">Paquetes</option>
-    <option value="common_areas">Áreas Comunes</option>
-    <option value="other">Otros</option>
-  </select>
-</div>
-<div class="form-group">
-  <label class="form-label">Asunto *</label>
-  <input type="text" class="form-control" id="support-subject" placeholder="Ingrese el asunto de su consulta..." required>
-</div>
-<div class="form-group">
-  <label class="form-label">Prioridad *</label>
-  <select class="form-control" id="support-priority" required>
-    <option value="">Seleccione prioridad</option>
-    <option value="high">Alta</option>
-    <option value="medium">Media</option>
-    <option value="low">Baja</option>
-  </select>
-</div>
+              <label class="form-label">Categoría *</label>
+              <select class="form-control" id="support-category" required>
+                <option value="">Seleccione una categoría</option>
+                <option value="maintenance">Mantenimiento</option>
+                <option value="noise">Ruidos</option>
+                <option value="security">Seguridad</option>
+                <option value="services">Servicios</option>
+                <option value="packages">Paquetes</option>
+                <option value="common_areas">Áreas Comunes</option>
+                <option value="other">Otros</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Asunto *</label>
+              <input type="text" class="form-control" id="support-subject" placeholder="Ingrese el asunto de su consulta..." required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Prioridad *</label>
+              <select class="form-control" id="support-priority" required>
+                <option value="">Seleccione prioridad</option>
+                <option value="high">Alta</option>
+                <option value="medium">Media</option>
+                <option value="low">Baja</option>
+              </select>
+            </div>
               <div class="form-group">
                 <label class="form-label">Mensaje *</label>
                 <textarea class="form-control" rows="5" id="support-message" placeholder="Describa su consulta o problema detalladamente..." required></textarea>
@@ -1186,6 +1219,7 @@ body {
 let currentResident = null;
 let residentPackages = [];
 let currentPackageFilter = 'all';
+let currentQRCode = null;
 
 // Función para mostrar/ocultar loading
 function showLoading(show = true) {
@@ -1304,6 +1338,15 @@ function initializeTestData() {
     ];
     
     localStorage.setItem('residents', JSON.stringify(testResidents));
+  }
+  
+  // Inicializar datos de autenticación para prueba
+  if (!localStorage.getItem('authToken')) {
+    localStorage.setItem('authToken', 'demo-token-12345');
+    localStorage.setItem('userType', 'resident');
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('currentResidentId', 'RES-001');
+    localStorage.setItem('userName', 'María Álvarez');
   }
 }
 
@@ -1589,9 +1632,13 @@ function updatePackagesTable(filter = 'all') {
           <td>${formattedDate}</td>
           <td><span class="status ${statusClass}">${statusText}</span></td>
           <td>
-            <button class="action-btn btn-info" onclick="viewPackageDetails('${pkg.id}')">
+            <button class="action-btn btn-info" onclick="viewPackageDetails('${pkg.id}')" style="margin-right: 5px;">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
               Ver
+            </button>
+            <button class="action-btn btn-qr" onclick="showPackageQR('${pkg.id}')" style="margin-right: 5px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="7" y="7" width="3" height="3"></rect><rect x="14" y="7" width="3" height="3"></rect><rect x="7" y="14" width="3" height="3"></rect><rect x="14" y="14" width="3" height="3"></rect></svg>
+              Ver QR
             </button>
             ${status === 'pendiente' ? 
               `<button class="action-btn btn-success" onclick="requestPickup('${pkg.id}')">
@@ -1757,8 +1804,6 @@ function viewPackageDetails(packageId) {
             <td style="padding: 10px 0; font-weight: 600;">Descripción:</td>
             <td>${pkg.description || 'Sin descripción'}</td>
           </tr>
-      
-          
           <tr>
             <td style="padding: 10px 0; font-weight: 600;">Fecha de llegada:</td>
             <td>${formattedDate}</td>
@@ -1801,12 +1846,23 @@ function viewPackageDetails(packageId) {
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11H1l6-6v4.5c2.5 0 5 2.5 5 6z"></path><path d="M22 12c0 3.5-2.5 6-5 6-1.4 0-2.7-.6-3.7-1.6"></path></svg>
         Solicitar Retiro
       </button>
+      <button class="action-btn btn-qr" onclick="showPackageQR('${pkg.id}'); closeModal('package-modal');">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="7" y="7" width="3" height="3"></rect><rect x="14" y="7" width="3" height="3"></rect><rect x="7" y="14" width="3" height="3"></rect><rect x="14" y="14" width="3" height="3"></rect></svg>
+        Ver Código QR
+      </button>
       <button class="action-btn btn-secondary" onclick="reportProblem('${pkg.id}'); closeModal('package-modal');">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
         Reportar Problema
       </button>
     </div>
-    ` : ''}
+    ` : `
+    <div style="display: flex; gap: 15px; justify-content: center; padding-top: 20px; border-top: 1px solid var(--gray-light);">
+      <button class="action-btn btn-qr" onclick="showPackageQR('${pkg.id}'); closeModal('package-modal');">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="7" y="7" width="3" height="3"></rect><rect x="14" y="7" width="3" height="3"></rect><rect x="7" y="14" width="3" height="3"></rect><rect x="14" y="14" width="3" height="3"></rect></svg>
+        Ver Código QR
+      </button>
+    </div>
+    `}
   `;
   
   modal.style.display = 'flex';
@@ -1825,51 +1881,199 @@ function requestPickup(packageId) {
   
   showToast('Formulario de retiro preparado', 'info');
 }
-function enviarReclamoResidente() {
-  const asunto = document.getElementById('support-subject').value;
-  const mensaje = document.getElementById('support-message').value.trim();
-  const categoria = document.getElementById('support-category').value;
-  const prioridad = document.getElementById('support-priority').value;
 
-  if (!asunto || !mensaje || !categoria || !prioridad) {
-    showToast('Por favor completa todos los campos', 'error');
-    return;
-  }
-
-  const currentResident = JSON.parse(localStorage.getItem('currentResident'));
-  if (!currentResident) {
-    showToast('Debes iniciar sesión como residente', 'error');
-    return;
-  }
-
-  const reclamo = {
-    id: 'REC' + Date.now(),
-    residentId: currentResident.id,
-    residentName: `${currentResident.name} ${currentResident.lastname}`,
-    department: currentResident.department,
-    category: categoria,
-    subject: asunto,
-    description: mensaje,
-    priority: prioridad,
-    status: 'pending',
-    createdAt: new Date().toISOString(),
-    responses: []
-  };
-
-  const reclamos = JSON.parse(localStorage.getItem('complaints') || '[]');
-  reclamos.push(reclamo);
-  localStorage.setItem('complaints', JSON.stringify(reclamos));
-
-  showToast('¡Reclamo enviado correctamente!', 'success');
-  document.getElementById('support-form').reset();
-}
 // Función para reportar problema
 function reportProblem(packageId) {
   switchTab('soporte');
-  document.getElementById('support-subject').value = 'problema-paquete';
+  document.getElementById('support-category').value = 'packages';
+  document.getElementById('support-subject').value = `Problema con paquete ${packageId}`;
   document.getElementById('support-message').value = `Tengo un problema con el paquete ${packageId}. Descripción del problema: `;
   document.getElementById('support-message').focus();
   showToast('Formulario de soporte preparado', 'info');
+}
+
+// Función para mostrar código QR del paquete
+function showPackageQR(packageId) {
+  const pkg = residentPackages.find(p => p.id === packageId);
+  if (!pkg) {
+    showToast('Paquete no encontrado', 'error');
+    return;
+  }
+  
+  const modal = document.getElementById('qr-modal');
+  const qrInfo = document.getElementById('qr-info');
+  const qrContainer = document.getElementById('qr-code-container');
+  
+  // Limpiar contenedor anterior
+  qrContainer.innerHTML = '';
+  
+  // Crear información del QR
+  const qrData = {
+    packageId: pkg.id,
+    residentName: `${currentResident.name} ${currentResident.lastname}`,
+    department: currentResident.department,
+    sender: pkg.sender || 'No especificado',
+    deliveryDate: pkg.delivery_date,
+    timestamp: new Date().toISOString()
+  };
+  
+  // Mostrar información del paquete
+  let formattedDate = 'No disponible';
+  if (pkg.delivery_date) {
+    try {
+      const date = new Date(pkg.delivery_date);
+      formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    } catch (e) {
+      formattedDate = pkg.delivery_date;
+    }
+  }
+  
+  qrInfo.innerHTML = `
+    <div style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+      <h4 style="margin-bottom: 10px; color: var(--primary-dark);">Información del Paquete</h4>
+      <p><strong>ID:</strong> ${pkg.id}</p>
+      <p><strong>Remitente:</strong> ${pkg.sender || 'No especificado'}</p>
+      <p><strong>Departamento:</strong> ${currentResident.department}</p>
+      <p><strong>Fecha de llegada:</strong> ${formattedDate}</p>
+    </div>
+  `;
+  
+  // Crear canvas para el QR
+  const canvas = document.createElement('canvas');
+  qrContainer.appendChild(canvas);
+  
+  // Generar código QR
+  const qrString = JSON.stringify(qrData);
+  
+  if (typeof QRCode !== 'undefined') {
+    QRCode.toCanvas(canvas, qrString, {
+      width: 200,
+      height: 200,
+      color: {
+        dark: '#4361ee',
+        light: '#FFFFFF'
+      },
+      margin: 2,
+      errorCorrectionLevel: 'M'
+    }, function (error) {
+      if (error) {
+        console.error('Error generando QR:', error);
+        qrContainer.innerHTML = `
+          <div style="padding: 20px; text-align: center; color: var(--danger);">
+            <p>Error al generar el código QR</p>
+          </div>
+        `;
+        return;
+      }
+      
+      // Guardar referencia del QR actual
+      currentQRCode = {
+        canvas: canvas,
+        data: qrData,
+        packageInfo: pkg
+      };
+    });
+  } else {
+    qrContainer.innerHTML = `
+      <div style="padding: 20px; text-align: center; color: var(--warning);">
+        <p>Librería QR no disponible</p>
+        <p style="font-size: 12px; margin-top: 10px;">ID: ${pkg.id}</p>
+      </div>
+    `;
+  }
+  
+  modal.style.display = 'flex';
+}
+
+// Función para descargar código QR
+function downloadQR() {
+  if (!currentQRCode) {
+    showToast('No hay código QR disponible', 'error');
+    return;
+  }
+  
+  try {
+    const link = document.createElement('a');
+    link.download = `QR_Paquete_${currentQRCode.data.packageId}.png`;
+    link.href = currentQRCode.canvas.toDataURL();
+    link.click();
+    showToast('Código QR descargado', 'success');
+  } catch (error) {
+    console.error('Error al descargar QR:', error);
+    showToast('Error al descargar el código QR', 'error');
+  }
+}
+
+// Función para compartir código QR
+function shareQR() {
+  if (!currentQRCode) {
+    showToast('No hay código QR disponible', 'error');
+    return;
+  }
+  
+  try {
+    // Verificar si el navegador soporta Web Share API
+    if (navigator.share && navigator.canShare) {
+      currentQRCode.canvas.toBlob(async (blob) => {
+        const file = new File([blob], `QR_Paquete_${currentQRCode.data.packageId}.png`, {
+          type: 'image/png'
+        });
+        
+        if (navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              title: `Código QR - Paquete ${currentQRCode.data.packageId}`,
+              text: `Código QR para retiro del paquete ${currentQRCode.data.packageId}`,
+              files: [file]
+            });
+            showToast('Código QR compartido', 'success');
+          } catch (error) {
+            if (error.name !== 'AbortError') {
+              console.error('Error compartiendo:', error);
+              fallbackShare();
+            }
+          }
+        } else {
+          fallbackShare();
+        }
+      });
+    } else {
+      fallbackShare();
+    }
+  } catch (error) {
+    console.error('Error al compartir QR:', error);
+    fallbackShare();
+  }
+}
+
+// Función de respaldo para compartir
+function fallbackShare() {
+  try {
+    const dataURL = currentQRCode.canvas.toDataURL();
+    
+    // Crear un enlace temporal para descargar
+    const link = document.createElement('a');
+    link.download = `QR_Paquete_${currentQRCode.data.packageId}.png`;
+    link.href = dataURL;
+    
+    // Copiar enlace al portapapeles si es posible
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      const shareText = `Código QR para retiro del paquete ${currentQRCode.data.packageId} - Departamento ${currentQRCode.data.department}`;
+      navigator.clipboard.writeText(shareText).then(() => {
+        showToast('Información copiada al portapapeles. Descargando QR...', 'info');
+        link.click();
+      }).catch(() => {
+        showToast('Descargando código QR...', 'info');
+        link.click();
+      });
+    } else {
+      showToast('Descargando código QR...', 'info');
+      link.click();
+    }
+  } catch (error) {
+    console.error('Error en fallback share:', error);
+    showToast('Error al compartir el código QR', 'error');
+  }
 }
 
 // Función para buscar paquete
@@ -1974,12 +2178,23 @@ function searchPackage(packageId = null) {
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11H1l6-6v4.5c2.5 0 5 2.5 5 6z"></path><path d="M22 12c0 3.5-2.5 6-5 6-1.4 0-2.7-.6-3.7-1.6"></path></svg>
         Solicitar Retiro
       </button>
+      <button class="action-btn btn-qr" onclick="showPackageQR('${pkg.id}')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="7" y="7" width="3" height="3"></rect><rect x="14" y="7" width="3" height="3"></rect><rect x="7" y="14" width="3" height="3"></rect><rect x="14" y="14" width="3" height="3"></rect></svg>
+        Ver Código QR
+      </button>
       <button class="action-btn btn-secondary" onclick="reportProblem('${pkg.id}')">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
         Reportar Problema
       </button>
     </div>
-    ` : ''}
+    ` : `
+    <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
+      <button class="action-btn btn-qr" onclick="showPackageQR('${pkg.id}')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="7" y="7" width="3" height="3"></rect><rect x="14" y="7" width="3" height="3"></rect><rect x="7" y="14" width="3" height="3"></rect><rect x="14" y="14" width="3" height="3"></rect></svg>
+        Ver Código QR
+      </button>
+    </div>
+    `}
   `;
 }
 
@@ -2057,7 +2272,10 @@ function logout() {
     localStorage.removeItem(key);
   });
   
-  window.location.href = 'login.html';
+  showToast('Cerrando sesión...', 'info');
+  setTimeout(() => {
+    window.location.href = 'login.html';
+  }, 1000);
 }
 
 // Función para procesar solicitud de retiro
@@ -2194,46 +2412,29 @@ function processSupportMessage(event) {
   const message = document.getElementById('support-message').value.trim();
 
   if (!category || !subject || !priority || !message) {
-    showToast('error', 'Por favor, completa todos los campos requeridos.');
+    showToast('Por favor, completa todos los campos requeridos.', 'error');
     return;
   }
 
-  // Generate a unique ID for the complaint
-  const complaintId = Date.now().toString(); // Simple unique ID based on timestamp
-
-  // Get resident details from currentResident object
-  const residentName = `${currentResident.name} ${currentResident.lastname}`;
-  const department = currentResident.department;
-
   const newComplaint = {
-    id: complaintId,
-    residentName: residentName,
-    department: department,
+    id: 'REC-' + Date.now(),
+    residentName: `${currentResident.name} ${currentResident.lastname}`,
+    department: currentResident.department,
     category: category,
     priority: priority,
     subject: subject,
     description: message,
-    status: 'pending', // Initial status
+    status: 'pending',
     date: new Date().toISOString(),
-    responses: [] // Initialize with no responses
+    responses: []
   };
 
-  // Retrieve existing complaints from local storage or initialize an empty array
-  let complaints = JSON.parse(localStorage.getItem('complaints')) || [];
-
-  // Add the new complaint
+  let complaints = JSON.parse(localStorage.getItem('complaints') || '[]');
   complaints.push(newComplaint);
-
-  // Save the updated complaints array to local storage
   localStorage.setItem('complaints', JSON.stringify(complaints));
 
-  showToast('success', 'Su mensaje de soporte ha sido enviado.');
-  document.getElementById('support-message').value = '';
-  document.getElementById('support-subject').value = ''; // Clear subject field
-  document.getElementById('support-category').value = ''; // Clear category field
-  document.getElementById('support-priority').value = ''; // Clear priority field
-
-  // Optionally, refresh the support history if it's displayed on the same page
+  showToast('Su mensaje de soporte ha sido enviado.');
+  document.getElementById('support-form').reset();
   loadSupportHistory();
 }
 
@@ -2247,11 +2448,8 @@ function loadSupportHistory() {
   const historyDiv = document.getElementById('support-history');
   
   try {
-    // Cambiar 'supportMessages' a 'complaints' para leer los reclamos guardados
     const allComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
-    // Filtrar los reclamos por el residentId del usuario actual
     const userComplaints = allComplaints.filter(complaint => {
-       
         return complaint.residentName === `${currentResident.name} ${currentResident.lastname}` && 
                complaint.department === currentResident.department;
     });
@@ -2266,7 +2464,6 @@ function loadSupportHistory() {
       return;
     }
     
-    // Ordenar por fecha más reciente (usando complaint.date)
     const sortedComplaints = userComplaints.sort((a, b) => new Date(b.date) - new Date(a.date));
     
     let historyHTML = '<div style="display: grid; gap: 15px;">';
@@ -2274,7 +2471,6 @@ function loadSupportHistory() {
     sortedComplaints.slice(0, 5).forEach(complaint => {
       const date = new Date(complaint.date);
       const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-      // El estado ahora viene del objeto complaint
       const statusClass = complaint.status === 'pending' ? 'status-pending' : complaint.status === 'resolved' ? 'status-delivered' : 'status-warning';
       
       historyHTML += `
@@ -2305,17 +2501,14 @@ function loadSupportHistory() {
 // Funciones de perfil de usuario
 function editProfile() {
   showToast('Función de editar perfil en desarrollo', 'info');
-  // Aquí se podría abrir un modal con formulario de edición
 }
 
 function changePassword() {
   showToast('Función de cambiar contraseña en desarrollo', 'info');
-  // Aquí se podría abrir un modal para cambiar contraseña
 }
 
 function viewSettings() {
   showToast('Función de configuración en desarrollo', 'info');
-  // Aquí se podrían mostrar configuraciones del usuario
 }
 
 // Funciones de contacto
@@ -2360,113 +2553,6 @@ document.addEventListener('click', function(event) {
     dropdown.classList.remove('show');
   }
 });
-
-// Inicializar aplicación cuando el documento está listo
-document.addEventListener('DOMContentLoaded', function() {
-  showLoading(true);
-  
-  try {
-    // Inicializar datos de prueba
-    initializeTestData();
-    
-    // Verificar autenticación
-    if (!validateAuthentication()) {
-      showLoading(false);
-      logout();
-      return;
-    }
-
-    // Cargar información del residente
-    if (!loadResidentInfo()) {
-      showLoading(false);
-      return;
-    }
-    
-    // Cargar paquetes del residente
-    loadResidentPackages();
-    
-    // Configurar event listeners
-    setupEventListeners();
-    
-    showLoading(false);
-    showToast('¡Bienvenido al panel de residente!');
-    
-  } catch (error) {
-    console.error('Error al inicializar la aplicación:', error);
-    showLoading(false);
-    showToast('Error al cargar la aplicación', 'error');
-    setTimeout(logout, 3000);
-
-     const supportForm = document.getElementById('support-form');
-    if (supportForm) {
-        supportForm.addEventListener('submit', handleSupportSubmit);
-    }
-  }
-});
- function handleSupportSubmit(event) {
-    event.preventDefault(); // Evita que la página se recargue
-
-    // Obtener los valores del formulario de soporte
-    const category = document.getElementById('support-category').value;
-    const priority = document.getElementById('support-priority').value;
-    const message = document.getElementById('support-message').value;
-    
-    // Obtener la información del residente actual
-    const currentResident = getCurrentResident();
-
-    if (!category || !priority || !message) {
-        showToast('error', 'Por favor, completa todos los campos requeridos.');
-        return;
-    }
-    
-    if (!currentResident) {
-        showToast('error', 'No se pudo identificar al residente. Por favor, inicia sesión de nuevo.');
-        return;
-    }
-
-    // Crear el objeto del reclamo
-    const newComplaint = {
-        id: 'REC-' + Date.now(), // ID único basado en la fecha y hora
-        residentName: `${currentResident.name} ${currentResident.lastname}`,
-        department: currentResident.department,
-        category: category,
-        subject: message.substring(0, 50) + '...', // Un asunto corto a partir del mensaje
-        description: message,
-        priority: priority,
-        status: 'pending', // Estado inicial siempre es 'pendiente'
-        date: new Date().toISOString(),
-        responses: [] // Historial de respuestas, inicialmente vacío
-    };
-
-    // Obtener los reclamos existentes de localStorage
-    let complaints = JSON.parse(localStorage.getItem('complaints')) || [];
-    
-    // Añadir el nuevo reclamo
-    complaints.push(newComplaint);
-    
-    // Guardar la lista actualizada en localStorage
-    localStorage.setItem('complaints', JSON.stringify(complaints));
-    
-    // Notificar al usuario y limpiar el formulario
-    showToast('success', 'Tu mensaje ha sido enviado correctamente.');
-    document.getElementById('support-form').reset();
-}
-
-
-// Función para mostrar notificaciones (toast) - Asegúrate de tenerla
-function showToast(type, message) {
-    const toast = document.getElementById('toast');
-    toast.textContent = message;
-    toast.className = 'toast show';
-    if (type === 'error') {
-        toast.style.backgroundColor = 'var(--danger)';
-    } else {
-        toast.style.backgroundColor = 'var(--success)';
-    }
-    setTimeout(() => {
-        toast.className = 'toast';
-    }, 3000);
-}
 
 // Función para configurar event listeners
 function setupEventListeners() {
@@ -2557,10 +2643,51 @@ function setupEventListeners() {
   document.getElementById('pickup-date').min = tomorrow.toISOString().split('T')[0];
 }
 
+// Inicializar aplicación cuando el documento está listo
+document.addEventListener('DOMContentLoaded', function() {
+  showLoading(true);
+  
+  try {
+    // Inicializar datos de prueba
+    initializeTestData();
+    
+    // Verificar autenticación
+    if (!validateAuthentication()) {
+      showLoading(false);
+      logout();
+      return;
+    }
+
+    // Cargar información del residente
+    if (!loadResidentInfo()) {
+      showLoading(false);
+      return;
+    }
+    
+    // Cargar paquetes del residente
+    loadResidentPackages();
+    
+    // Configurar event listeners
+    setupEventListeners();
+    
+    showLoading(false);
+    showToast('¡Bienvenido al panel de residente!');
+    
+  } catch (error) {
+    console.error('Error al inicializar la aplicación:', error);
+    showLoading(false);
+    showToast('Error al cargar la aplicación', 'error');
+    setTimeout(logout, 3000);
+  }
+});
+
 // Hacer funciones globales para botones inline
 window.viewPackageDetails = viewPackageDetails;
 window.requestPickup = requestPickup;
 window.reportProblem = reportProblem;
+window.showPackageQR = showPackageQR;
+window.downloadQR = downloadQR;
+window.shareQR = shareQR;
 window.switchTab = switchTab;
 window.logout = logout;
 window.closeModal = closeModal;
