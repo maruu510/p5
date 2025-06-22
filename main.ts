@@ -1,7 +1,8 @@
+import "https://deno.land/std@0.204.0/dotenv/load.ts";
 import { Application, Router, send } from "./deps.ts";
 import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
 import { oakCors } from "./deps.ts";
-import "https://deno.land/std@0.204.0/dotenv/load.ts";
+
 
 import { createPackagesTable } from "./src/database/models/package.ts";
 import { createUsersTable } from "./src/auth/models/user.ts";
